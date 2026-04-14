@@ -1,0 +1,1091 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+		028466AAFBB9484C86ED23B6 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/SmartQuickAddView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		0DB37F06763846C99CCF2E14 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/OnboardingView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		0E977BCE649A43B8B525B846 = {
+				fileRef = "3DBB98257AAE4FEB86762EA4";
+				isa = "PBXBuildFile";
+			};
+		0F02A1FABD994EEBBA9C546A = {
+				fileRef = "94530DF600EC4AEE8DEF49E8";
+				isa = "PBXBuildFile";
+			};
+		10037BDCC9CA4A7298AECA6D = {
+				buildSettings = {
+					ALWAYS_SEARCH_USER_PATHS = "NO";
+					CLANG_ANALYZER_NONNULL = "YES";
+					CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = "YES_AGGRESSIVE";
+					CLANG_CXX_LANGUAGE_DIALECT = "gnu++20";
+					CLANG_CXX_LIBRARY = "libc++";
+					CLANG_ENABLE_MODULES = "YES";
+					CLANG_ENABLE_OBJC_ARC = "YES";
+					CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = "YES";
+					CLANG_WARN_BOOL_CONVERSION = "YES";
+					CLANG_WARN_COMMA = "YES";
+					CLANG_WARN_CONSTANT_CONVERSION = "YES";
+					CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "YES";
+					CLANG_WARN_DIRECT_OBJC_ISA_USAGE = "YES_ERROR";
+					CLANG_WARN_DOCUMENTATION_COMMENTS = "YES";
+					CLANG_WARN_EMPTY_BODY = "YES";
+					CLANG_WARN_ENUM_CONVERSION = "YES";
+					CLANG_WARN_INFINITE_RECURSION = "YES";
+					CLANG_WARN_INT_CONVERSION = "YES";
+					CLANG_WARN_NON_LITERAL_NULL_CONVERSION = "YES";
+					CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "YES";
+					CLANG_WARN_OBJC_LITERAL_CONVERSION = "YES";
+					CLANG_WARN_OBJC_ROOT_CLASS = "YES_ERROR";
+					CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "YES";
+					CLANG_WARN_RANGE_LOOP_ANALYSIS = "YES";
+					CLANG_WARN_STRICT_PROTOTYPES = "YES";
+					CLANG_WARN_SUSPICIOUS_MOVE = "YES";
+					CLANG_WARN_SUSPICIOUS_MOVES = "YES";
+					CLANG_WARN_UNREACHABLE_CODE = "YES";
+					CLANG_WARN__DUPLICATE_METHOD_MATCH = "YES";
+					COPY_PHASE_STRIP = "NO";
+					DEBUG_INFORMATION_FORMAT = "dwarf";
+					ENABLE_STRICT_OBJC_MSGSEND = "YES";
+					ENABLE_TESTABILITY = "YES";
+					GCC_C_LANGUAGE_DIALECT = "gnu11";
+					GCC_DYNAMIC_NO_PIC = "NO";
+					GCC_NO_COMMON_BLOCKS = "YES";
+					GCC_OPTIMIZATION_LEVEL = "0";
+					GCC_WARN_64_TO_32_BIT_CONVERSION = "YES";
+					GCC_WARN_ABOUT_RETURN_TYPE = "YES_ERROR";
+					GCC_WARN_UNDECLARED_SELECTOR = "YES";
+					GCC_WARN_UNINITIALIZED_AUTOS = "YES_AGGRESSIVE";
+					GCC_WARN_UNUSED_FUNCTION = "YES";
+					GCC_WARN_UNUSED_VARIABLE = "YES";
+					IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+					MTL_ENABLE_DEBUG_INFO = "INCLUDE_SOURCE";
+					MTL_FAST_MATH = "YES";
+					ONLY_ACTIVE_ARCH = "YES";
+					SDKROOT = "iphoneos";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG";
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = "5.9";
+				};
+				isa = "XCBuildConfiguration";
+				name = "Debug";
+			};
+		1A91AD3A911340A8B7C97637 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/TemplatesView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		1B9C4531E27E444DA4D015C4 = {
+				buildConfigurations = (
+					"519BAE480EFB43B2972B8375",
+					"B14DE3975E1B4E3086EC1249",
+				);
+				defaultConfigurationIsVisible = 0;
+				defaultConfigurationName = "Release";
+				isa = "XCConfigurationList";
+			};
+		1BE0777F287945A89D5885D4 = {
+				fileRef = "BF0C3BF328794A559AC94B93";
+				isa = "PBXBuildFile";
+			};
+		1E3F7AF800614505BEA28018 = {
+				buildActionMask = 2147483647;
+				files = (
+					"E2BC81366F6643A59ACE2D4C",
+					"B0F59BA46EFC45A6B194BF81",
+					"B39E53E9CEAE438A82ECC33C",
+					"4035BE79E7CB4D2F809E5758",
+					"0E977BCE649A43B8B525B846",
+					"E2955A7F3574465CB8134621",
+					"6BD91B8E9B1343B1AB3C826C",
+					"64F8B0FD476C4EAE82F8B68E",
+					"C1CD1A641E2F4972BE578ADB",
+					"CEC541CB79774507B6C9545D",
+					"BE7866A916624023BFCF8E41",
+					"440B47545F4E46218273F929",
+					"FEFDF785EF7240FDBAA2B275",
+					"915E345E59014BB69B3EFA29",
+					"82696A9505EF4F819E536BCC",
+					"D38E0F38E9414227A05C0DF0",
+					"8EA0D10AC5384C1AAD1B37D2",
+					"0F02A1FABD994EEBBA9C546A",
+					"85C1DA8D4E3A4FADA7A8828B",
+					"F26538C03C994F41AAB321E5",
+					"78D3EE6D3F2A47CEBDCDB87D",
+					"6273BC6AB982468AAAB2DD43",
+					"E9A2E8BF2640420880B4FC39",
+					"FA9392E96FBE40A2B04A897C",
+					"2A55AA192C604785829DAFF0",
+					"B25EFE36D6E34A9D8375B527",
+					"B1CACAC1E19F4319B967B1AF",
+					"52DB5CA6E1A742BD93CA55CA",
+					"1BE0777F287945A89D5885D4",
+					"B8AA4DA89B744E389D1559FD",
+					"7F50E5E023AE4C1DACE4D263",
+					"CD99A490E6724E6EA9311A52",
+					"3399DF0B0385419B92DF62B2",
+					"2F4BFD813059499EB546A384",
+					"2C7E79D3D65E4C3A9A036BBF",
+					"F66A258A630B456DB61D3A9C",
+					"73EF78C8040844DCB5700B6D",
+					"D8816531E4524C59872AF46D",
+					"47509A9474DB4082AA5D16A3",
+					"4674E27FF1B241BEA38A3B32",
+					"DCEE3729C4B24D2C9B14904E",
+					"91AEBA287EB34C189E5D80A1",
+					"2F3159ACE3FD4AAB8DDF7457",
+				);
+				isa = "PBXSourcesBuildPhase";
+				runOnlyForDeploymentPostprocessing = 0;
+			};
+		25FF98E847DC4A30A469295D = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDFocusSession.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		2687AAC2D5DB4BD79E83953A = {
+				children = (
+					"E4AAF03D6EFB431C9E54CDC2",
+					"B3B8907E55C94E6AB7907177",
+					"CE9C5E8AACB8443DB615FF8F",
+					"E47D6B1E1E714BC4B3238793",
+					"61378A5AC76A4A52B118A4AB",
+					"F9A1A7C23B794C7E9F2E9D69",
+					"B019342CF941472B8768BD62",
+					"E6FE40D129C44DF4AF8FEA9F",
+					"94530DF600EC4AEE8DEF49E8",
+					"782CC075680047D0BD9BF120",
+					"2D5DEF07D0AD4AF0BFE21B98",
+				);
+				isa = "PBXGroup";
+				name = "Services";
+				sourceTree = "<group>";
+			};
+		2A55AA192C604785829DAFF0 = {
+				fileRef = "D718813CBE8144D4B7ED6AFE";
+				isa = "PBXBuildFile";
+			};
+		2BB30642B3324AE29D1BEFD2 = {
+				isa = "PBXTargetDependency";
+				target = "DCA3F9465A4041BFA6048345";
+				targetProxy = "B1420956F16748059F31177A";
+			};
+		2BDA37F5EA2D49968A116832 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Theme/FDColors.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		2C7E79D3D65E4C3A9A036BBF = {
+				fileRef = "D90EB248E7A149EDB779C8FF";
+				isa = "PBXBuildFile";
+			};
+		2D5DEF07D0AD4AF0BFE21B98 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/TaskService.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		2DC79B84376F4408A4D5F70E = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/TaskDetailSheet.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		2F3159ACE3FD4AAB8DDF7457 = {
+				fileRef = "75465198709444A094BE32F1";
+				isa = "PBXBuildFile";
+			};
+		2F4BFD813059499EB546A384 = {
+				fileRef = "CC4ACE0D1C9C45EC849F0752";
+				isa = "PBXBuildFile";
+			};
+		3399DF0B0385419B92DF62B2 = {
+				fileRef = "B7A99B7069AF41F08B0AB7B7";
+				isa = "PBXBuildFile";
+			};
+		3DBB98257AAE4FEB86762EA4 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDHabitLog.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		4035BE79E7CB4D2F809E5758 = {
+				fileRef = "C17D6A4B6BD24F0999601D96";
+				isa = "PBXBuildFile";
+			};
+		40E11F7CF86C40E38B7AF78D = {
+				buildActionMask = 2147483647;
+				files = (
+					"771727489CD84BE68D287E3F",
+				);
+				isa = "PBXResourcesBuildPhase";
+				runOnlyForDeploymentPostprocessing = 0;
+			};
+		440B47545F4E46218273F929 = {
+				fileRef = "CE9C5E8AACB8443DB615FF8F";
+				isa = "PBXBuildFile";
+			};
+		4674E27FF1B241BEA38A3B32 = {
+				fileRef = "2DC79B84376F4408A4D5F70E";
+				isa = "PBXBuildFile";
+			};
+		47509A9474DB4082AA5D16A3 = {
+				fileRef = "028466AAFBB9484C86ED23B6";
+				isa = "PBXBuildFile";
+			};
+		47798A7A9D8B45989C282ADE = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/LoginView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		4803C3495536412EB79375A8 = {
+				buildConfigurations = (
+					"10037BDCC9CA4A7298AECA6D",
+					"87C8855E485B4BA985DB0FE6",
+				);
+				defaultConfigurationIsVisible = 0;
+				defaultConfigurationName = "Release";
+				isa = "XCConfigurationList";
+			};
+		4DA37B4A2BCC4DFCB1B7C6B2 = {
+				buildConfigurations = (
+					"CE12F250B9204483BE4F85CC",
+					"585C31244453466FA4AB6AC7",
+				);
+				defaultConfigurationIsVisible = 0;
+				defaultConfigurationName = "Release";
+				isa = "XCConfigurationList";
+			};
+		519BAE480EFB43B2972B8375 = {
+				buildSettings = {
+					ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
+					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "AccentColor";
+					BUNDLE_ID = "com.flowday.app";
+					CLANG_ENABLE_OBJC_ARC = "YES";
+					CODE_SIGN_ENTITLEMENTS = "FlowDay/FlowDay.entitlements";
+					CODE_SIGN_IDENTITY = "iPhone Developer";
+					COPY_PHASE_STRIP = "NO";
+					CURRENT_PROJECT_VERSION = "1";
+					DEBUG_INFORMATION_FORMAT = "dwarf";
+					GCC_DYNAMIC_NO_PIC = "NO";
+					GCC_NO_COMMON_BLOCKS = "YES";
+					GCC_OPTIMIZATION_LEVEL = "0";
+					GCC_PREPROCESSOR_DEFINITIONS = (
+						"DEBUG=1",
+						"$(inherited)",
+					);
+					GCC_SYMBOLS_PRIVATE_EXTERN = "NO";
+					GCC_WARN_64_TO_32_BIT_CONVERSION = "YES";
+					GCC_WARN_ABOUT_RETURN_TYPE = "YES_ERROR";
+					GCC_WARN_UNDECLARED_SELECTOR = "YES";
+					GCC_WARN_UNINITIALIZED_AUTOS = "YES_AGGRESSIVE";
+					GCC_WARN_UNUSED_FUNCTION = "YES";
+					GCC_WARN_UNUSED_VARIABLE = "YES";
+					GENERATE_INFOPLIST_FILE = "YES";
+					INFOPLIST_KEY_CFBundleDisplayName = "FlowDay";
+					INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "FlowDay needs access to your calendar to help you schedule tasks.";
+					INFOPLIST_KEY_NSMicrophoneUsageDescription = "FlowDay uses your microphone for voice commands and task capture.";
+					INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "FlowDay uses speech recognition to help you capture tasks by voice.";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = "YES";
+					INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = "YES";
+					INFOPLIST_KEY_UILaunchScreen_Generation = "YES";
+					INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait";
+					IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+					MARKETING_VERSION = "1.0";
+					MTL_ENABLE_DEBUG_INFO = "INCLUDE_SOURCE";
+					MTL_FAST_MATH = "YES";
+					ONLY_ACTIVE_ARCH = "YES";
+					PRODUCT_BUNDLE_IDENTIFIER = "com.flowday.app";
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					PROVISIONING_PROFILE_SPECIFIER = "";
+					SDKROOT = "iphoneos";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG";
+					SWIFT_EMIT_LOC_STRINGS = "YES";
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = "5.9";
+					TARGETED_DEVICE_FAMILY = "1";
+				};
+				isa = "XCBuildConfiguration";
+				name = "Debug";
+			};
+		52DB5CA6E1A742BD93CA55CA = {
+				fileRef = "AD40161572F7496E9C6484AC";
+				isa = "PBXBuildFile";
+			};
+		52FD45595E274F84B449B6D9 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/SearchView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		53C9798529BE4D7EA87414B8 = {
+				children = (
+					"57439B261CB54E7082EB6B89",
+					"2687AAC2D5DB4BD79E83953A",
+					"6932DC6D839145EA8764D53A",
+					"D4A6E27B19AA4097A0989F67",
+					"E5E84D20C5924977989D47B8",
+					"DE08AEE147D64427B99179D9",
+					"712B6A52EE2E4A9AAE2D5E58",
+				);
+				isa = "PBXGroup";
+				name = "FlowDay";
+				sourceTree = "<group>";
+			};
+		5599C745DDF245C4A55AEDA9 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/SettingsSubViews.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		57439B261CB54E7082EB6B89 = {
+				children = (
+					"662B6867F529411F9389FF50",
+					"25FF98E847DC4A30A469295D",
+					"C17D6A4B6BD24F0999601D96",
+					"3DBB98257AAE4FEB86762EA4",
+					"F1979278C6384DB1B2E7C610",
+					"B3B20E5D7B7E4DED8A00FBB0",
+					"9757AA1938544CDDB27AD4E9",
+					"D2BE9A9788D2429D8A5F54F1",
+				);
+				isa = "PBXGroup";
+				name = "Models";
+				sourceTree = "<group>";
+			};
+		585C31244453466FA4AB6AC7 = {
+				buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CLANG_ENABLE_OBJC_ARC = "YES";
+					CODE_SIGN_IDENTITY = "iPhone Developer";
+					COPY_PHASE_STRIP = "YES";
+					CURRENT_PROJECT_VERSION = "1";
+					DEBUG_INFORMATION_FORMAT = "dwarf";
+					GCC_DYNAMIC_NO_PIC = "NO";
+					GCC_NO_COMMON_BLOCKS = "YES";
+					GCC_OPTIMIZATION_LEVEL = "0";
+					GCC_PREPROCESSOR_DEFINITIONS = (
+						"DEBUG=1",
+						"$(inherited)",
+					);
+					GCC_SYMBOLS_PRIVATE_EXTERN = "NO";
+					GCC_WARN_64_TO_32_BIT_CONVERSION = "YES";
+					GCC_WARN_ABOUT_RETURN_TYPE = "YES_ERROR";
+					GCC_WARN_UNDECLARED_SELECTOR = "YES";
+					GCC_WARN_UNINITIALIZED_AUTOS = "YES_AGGRESSIVE";
+					GCC_WARN_UNUSED_FUNCTION = "YES";
+					GCC_WARN_UNUSED_VARIABLE = "YES";
+					IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+					MARKETING_VERSION = "1.0";
+					MTL_ENABLE_DEBUG_INFO = "INCLUDE_SOURCE";
+					MTL_FAST_MATH = "YES";
+					ONLY_ACTIVE_ARCH = "YES";
+					PRODUCT_BUNDLE_IDENTIFIER = "com.flowday.app.tests";
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SDKROOT = "iphoneos";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG";
+					SWIFT_EMIT_LOC_STRINGS = "YES";
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = "5.9";
+					TARGETED_DEVICE_FAMILY = "1";
+					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowDay.app/FlowDay";
+				};
+				isa = "XCBuildConfiguration";
+				name = "Release";
+			};
+		5AE8AC5E8B654A0E8417D669 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Theme/FDTypography.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		61378A5AC76A4A52B118A4AB = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/CalendarService.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		6273BC6AB982468AAAB2DD43 = {
+				fileRef = "5AE8AC5E8B654A0E8417D669";
+				isa = "PBXBuildFile";
+			};
+		64F8B0FD476C4EAE82F8B68E = {
+				fileRef = "9757AA1938544CDDB27AD4E9";
+				isa = "PBXBuildFile";
+			};
+		662B6867F529411F9389FF50 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDEnergyLog.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		6932DC6D839145EA8764D53A = {
+				children = (
+					"2BDA37F5EA2D49968A116832",
+					"5AE8AC5E8B654A0E8417D669",
+				);
+				isa = "PBXGroup";
+				name = "Theme";
+				sourceTree = "<group>";
+			};
+		6BD91B8E9B1343B1AB3C826C = {
+				fileRef = "B3B20E5D7B7E4DED8A00FBB0";
+				isa = "PBXBuildFile";
+			};
+		6E38DE954BC7473C80780F01 = {
+				isa = "XCSwiftPackageProductDependency";
+				package = "94804008886E4906B3603A70";
+				productName = "GoogleSignIn";
+			};
+		7040A9D6DCA24E629FBA1E92 = {
+				buildActionMask = 2147483647;
+				files = ();
+				isa = "PBXFrameworksBuildPhase";
+				runOnlyForDeploymentPostprocessing = 0;
+			};
+		712B6A52EE2E4A9AAE2D5E58 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "text.xml";
+				path = "FlowDay/FlowDay.entitlements";
+				sourceTree = "SOURCE_ROOT";
+			};
+		73EF78C8040844DCB5700B6D = {
+				fileRef = "5599C745DDF245C4A55AEDA9";
+				isa = "PBXBuildFile";
+			};
+		75465198709444A094BE32F1 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/UpcomingView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		76C0F4B6DD4E43BD88C6AA32 = {
+				fileRef = "BEC1C2DD82104A95AF9DA9B6";
+				isa = "PBXBuildFile";
+			};
+		76DEE6904D8E4660A6F45B7B = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/EnergyCheckInView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		771727489CD84BE68D287E3F = {
+				fileRef = "DE08AEE147D64427B99179D9";
+				isa = "PBXBuildFile";
+			};
+		782CC075680047D0BD9BF120 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/SubscriptionManager.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		78D3EE6D3F2A47CEBDCDB87D = {
+				fileRef = "2BDA37F5EA2D49968A116832";
+				isa = "PBXBuildFile";
+			};
+		796301032BBD4535B703460B = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/AIPlanView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		7F50E5E023AE4C1DACE4D263 = {
+				fileRef = "47798A7A9D8B45989C282ADE";
+				isa = "PBXBuildFile";
+			};
+		7F6EF525A384419DB22EA7F4 = {
+				children = (
+					"E2FC684EFCAD4E5F844C27A1",
+					"B66EE3640DBD4BBD97FC09E9",
+				);
+				isa = "PBXGroup";
+				name = "Products";
+				sourceTree = "<group>";
+			};
+		82696A9505EF4F819E536BCC = {
+				fileRef = "F9A1A7C23B794C7E9F2E9D69";
+				isa = "PBXBuildFile";
+			};
+		828C651A97204316B2DD6133 = {
+				children = (
+					"53C9798529BE4D7EA87414B8",
+					"926D31AA915D453FA9953E88",
+					"7F6EF525A384419DB22EA7F4",
+				);
+				isa = "PBXGroup";
+				sourceTree = "<group>";
+			};
+		85C1DA8D4E3A4FADA7A8828B = {
+				fileRef = "782CC075680047D0BD9BF120";
+				isa = "PBXBuildFile";
+			};
+		87C8855E485B4BA985DB0FE6 = {
+				buildSettings = {
+					ALWAYS_SEARCH_USER_PATHS = "NO";
+					CLANG_ANALYZER_NONNULL = "YES";
+					CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = "YES_AGGRESSIVE";
+					CLANG_CXX_LANGUAGE_DIALECT = "gnu++20";
+					CLANG_CXX_LIBRARY = "libc++";
+					CLANG_ENABLE_MODULES = "YES";
+					CLANG_ENABLE_OBJC_ARC = "YES";
+					CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = "YES";
+					CLANG_WARN_BOOL_CONVERSION = "YES";
+					CLANG_WARN_COMMA = "YES";
+					CLANG_WARN_CONSTANT_CONVERSION = "YES";
+					CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "YES";
+					CLANG_WARN_DIRECT_OBJC_ISA_USAGE = "YES_ERROR";
+					CLANG_WARN_DOCUMENTATION_COMMENTS = "YES";
+					CLANG_WARN_EMPTY_BODY = "YES";
+					CLANG_WARN_ENUM_CONVERSION = "YES";
+					CLANG_WARN_INFINITE_RECURSION = "YES";
+					CLANG_WARN_INT_CONVERSION = "YES";
+					CLANG_WARN_NON_LITERAL_NULL_CONVERSION = "YES";
+					CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "YES";
+					CLANG_WARN_OBJC_LITERAL_CONVERSION = "YES";
+					CLANG_WARN_OBJC_ROOT_CLASS = "YES_ERROR";
+					CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "YES";
+					CLANG_WARN_RANGE_LOOP_ANALYSIS = "YES";
+					CLANG_WARN_STRICT_PROTOTYPES = "YES";
+					CLANG_WARN_SUSPICIOUS_MOVE = "YES";
+					CLANG_WARN_SUSPICIOUS_MOVES = "YES";
+					CLANG_WARN_UNREACHABLE_CODE = "YES";
+					CLANG_WARN__DUPLICATE_METHOD_MATCH = "YES";
+					COPY_PHASE_STRIP = "YES";
+					DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+					ENABLE_STRICT_OBJC_MSGSEND = "YES";
+					GCC_C_LANGUAGE_DIALECT = "gnu11";
+					GCC_DYNAMIC_NO_PIC = "NO";
+					GCC_NO_COMMON_BLOCKS = "YES";
+					GCC_OPTIMIZATION_LEVEL = "fast";
+					GCC_WARN_64_TO_32_BIT_CONVERSION = "YES";
+					GCC_WARN_ABOUT_RETURN_TYPE = "YES_ERROR";
+					GCC_WARN_UNDECLARED_SELECTOR = "YES";
+					GCC_WARN_UNINITIALIZED_AUTOS = "YES_AGGRESSIVE";
+					GCC_WARN_UNUSED_FUNCTION = "YES";
+					GCC_WARN_UNUSED_VARIABLE = "YES";
+					IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+					MTL_ENABLE_DEBUG_INFO = "NO";
+					MTL_FAST_MATH = "YES";
+					SDKROOT = "iphoneos";
+					SWIFT_COMPILATION_MODE = "wholemodule";
+					SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+					SWIFT_VERSION = "5.9";
+				};
+				isa = "XCBuildConfiguration";
+				name = "Release";
+			};
+		89A3C35500D0410191611CE1 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDayTests/FlowDayTests.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		8EA0D10AC5384C1AAD1B37D2 = {
+				fileRef = "E6FE40D129C44DF4AF8FEA9F";
+				isa = "PBXBuildFile";
+			};
+		915E345E59014BB69B3EFA29 = {
+				fileRef = "61378A5AC76A4A52B118A4AB";
+				isa = "PBXBuildFile";
+			};
+		91AEBA287EB34C189E5D80A1 = {
+				fileRef = "920B9AE9E8064397BA627773";
+				isa = "PBXBuildFile";
+			};
+		920B9AE9E8064397BA627773 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/TodayView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		926D31AA915D453FA9953E88 = {
+				children = (
+					"89A3C35500D0410191611CE1",
+				);
+				isa = "PBXGroup";
+				name = "FlowDayTests";
+				sourceTree = "<group>";
+			};
+		94530DF600EC4AEE8DEF49E8 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/SpeechRecognizer.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		94804008886E4906B3603A70 = {
+				isa = "XCRemoteSwiftPackageReference";
+				repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+				requirement = {
+					kind = "upToNextMajorVersion";
+					minimumVersion = "8.0.0";
+				};
+			};
+		9757AA1938544CDDB27AD4E9 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDTask.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		A6465F1F71B040BEB32B377C = {
+				buildConfigurationList = "4DA37B4A2BCC4DFCB1B7C6B2";
+				buildPhases = (
+					"CE8CE43587C64DB98D02B67C",
+					"7040A9D6DCA24E629FBA1E92",
+				);
+				buildRules = ();
+				dependencies = (
+					"2BB30642B3324AE29D1BEFD2",
+				);
+				isa = "PBXNativeTarget";
+				name = "FlowDayTests";
+				productName = "FlowDayTests";
+				productReference = "B66EE3640DBD4BBD97FC09E9";
+				productType = "com.apple.product-type.bundle.unit-test";
+			};
+		A6BE6A43FB8749F2A9F86F66 = {
+				attributes = {
+					BuildIndependentTargetsInParallel = 1;
+					LastSwiftUpdateCheck = "1540";
+					LastUpgradeCheck = "1540";
+				};
+				buildConfigurationList = "4803C3495536412EB79375A8";
+				compatibilityVersion = "Xcode 14.0";
+				developmentRegion = "en";
+				hasScannedForEncodings = 0;
+				isa = "PBXProject";
+				knownRegions = (
+					"en",
+					"Base",
+				);
+				mainGroup = "828C651A97204316B2DD6133";
+				packageReferences = (
+					"94804008886E4906B3603A70",
+				);
+				productRefGroup = "7F6EF525A384419DB22EA7F4";
+				projectDirPath = "";
+				projectRoot = "";
+				targets = (
+					"DCA3F9465A4041BFA6048345",
+					"A6465F1F71B040BEB32B377C",
+				);
+			};
+		A8B01550E5DE473C82B91795 = {
+				fileRef = "712B6A52EE2E4A9AAE2D5E58";
+				isa = "PBXBuildFile";
+			};
+		AD40161572F7496E9C6484AC = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/FiltersLabelsView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		B019342CF941472B8768BD62 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/LLMService.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		B0F59BA46EFC45A6B194BF81 = {
+				fileRef = "662B6867F529411F9389FF50";
+				isa = "PBXBuildFile";
+			};
+		B1420956F16748059F31177A = {
+				containerPortal = "A6BE6A43FB8749F2A9F86F66";
+				isa = "PBXContainerItemProxy";
+				proxyType = 1;
+				remoteGlobalIDString = "DCA3F9465A4041BFA6048345";
+				remoteInfo = "FlowDay";
+			};
+		B14DE3975E1B4E3086EC1249 = {
+				buildSettings = {
+					ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
+					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "AccentColor";
+					BUNDLE_ID = "com.flowday.app";
+					CLANG_ENABLE_OBJC_ARC = "YES";
+					CODE_SIGN_ENTITLEMENTS = "FlowDay/FlowDay.entitlements";
+					CODE_SIGN_IDENTITY = "iPhone Developer";
+					COPY_PHASE_STRIP = "YES";
+					CURRENT_PROJECT_VERSION = "1";
+					DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+					ENABLE_NS_ASSERTIONS = "NO";
+					GCC_DYNAMIC_NO_PIC = "NO";
+					GCC_NO_COMMON_BLOCKS = "YES";
+					GCC_OPTIMIZATION_LEVEL = "fast";
+					GCC_PREPROCESSOR_DEFINITIONS = (
+						"DEBUG=1",
+						"$(inherited)",
+					);
+					GCC_SYMBOLS_PRIVATE_EXTERN = "NO";
+					GCC_WARN_64_TO_32_BIT_CONVERSION = "YES";
+					GCC_WARN_ABOUT_RETURN_TYPE = "YES_ERROR";
+					GCC_WARN_UNDECLARED_SELECTOR = "YES";
+					GCC_WARN_UNINITIALIZED_AUTOS = "YES_AGGRESSIVE";
+					GCC_WARN_UNUSED_FUNCTION = "YES";
+					GCC_WARN_UNUSED_VARIABLE = "YES";
+					GENERATE_INFOPLIST_FILE = "YES";
+					INFOPLIST_KEY_CFBundleDisplayName = "FlowDay";
+					INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "FlowDay needs access to your calendar to help you schedule tasks.";
+					INFOPLIST_KEY_NSMicrophoneUsageDescription = "FlowDay uses your microphone for voice commands and task capture.";
+					INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "FlowDay uses speech recognition to help you capture tasks by voice.";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = "YES";
+					INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = "YES";
+					INFOPLIST_KEY_UILaunchScreen_Generation = "YES";
+					INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait";
+					IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+					MARKETING_VERSION = "1.0";
+					MTL_ENABLE_DEBUG_INFO = "INCLUDE_SOURCE";
+					MTL_FAST_MATH = "YES";
+					ONLY_ACTIVE_ARCH = "YES";
+					PRODUCT_BUNDLE_IDENTIFIER = "com.flowday.app";
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					PROVISIONING_PROFILE_SPECIFIER = "";
+					SDKROOT = "iphoneos";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG";
+					SWIFT_EMIT_LOC_STRINGS = "YES";
+					SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+					SWIFT_VERSION = "5.9";
+					TARGETED_DEVICE_FAMILY = "1";
+				};
+				isa = "XCBuildConfiguration";
+				name = "Release";
+			};
+		B1CACAC1E19F4319B967B1AF = {
+				fileRef = "76DEE6904D8E4660A6F45B7B";
+				isa = "PBXBuildFile";
+			};
+		B25EFE36D6E34A9D8375B527 = {
+				fileRef = "D95F03310ED54088B336F059";
+				isa = "PBXBuildFile";
+			};
+		B39E53E9CEAE438A82ECC33C = {
+				fileRef = "25FF98E847DC4A30A469295D";
+				isa = "PBXBuildFile";
+			};
+		B3B20E5D7B7E4DED8A00FBB0 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDSubtask.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		B3B8907E55C94E6AB7907177 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/AIPlanner.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		B66EE3640DBD4BBD97FC09E9 = {
+				explicitFileType = "wrapper.cfbundle";
+				includeInIndex = 0;
+				isa = "PBXFileReference";
+				path = "FlowDayTests.xctest";
+				sourceTree = "BUILT_PRODUCTS_DIR";
+			};
+		B7A99B7069AF41F08B0AB7B7 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/ProjectDetailView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		B8AA4DA89B744E389D1559FD = {
+				fileRef = "E364AB937EA847BD96A5F913";
+				isa = "PBXBuildFile";
+			};
+		BD79FCBF5B974C1B9490DCAB = {
+				fileRef = "89A3C35500D0410191611CE1";
+				isa = "PBXBuildFile";
+			};
+		BE7866A916624023BFCF8E41 = {
+				fileRef = "B3B8907E55C94E6AB7907177";
+				isa = "PBXBuildFile";
+			};
+		BEC1C2DD82104A95AF9DA9B6 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "wrapper.framework";
+				name = "GoogleSignIn.framework";
+				sourceTree = "BUILT_PRODUCTS_DIR";
+			};
+		BF0C3BF328794A559AC94B93 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/HabitsView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		C17D6A4B6BD24F0999601D96 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDHabit.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		C1CD1A641E2F4972BE578ADB = {
+				fileRef = "D2BE9A9788D2429D8A5F54F1";
+				isa = "PBXBuildFile";
+			};
+		CC4ACE0D1C9C45EC849F0752 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/ProjectSidebarView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		CD99A490E6724E6EA9311A52 = {
+				fileRef = "0DB37F06763846C99CCF2E14";
+				isa = "PBXBuildFile";
+			};
+		CE12F250B9204483BE4F85CC = {
+				buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CLANG_ENABLE_OBJC_ARC = "YES";
+					CODE_SIGN_IDENTITY = "iPhone Developer";
+					COPY_PHASE_STRIP = "NO";
+					CURRENT_PROJECT_VERSION = "1";
+					DEBUG_INFORMATION_FORMAT = "dwarf";
+					GCC_DYNAMIC_NO_PIC = "NO";
+					GCC_NO_COMMON_BLOCKS = "YES";
+					GCC_OPTIMIZATION_LEVEL = "0";
+					GCC_PREPROCESSOR_DEFINITIONS = (
+						"DEBUG=1",
+						"$(inherited)",
+					);
+					GCC_SYMBOLS_PRIVATE_EXTERN = "NO";
+					GCC_WARN_64_TO_32_BIT_CONVERSION = "YES";
+					GCC_WARN_ABOUT_RETURN_TYPE = "YES_ERROR";
+					GCC_WARN_UNDECLARED_SELECTOR = "YES";
+					GCC_WARN_UNINITIALIZED_AUTOS = "YES_AGGRESSIVE";
+					GCC_WARN_UNUSED_FUNCTION = "YES";
+					GCC_WARN_UNUSED_VARIABLE = "YES";
+					IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+					MARKETING_VERSION = "1.0";
+					MTL_ENABLE_DEBUG_INFO = "INCLUDE_SOURCE";
+					MTL_FAST_MATH = "YES";
+					ONLY_ACTIVE_ARCH = "YES";
+					PRODUCT_BUNDLE_IDENTIFIER = "com.flowday.app.tests";
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SDKROOT = "iphoneos";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG";
+					SWIFT_EMIT_LOC_STRINGS = "YES";
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = "5.9";
+					TARGETED_DEVICE_FAMILY = "1";
+					TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowDay.app/FlowDay";
+				};
+				isa = "XCBuildConfiguration";
+				name = "Debug";
+			};
+		CE8CE43587C64DB98D02B67C = {
+				buildActionMask = 2147483647;
+				files = (
+					"BD79FCBF5B974C1B9490DCAB",
+				);
+				isa = "PBXSourcesBuildPhase";
+				runOnlyForDeploymentPostprocessing = 0;
+			};
+		CE9C5E8AACB8443DB615FF8F = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/APIClient.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		CEC541CB79774507B6C9545D = {
+				fileRef = "E4AAF03D6EFB431C9E54CDC2";
+				isa = "PBXBuildFile";
+			};
+		D2BE9A9788D2429D8A5F54F1 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/TimelineItem.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		D38E0F38E9414227A05C0DF0 = {
+				fileRef = "B019342CF941472B8768BD62";
+				isa = "PBXBuildFile";
+			};
+		D4A6E27B19AA4097A0989F67 = {
+				children = (
+					"F209D488EC584DF7B82C0D08",
+					"796301032BBD4535B703460B",
+					"D718813CBE8144D4B7ED6AFE",
+					"D95F03310ED54088B336F059",
+					"76DEE6904D8E4660A6F45B7B",
+					"AD40161572F7496E9C6484AC",
+					"BF0C3BF328794A559AC94B93",
+					"E364AB937EA847BD96A5F913",
+					"47798A7A9D8B45989C282ADE",
+					"0DB37F06763846C99CCF2E14",
+					"B7A99B7069AF41F08B0AB7B7",
+					"CC4ACE0D1C9C45EC849F0752",
+					"D90EB248E7A149EDB779C8FF",
+					"52FD45595E274F84B449B6D9",
+					"5599C745DDF245C4A55AEDA9",
+					"E6C2487D77BE4FD2836F9714",
+					"028466AAFBB9484C86ED23B6",
+					"2DC79B84376F4408A4D5F70E",
+					"1A91AD3A911340A8B7C97637",
+					"920B9AE9E8064397BA627773",
+					"75465198709444A094BE32F1",
+				);
+				isa = "PBXGroup";
+				name = "Views";
+				sourceTree = "<group>";
+			};
+		D718813CBE8144D4B7ED6AFE = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/BrowseView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		D8816531E4524C59872AF46D = {
+				fileRef = "E6C2487D77BE4FD2836F9714";
+				isa = "PBXBuildFile";
+			};
+		D90EB248E7A149EDB779C8FF = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/RootView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		D95F03310ED54088B336F059 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/DisplaySettingsView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		DCA3F9465A4041BFA6048345 = {
+				buildConfigurationList = "1B9C4531E27E444DA4D015C4";
+				buildPhases = (
+					"1E3F7AF800614505BEA28018",
+					"F21101A109AF457CB0E685D2",
+					"40E11F7CF86C40E38B7AF78D",
+				);
+				buildRules = ();
+				dependencies = ();
+				isa = "PBXNativeTarget";
+				name = "FlowDay";
+				productName = "FlowDay";
+				productReference = "E2FC684EFCAD4E5F844C27A1";
+				productType = "com.apple.product-type.application";
+			};
+		DCEE3729C4B24D2C9B14904E = {
+				fileRef = "1A91AD3A911340A8B7C97637";
+				isa = "PBXBuildFile";
+			};
+		DE08AEE147D64427B99179D9 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "text.xml";
+				path = "FlowDay/PrivacyInfo.xcprivacy";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E2955A7F3574465CB8134621 = {
+				fileRef = "F1979278C6384DB1B2E7C610";
+				isa = "PBXBuildFile";
+			};
+		E2BC81366F6643A59ACE2D4C = {
+				fileRef = "E5E84D20C5924977989D47B8";
+				isa = "PBXBuildFile";
+			};
+		E2FC684EFCAD4E5F844C27A1 = {
+				explicitFileType = "wrapper.application";
+				includeInIndex = 0;
+				isa = "PBXFileReference";
+				path = "FlowDay.app";
+				sourceTree = "BUILT_PRODUCTS_DIR";
+			};
+		E364AB937EA847BD96A5F913 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/InboxView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E47D6B1E1E714BC4B3238793 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/AuthManager.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E4AAF03D6EFB431C9E54CDC2 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/AIFeatureService.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E5E84D20C5924977989D47B8 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/FlowDayApp.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E6C2487D77BE4FD2836F9714 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/SettingsView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E6FE40D129C44DF4AF8FEA9F = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/NaturalLanguageParser.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		E9A2E8BF2640420880B4FC39 = {
+				fileRef = "F209D488EC584DF7B82C0D08";
+				isa = "PBXBuildFile";
+			};
+		F1979278C6384DB1B2E7C610 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Models/FDProject.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		F209D488EC584DF7B82C0D08 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Views/AIAssistantView.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		F21101A109AF457CB0E685D2 = {
+				buildActionMask = 2147483647;
+				files = (
+					"76C0F4B6DD4E43BD88C6AA32",
+				);
+				isa = "PBXFrameworksBuildPhase";
+				runOnlyForDeploymentPostprocessing = 0;
+			};
+		F26538C03C994F41AAB321E5 = {
+				fileRef = "2D5DEF07D0AD4AF0BFE21B98";
+				isa = "PBXBuildFile";
+			};
+		F66A258A630B456DB61D3A9C = {
+				fileRef = "52FD45595E274F84B449B6D9";
+				isa = "PBXBuildFile";
+			};
+		F9A1A7C23B794C7E9F2E9D69 = {
+				isa = "PBXFileReference";
+				lastKnownFileType = "sourcecode.swift";
+				path = "FlowDay/Services/KeychainHelper.swift";
+				sourceTree = "SOURCE_ROOT";
+			};
+		FA9392E96FBE40A2B04A897C = {
+				fileRef = "796301032BBD4535B703460B";
+				isa = "PBXBuildFile";
+			};
+		FEFDF785EF7240FDBAA2B275 = {
+				fileRef = "E47D6B1E1E714BC4B3238793";
+				isa = "PBXBuildFile";
+			};
+	};
+	rootObject = A6BE6A43FB8749F2A9F86F66 /* Project object */;
+}

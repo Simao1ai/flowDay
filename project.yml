@@ -1,0 +1,51 @@
+name: FlowDay
+options:
+  bundleIdPrefix: com.flowday
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: "8.0.0"
+
+targets:
+  FlowDay:
+    type: application
+    platform: iOS
+    sources:
+      - path: FlowDay
+    dependencies:
+      - package: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.flowday.app
+        INFOPLIST_VALUES: >-
+          {
+            "CFBundleDisplayName": "FlowDay",
+            "CFBundleName": "FlowDay",
+            "CFBundleShortVersionString": "1.0.0",
+            "CFBundleVersion": "1",
+            "UILaunchScreen": {},
+            "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
+            "NSCalendarsFullAccessUsageDescription": "FlowDay shows your calendar events alongside tasks in one daily timeline.",
+            "NSSpeechRecognitionUsageDescription": "FlowDay uses voice recognition to capture tasks hands-free.",
+            "NSMicrophoneUsageDescription": "FlowDay uses your microphone for voice task capture."
+          }
+    entitlements:
+      path: FlowDay/FlowDay.entitlements
+
+  FlowDayTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: FlowDayTests
+    dependencies:
+      - target: FlowDay

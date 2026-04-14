@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Google Sign-In URL Scheme -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>Google Sign-In</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
+
+	<!-- Google Sign-In Client ID (backup for SDK auto-detection) -->
+	<key>GIDClientID</key>
+	<string>777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com</string>
+
+	<!-- Privacy Usage Descriptions -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>FlowDay needs access to your calendar to show your events and find free time slots for task scheduling.</string>
+
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>FlowDay needs full access to your calendar to show events, find free time, and create events for scheduled tasks.</string>
+
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>FlowDay uses speech recognition for voice task input so you can add tasks hands-free.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>FlowDay needs microphone access for voice-to-task input.</string>
+</dict>
+</plist>
