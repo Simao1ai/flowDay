@@ -15,6 +15,9 @@ packages:
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS
     from: "8.0.0"
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.0.0"
 
 targets:
   FlowDay:
@@ -24,6 +27,7 @@ targets:
       - path: FlowDay
     dependencies:
       - package: GoogleSignIn
+      - package: Supabase
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.flowday.app
@@ -41,6 +45,11 @@ targets:
           }
     entitlements:
       path: FlowDay/FlowDay.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.flowday.app
+        com.apple.developer.icloud-services:
+          - CloudKit
 
   FlowDayTests:
     type: bundle.unit-test

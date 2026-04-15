@@ -15,7 +15,8 @@ build/
 
 # CocoaPods
 Pods/
-*.xcworkspace
+# Ignore only the root-level CocoaPods workspace, not the one inside .xcodeproj
+/*.xcworkspace
 
 # Carthage
 Carthage/Build/
@@ -23,7 +24,8 @@ Carthage/Build/
 # Swift Package Manager
 .swiftpm/
 .build/
-*.resolved
+# Package.resolved is intentionally committed — pins exact versions for
+# reproducible Xcode Cloud builds. Do not re-add *.resolved here.
 
 # macOS
 .DS_Store
