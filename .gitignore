@@ -44,3 +44,6 @@ fastlane/test_output
 # Env / secrets
 *.env
 .env.*
+
+# Supabase secrets — copy Config.example.swift → Config.swift and fill in real values
+FlowDay/Config.swift
