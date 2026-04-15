@@ -446,7 +446,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.flowday.app;
+				PRODUCT_BUNDLE_IDENTIFIER = io.flowday.app;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -461,7 +461,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.flowday.FlowDayTests;
+				PRODUCT_BUNDLE_IDENTIFIER = io.flowday.FlowDayTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowDay.app/FlowDay";
@@ -598,7 +598,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.flowday.FlowDayTests;
+				PRODUCT_BUNDLE_IDENTIFIER = io.flowday.FlowDayTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowDay.app/FlowDay";
@@ -617,7 +617,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.flowday.app;
+				PRODUCT_BUNDLE_IDENTIFIER = io.flowday.app;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

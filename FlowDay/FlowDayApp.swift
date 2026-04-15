@@ -36,7 +36,7 @@ struct FlowDayApp: App {
 
         // CloudKit-enabled configuration for cross-device sync
         // To use CloudKit, ensure "iCloud" capability is enabled in Xcode
-        // with a CloudKit container like "iCloud.com.flowday.app"
+        // with a CloudKit container like "iCloud.io.flowday.app"
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,

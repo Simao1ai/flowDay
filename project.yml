@@ -1,6 +1,6 @@
 name: FlowDay
 options:
-  bundleIdPrefix: com.flowday
+  bundleIdPrefix: io.flowday
   deploymentTarget:
     iOS: "17.0"
   xcodeVersion: "16.0"
@@ -30,7 +30,7 @@ targets:
       - package: Supabase
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.flowday.app
+        PRODUCT_BUNDLE_IDENTIFIER: io.flowday.app
         INFOPLIST_VALUES: >-
           {
             "CFBundleDisplayName": "FlowDay",
@@ -47,7 +47,7 @@ targets:
       path: FlowDay/FlowDay.entitlements
       properties:
         com.apple.developer.icloud-container-identifiers:
-          - iCloud.com.flowday.app
+          - iCloud.io.flowday.app
         com.apple.developer.icloud-services:
           - CloudKit
 

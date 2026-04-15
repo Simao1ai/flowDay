@@ -53,7 +53,7 @@ final class AuthManager: NSObject {
 
     // MARK: - Private
 
-    private let logger = Logger(subsystem: "com.flowday.auth", category: "AuthManager")
+    private let logger = Logger(subsystem: "io.flowday.auth", category: "AuthManager")
 
     // MARK: - Init
 

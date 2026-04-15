@@ -7,7 +7,7 @@ import Security
 class KeychainHelper {
     static let shared = KeychainHelper()
 
-    private let service = "com.flowday.app"
+    private let service = "io.flowday.app"
 
     private init() {}
 

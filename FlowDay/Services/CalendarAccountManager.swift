@@ -79,7 +79,7 @@ final class CalendarAccountManager {
     // Add "Calendars.Read" permission under Microsoft Graph
     private let microsoftClientId = "YOUR_MICROSOFT_CLIENT_ID"
     private let microsoftTenantId = "common"
-    private let microsoftRedirectScheme = "msauth.com.flowday.app"
+    private let microsoftRedirectScheme = "msauth.io.flowday.app"
     private let microsoftCalendarScope = "Calendars.Read"
 
     init() {
