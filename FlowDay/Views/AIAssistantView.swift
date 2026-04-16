@@ -255,11 +255,11 @@ class AIAssistantService {
             return AIMessage(
                 content: "I parsed your task:\n\n\(details)\n\nShould I add it?",
                 isUser: false,
-                pendingTask: suggestion,
                 suggestions: [
                     AISuggestion(text: "Add it", icon: "checkmark.circle.fill", action: .confirmTask),
                     AISuggestion(text: "Change something", icon: "pencil", action: .createTask(title: suggestion.title))
-                ]
+                ],
+                pendingTask: suggestion
             )
         } catch {
             return AIMessage(

@@ -9,6 +9,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
 final class FDTask {
@@ -114,6 +115,15 @@ enum TaskPriority: Int, Codable, CaseIterable, Comparable {
         case .high:   "fdYellow"
         case .medium: "fdBlue"
         case .none:   "fdGray"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .urgent: return .fdRed
+        case .high:   return .fdYellow
+        case .medium: return .fdBlue
+        case .none:   return .fdTextMuted
         }
     }
 }

@@ -290,11 +290,6 @@ final class SupabaseService {
     ) async {
         guard let userId = await currentUserId() else { return }
 
-        let anyCodableTasks = tasks.mapValues { dict -> [[String: AnyCodable]] in
-            []  // replaced below
-        }
-        _ = anyCodableTasks  // silence unused
-
         // Convert tasks to [[String: AnyCodable]]
         let encodableTasks: [[String: AnyCodable]] = tasks.map { dict in
             dict.reduce(into: [String: AnyCodable]()) { acc, kv in

@@ -221,7 +221,7 @@ final class AuthManager: NSObject {
                 id: UUID(),
                 name: result.user.profile?.name ?? "Google User",
                 email: email,
-                avatarURL: result.user.profile?.imageURL?.absoluteString,
+                avatarURL: result.user.profile?.imageURL(withDimension: 96)?.absoluteString,
                 provider: .google
             )
             isAuthenticated = true

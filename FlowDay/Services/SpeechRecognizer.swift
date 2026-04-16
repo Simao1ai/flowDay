@@ -53,13 +53,12 @@ class SpeechRecognizer {
         }
 
         // Request microphone permission
-        do {
-            try await AVAudioApplication.shared.requestRecordPermission()
-            return true
-        } catch {
-            self.errorMessage = "Microphone permission denied: \(error.localizedDescription)"
+        let micGranted = await AVAudioApplication.requestRecordPermission()
+        guard micGranted else {
+            self.errorMessage = "Microphone permission denied"
             return false
         }
+        return true
     }
 
     // MARK: - Recognition
@@ -174,7 +173,13 @@ class SpeechRecognizer {
     }
 
     deinit {
-        stopListening()
+        // Cannot call @MainActor stopListening() from deinit; do teardown inline.
+        if audioEngine.isRunning {
+            audioEngine.stop()
+            audioEngine.inputNode.removeTap(onBus: 0)
+        }
+        recognitionRequest?.endAudio()
+        recognitionTask?.cancel()
     }
 }
 

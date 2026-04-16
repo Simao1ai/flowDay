@@ -48,13 +48,13 @@ enum HabitFrequency: Codable {
 
     var displayText: String {
         switch self {
-        case .daily: "Every day"
-        case .weekdays: "Weekdays"
-        case .weekends: "Weekends"
+        case .daily: return "Every day"
+        case .weekdays: return "Weekdays"
+        case .weekends: return "Weekends"
         case .specificDays(let days):
             let names = ["", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
             return days.map { names[$0] }.joined(separator: ", ")
-        case .timesPerWeek(let n): "\(n)x per week"
+        case .timesPerWeek(let n): return "\(n)x per week"
         }
     }
 }
