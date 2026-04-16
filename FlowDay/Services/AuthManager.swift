@@ -41,7 +41,11 @@ struct FDUser: Codable, Identifiable {
 
 // MARK: - AuthManager
 
-@Observable
+// @MainActor ensures all @Observable property mutations happen on the main thread,
+// which is required by SwiftUI's observation system. Without this, mutations from
+// async continuations running on background threads cause undefined behaviour / crashes.
+// GIDSignIn v8.0.0 also requires the presenting call to originate on the main thread.
+@Observable @MainActor
 final class AuthManager: NSObject {
 
     // MARK: - State
@@ -68,24 +72,21 @@ final class AuthManager: NSObject {
     /// the SDK silently refreshes it in the background if it has expired.
     func restoreSession() {
         isLoading = true
+        // Task inherits @MainActor from the enclosing class, so all mutations below
+        // are guaranteed to run on the main thread — no MainActor.run wrappers needed.
         Task {
             defer { isLoading = false }
             do {
                 let session = try await SupabaseService.shared.client.auth.session
-                await MainActor.run {
-                    currentUser = fdUser(from: session.user)
-                    isAuthenticated = true
-                }
+                currentUser = fdUser(from: session.user)
+                isAuthenticated = true
                 logger.info("Session restored for \(session.user.email ?? "unknown")")
             } catch {
                 // No persisted session — user needs to sign in
-                await MainActor.run {
-                    isAuthenticated = false
-                    currentUser = nil
-                }
+                isAuthenticated = false
+                currentUser = nil
                 logger.debug("No persisted Supabase session: \(error.localizedDescription)")
             }
-            await MainActor.run { isLoading = false }
         }
     }
 
