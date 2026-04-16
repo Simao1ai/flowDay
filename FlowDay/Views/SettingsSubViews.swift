@@ -1645,218 +1645,86 @@ private func proUpsellBanner(icon: String, title: String, message: String) -> so
 
 // MARK: - AI Settings
 
+/// AI is now powered by FlowDay's own servers via a Supabase Edge Function.
+/// Users no longer need to supply or manage their own API keys.
 struct AISettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var openAIKey: String = LLMService.shared.openAIKey
-    @State private var anthropicKey: String = LLMService.shared.anthropicKey
-    @State private var geminiKey: String = LLMService.shared.geminiKey
-    @State private var primaryProvider: LLMProvider = LLMService.shared.primaryProvider
-    @State private var testingConnection = false
-    @State private var openAIStatus: Bool?
-    @State private var anthropicStatus: Bool?
-    @State private var geminiStatus: Bool?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Provider selection
-                    sectionHeader("Primary Provider")
-
-                    settingsGroup {
-                        Menu {
-                            Picker("", selection: $primaryProvider) {
-                                Text("Google Gemini (Free)").tag(LLMProvider.gemini)
-                                Text("OpenAI (GPT-4o)").tag(LLMProvider.openAI)
-                                Text("Anthropic (Claude Sonnet)").tag(LLMProvider.anthropic)
-                            }
-                        } label: {
-                            HStack {
-                                Text("Select Provider")
-                                    .font(.fdBody)
-                                    .foregroundStyle(Color.fdText)
-                                Spacer()
-                                Text(primaryProvider == .gemini ? "Gemini" : primaryProvider == .openAI ? "OpenAI" : "Anthropic")
-                                    .font(.fdCaption)
-                                    .foregroundStyle(Color.fdTextMuted)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(Color.fdTextMuted)
-                            }
+                    // Hero
+                    VStack(spacing: 12) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.fdAccent, Color.fdPurple],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 64, height: 64)
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 28, weight: .semibold))
+                                .foregroundStyle(.white)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
+
+                        Text("FlowDay AI")
+                            .font(.fdTitle2)
+                            .foregroundStyle(Color.fdText)
+
+                        Text("Powered by Claude (Anthropic)")
+                            .font(.fdCaption)
+                            .foregroundStyle(Color.fdTextMuted)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
 
-                    // Google Gemini API Key (Free)
-                    sectionHeader("Google Gemini (Free)")
-
+                    // Status card
                     settingsGroup {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("API Key")
-                                .font(.fdCaptionBold)
-                                .foregroundStyle(Color.fdTextMuted)
-                            SecureField("AIza...", text: $geminiKey)
-                                .font(.fdBody)
-                                .foregroundStyle(Color.fdText)
-                                .padding(.vertical, 4)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-
-                        Divider().padding(.leading, 16)
-
-                        HStack(spacing: 12) {
-                            Text("Connection Status")
-                                .font(.fdBody)
-                                .foregroundStyle(Color.fdText)
-                            Spacer()
-                            if let status = geminiStatus {
-                                HStack(spacing: 6) {
-                                    Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(status ? Color.fdGreen : Color.fdRed)
-                                    Text(status ? "Connected" : "Failed")
-                                        .font(.fdCaption)
-                                        .foregroundStyle(status ? Color.fdGreen : Color.fdRed)
-                                }
-                            } else {
-                                Text("Untested")
-                                    .font(.fdCaption)
-                                    .foregroundStyle(Color.fdTextMuted)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                    }
-
-                    // OpenAI API Key
-                    sectionHeader("OpenAI")
-
-                    settingsGroup {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("API Key")
-                                .font(.fdCaptionBold)
-                                .foregroundStyle(Color.fdTextMuted)
-                            SecureField("sk-...", text: $openAIKey)
-                                .font(.fdBody)
-                                .foregroundStyle(Color.fdText)
-                                .padding(.vertical, 4)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-
-                        Divider().padding(.leading, 16)
-
-                        HStack(spacing: 12) {
-                            Text("Connection Status")
-                                .font(.fdBody)
-                                .foregroundStyle(Color.fdText)
-                            Spacer()
-                            if let status = openAIStatus {
-                                HStack(spacing: 6) {
-                                    Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(status ? Color.fdGreen : Color.fdRed)
-                                    Text(status ? "Connected" : "Failed")
-                                        .font(.fdCaption)
-                                        .foregroundStyle(status ? Color.fdGreen : Color.fdRed)
-                                }
-                            } else {
-                                Text("Untested")
-                                    .font(.fdCaption)
-                                    .foregroundStyle(Color.fdTextMuted)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                    }
-
-                    // Anthropic API Key
-                    sectionHeader("Anthropic")
-
-                    settingsGroup {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("API Key")
-                                .font(.fdCaptionBold)
-                                .foregroundStyle(Color.fdTextMuted)
-                            SecureField("sk-ant-...", text: $anthropicKey)
-                                .font(.fdBody)
-                                .foregroundStyle(Color.fdText)
-                                .padding(.vertical, 4)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-
-                        Divider().padding(.leading, 16)
-
-                        HStack(spacing: 12) {
-                            Text("Connection Status")
-                                .font(.fdBody)
-                                .foregroundStyle(Color.fdText)
-                            Spacer()
-                            if let status = anthropicStatus {
-                                HStack(spacing: 6) {
-                                    Image(systemName: status ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(status ? Color.fdGreen : Color.fdRed)
-                                    Text(status ? "Connected" : "Failed")
-                                        .font(.fdCaption)
-                                        .foregroundStyle(status ? Color.fdGreen : Color.fdRed)
-                                }
-                            } else {
-                                Text("Untested")
-                                    .font(.fdCaption)
-                                    .foregroundStyle(Color.fdTextMuted)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                    }
-
-                    // Test Connection Button
-                    Button(action: testConnections) {
-                        if testingConnection {
-                            HStack(spacing: 8) {
-                                ProgressView()
-                                    .tint(Color.fdText)
-                                Text("Testing...")
+                        HStack(spacing: 14) {
+                            Image(systemName: "checkmark.shield.fill")
+                                .font(.system(size: 22))
+                                .foregroundStyle(Color.fdGreen)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("AI is ready")
                                     .font(.fdBodySemibold)
                                     .foregroundStyle(Color.fdText)
+                                Text("No API keys needed — AI runs on FlowDay's servers")
+                                    .font(.fdMicro)
+                                    .foregroundStyle(Color.fdTextMuted)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.fdAccentLight)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        } else {
-                            Text("Test Connection")
-                                .font(.fdBodySemibold)
-                                .foregroundStyle(Color.fdText)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color.fdAccentLight)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            Spacer()
+                        }
+                        .padding(16)
+                    }
+
+                    // What's included
+                    sectionHeader("What's included")
+
+                    settingsGroup {
+                        VStack(spacing: 0) {
+                            featureRow(icon: "calendar.badge.clock", title: "Smart Day Planning",
+                                       description: "AI builds your schedule around your energy level")
+                            Divider().padding(.leading, 52)
+                            featureRow(icon: "text.badge.plus", title: "Natural Language Tasks",
+                                       description: "Add tasks in plain English — AI fills in the details")
+                            Divider().padding(.leading, 52)
+                            featureRow(icon: "list.bullet.indent", title: "Goal Breakdown",
+                                       description: "Turn a big goal into actionable subtasks")
+                            Divider().padding(.leading, 52)
+                            featureRow(icon: "wand.and.stars", title: "AI Template Generator",
+                                       description: "Describe a project and get a ready-to-use template")
                         }
                     }
-                    .disabled(testingConnection || (openAIKey.isEmpty && anthropicKey.isEmpty && geminiKey.isEmpty))
 
-                    // Info card about API keys
                     infoCard(
-                        icon: "info.circle",
-                        title: "Where to get API Keys",
-                        message: "Gemini (Free): ai.google.dev/aistudio\nOpenAI: platform.openai.com/api-keys\nAnthropic: console.anthropic.com/account/keys"
+                        icon: "lock.shield",
+                        title: "Your data is private",
+                        message: "AI requests are authenticated with your FlowDay account. Your tasks and prompts are never used to train AI models."
                     )
-
-                    // Save Button
-                    Button(action: saveSettings) {
-                        Text("Save Settings")
-                            .font(.fdBodySemibold)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.fdAccent)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -1871,32 +1739,24 @@ struct AISettingsView: View {
         }
     }
 
-    private func testConnections() {
-        testingConnection = true
-
-        // Save keys before testing so LLMService uses the latest values
-        LLMService.shared.openAIKey = openAIKey
-        LLMService.shared.anthropicKey = anthropicKey
-        LLMService.shared.geminiKey = geminiKey
-        LLMService.shared.primaryProvider = primaryProvider
-
-        Task {
-            let results = await LLMService.shared.testConnection()
-
-            await MainActor.run {
-                openAIStatus = results.openAI
-                anthropicStatus = results.anthropic
-                geminiStatus = results.gemini
-                testingConnection = false
+    private func featureRow(icon: String, title: String, description: String) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundStyle(Color.fdAccent)
+                .frame(width: 24)
+                .padding(.leading, 14)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.fdBodySemibold)
+                    .foregroundStyle(Color.fdText)
+                Text(description)
+                    .font(.fdMicro)
+                    .foregroundStyle(Color.fdTextMuted)
             }
+            Spacer()
         }
-    }
-
-    private func saveSettings() {
-        LLMService.shared.openAIKey = openAIKey
-        LLMService.shared.anthropicKey = anthropicKey
-        LLMService.shared.geminiKey = geminiKey
-        LLMService.shared.primaryProvider = primaryProvider
-        dismiss()
+        .padding(.vertical, 12)
+        .padding(.trailing, 14)
     }
 }

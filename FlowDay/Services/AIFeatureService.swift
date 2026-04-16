@@ -5,6 +5,10 @@
 // 1. Smart Daily Planning — optimizes task scheduling based on energy levels
 // 2. Natural Language Task Creation — parses free text into structured tasks
 // 3. AI Task Breakdown — decomposes high-level goals into actionable subtasks
+//
+// All LLM calls go through ClaudeClient → Supabase Edge Function → Anthropic.
+// The Anthropic API key lives server-side as a Supabase secret.
+// The server applies prompt caching on each feature's stable system prompt.
 
 import Foundation
 import Observation
@@ -60,8 +64,6 @@ final class AIFeatureService {
     var isProcessing: Bool = false
     var lastError: String?
 
-    private let llmService = LLMService.shared
-
     private init() {}
 
     // MARK: - Feature 1: Smart Daily Planning
@@ -115,12 +117,10 @@ final class AIFeatureService {
         }
         """
 
-        let systemPrompt = "You are FlowDay's AI scheduling assistant. Create an optimized daily plan that matches task difficulty to the user's energy levels. High energy = complex tasks. Low energy = routine tasks. Return only valid JSON."
-
         do {
-            let response = try await llmService.chat(
+            let response = try await ClaudeClient.shared.chat(
+                feature: .flowAI,
                 messages: [LLMMessage(role: .user, content: userMessage)],
-                systemPrompt: systemPrompt,
                 temperature: 0.5,
                 maxTokens: 2048
             )
@@ -163,12 +163,10 @@ final class AIFeatureService {
         Only include dates if explicitly mentioned or clearly implied.
         """
 
-        let systemPrompt = "Extract task details from natural language. Return only valid JSON with the specified fields. Be concise and practical."
-
         do {
-            let response = try await llmService.chat(
+            let response = try await ClaudeClient.shared.chat(
+                feature: .flowAI,
                 messages: [LLMMessage(role: .user, content: userMessage)],
-                systemPrompt: systemPrompt,
                 temperature: 0.3,
                 maxTokens: 512
             )
@@ -216,12 +214,10 @@ final class AIFeatureService {
         Be realistic with time estimates.
         """
 
-        let systemPrompt = "Break this goal into 5-7 actionable subtasks. For each subtask, suggest a priority (1-4) and time estimate in minutes. Return only valid JSON."
-
         do {
-            let response = try await llmService.chat(
+            let response = try await ClaudeClient.shared.chat(
+                feature: .flowAI,
                 messages: [LLMMessage(role: .user, content: userMessage)],
-                systemPrompt: systemPrompt,
                 temperature: 0.7,
                 maxTokens: 2048
             )

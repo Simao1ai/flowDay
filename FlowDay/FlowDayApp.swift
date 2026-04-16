@@ -1,14 +1,15 @@
 // FlowDayApp.swift
 // FlowDay — AI Daily Planner & Tasks
-// Updated: Wires onboarding, real auth, dark mode, Keychain migration, and CloudKit sync.
 //
 // INTEGRATION NOTES:
-// 1. Replace the original FlowDayApp.swift with this file
-// 2. Remove .preferredColorScheme(.light) — dark mode is now supported
-// 3. Add GoogleSignIn SPM package: https://github.com/google/GoogleSignIn-iOS
+// 1. Add GoogleSignIn SPM package: https://github.com/google/GoogleSignIn-iOS
+// 2. Add Supabase Swift SDK via SPM: https://github.com/supabase/supabase-swift
+// 3. Copy FlowDay/Config.example.swift → FlowDay/Config.swift and fill in credentials
 // 4. Enable "Sign in with Apple" capability in Xcode
 // 5. Enable CloudKit in Xcode → Signing & Capabilities → iCloud → check CloudKit
-// 6. Add to Info.plist: NSCalendarsUsageDescription, NSSpeechRecognitionUsageDescription, NSMicrophoneUsageDescription
+// 6. Add to Info.plist: NSCalendarsUsageDescription, NSSpeechRecognitionUsageDescription,
+//    NSMicrophoneUsageDescription
+// 7. See SETUP.md for full Supabase + Edge Function setup
 
 import SwiftUI
 import SwiftData
@@ -35,7 +36,7 @@ struct FlowDayApp: App {
 
         // CloudKit-enabled configuration for cross-device sync
         // To use CloudKit, ensure "iCloud" capability is enabled in Xcode
-        // with a CloudKit container like "iCloud.com.flowday.app"
+        // with a CloudKit container like "iCloud.io.flowday.app"
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -78,16 +79,26 @@ struct FlowDayApp: App {
                 .tint(Color.fdAccent)
                 // NO .preferredColorScheme(.light) — dark mode is now supported!
                 .onAppear {
-                    // Restore auth session from Keychain on launch
+                    // Restore Supabase auth session (reads persisted JWT from Keychain)
                     authManager.restoreSession()
-
-                    // Migrate LLM API keys from UserDefaults to Keychain (one-time)
-                    LLMService.shared.migrateKeysFromUserDefaults()
 
                     // Configure Google Sign-In with the OAuth Client ID
                     GIDSignIn.sharedInstance.configuration = GIDConfiguration(
                         clientID: "777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com"
                     )
+
+                    // Push any local data to Supabase once the session is ready.
+                    // Runs async so it never blocks the UI.
+                    if let container = sharedModelContainer {
+                        Task {
+                            // Small delay to let the auth session finish restoring
+                            try? await Task.sleep(nanoseconds: 1_500_000_000)
+                            let context = ModelContext(container)
+                            let tasks = (try? context.fetch(FetchDescriptor<FDTask>())) ?? []
+                            let projects = (try? context.fetch(FetchDescriptor<FDProject>())) ?? []
+                            await SupabaseService.shared.syncAll(tasks: tasks, projects: projects)
+                        }
+                    }
                 }
                 .onOpenURL { url in
                     // Handle Google Sign-In callback

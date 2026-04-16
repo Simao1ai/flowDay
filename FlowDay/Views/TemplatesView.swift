@@ -15,6 +15,8 @@ struct TemplatesView: View {
     @State private var selectedTab: TemplateTab = .featured
     @State private var searchText = ""
     @State private var aiPrompt = ""
+    @State private var isGeneratingTemplate = false
+    @State private var generationError: String?
 
     var body: some View {
         NavigationStack {
@@ -494,21 +496,42 @@ struct TemplatesView: View {
                     }
                 }
 
-                Button {
-                    // Trigger AI generation
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "wand.and.stars")
-                        Text("Generate Template")
-                    }
-                    .font(.fdBodySemibold)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.fdAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                if let error = generationError {
+                    Text(error)
+                        .font(.fdCaption)
+                        .foregroundStyle(Color.fdRed)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 4)
                 }
-                .disabled(aiPrompt.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                Button {
+                    Task { await generateAITemplate() }
+                } label: {
+                    if isGeneratingTemplate {
+                        HStack(spacing: 8) {
+                            ProgressView().tint(.white)
+                            Text("Generating…")
+                        }
+                        .font(.fdBodySemibold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.fdAccent.opacity(0.7))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else {
+                        HStack(spacing: 8) {
+                            Image(systemName: "wand.and.stars")
+                            Text("Generate Template")
+                        }
+                        .font(.fdBodySemibold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.fdAccent)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+                .disabled(aiPrompt.trimmingCharacters(in: .whitespaces).isEmpty || isGeneratingTemplate)
             }
 
             // Recently Generated
@@ -659,6 +682,138 @@ struct TemplatesView: View {
 
     @State private var appliedTemplateName: String?
     @State private var showTemplateApplied = false
+
+    // MARK: - AI Template Generation
+
+    /// JSON shape returned by the Edge Function for the templateGenerator feature.
+    private struct AITemplateResponse: Decodable {
+        let name: String
+        let description: String
+        let icon: String
+        let colorHex: String
+        let tasks: [AITemplateTask]
+    }
+
+    private struct AITemplateTask: Decodable {
+        let title: String
+        let priority: Int
+        let estimatedMinutes: Int
+        let notes: String?
+    }
+
+    @MainActor
+    private func generateAITemplate() async {
+        let prompt = aiPrompt.trimmingCharacters(in: .whitespaces)
+        guard !prompt.isEmpty else { return }
+
+        isGeneratingTemplate = true
+        generationError = nil
+
+        defer { isGeneratingTemplate = false }
+
+        let userMessage = """
+        Create a task template for this project:
+        "\(prompt)"
+
+        Return ONLY a JSON object — no markdown, no prose.
+        """
+
+        do {
+            let raw = try await ClaudeClient.shared.chat(
+                feature: .templateGenerator,
+                messages: [LLMMessage(role: .user, content: userMessage)],
+                temperature: 0.8,
+                maxTokens: 2048
+            )
+
+            // Strip markdown code fences if present
+            let cleaned = extractJSON(from: raw)
+
+            guard let data = cleaned.data(using: .utf8),
+                  let aiTemplate = try? JSONDecoder().decode(AITemplateResponse.self, from: data) else {
+                generationError = "Couldn't parse the AI response. Try again."
+                return
+            }
+
+            // Create FDProject
+            let project = FDProject(
+                name: aiTemplate.name,
+                colorHex: aiTemplate.colorHex,
+                iconName: aiTemplate.icon
+            )
+            modelContext.insert(project)
+
+            // Create FDTask for each AI-suggested task
+            for (index, aiTask) in aiTemplate.tasks.enumerated() {
+                let priority: TaskPriority
+                switch aiTask.priority {
+                case 1: priority = .urgent
+                case 2: priority = .high
+                case 3: priority = .medium
+                default: priority = .none
+                }
+
+                let task = FDTask(
+                    title: aiTask.title,
+                    notes: aiTask.notes ?? "",
+                    estimatedMinutes: aiTask.estimatedMinutes,
+                    priority: priority,
+                    project: project
+                )
+                task.sortOrder = index
+                modelContext.insert(task)
+
+                // Sync to Supabase (fire-and-forget)
+                Task { await SupabaseService.shared.syncTask(task) }
+            }
+
+            try? modelContext.save()
+
+            // Persist the template to Supabase for "Recently Generated" history
+            let tasksForSupabase = aiTemplate.tasks.map { t -> [String: Any] in
+                ["title": t.title, "priority": t.priority, "estimatedMinutes": t.estimatedMinutes]
+            }
+            Task {
+                await SupabaseService.shared.saveTemplate(
+                    name: aiTemplate.name,
+                    description: aiTemplate.description,
+                    icon: aiTemplate.icon,
+                    colorHex: aiTemplate.colorHex,
+                    prompt: prompt,
+                    tasks: tasksForSupabase
+                )
+                await SupabaseService.shared.syncProject(project)
+            }
+
+            appliedTemplateName = aiTemplate.name
+            showTemplateApplied = true
+            aiPrompt = ""
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                dismiss()
+            }
+
+        } catch let err as ClaudeClientError {
+            generationError = err.localizedDescription
+        } catch {
+            generationError = "AI generation failed. Check your connection and try again."
+        }
+    }
+
+    /// Extract the JSON object from a string that may contain markdown code fences.
+    private func extractJSON(from text: String) -> String {
+        var s = text
+        if let start = s.range(of: "```json") {
+            s.removeSubrange(...start.lowerBound)
+            if let end = s.range(of: "```") { s.removeSubrange(end.lowerBound...) }
+        } else if let start = s.range(of: "```") {
+            s.removeSubrange(...start.lowerBound)
+            if let end = s.range(of: "```") { s.removeSubrange(end.lowerBound...) }
+        }
+        guard let jsonStart = s.firstIndex(of: "{"),
+              let jsonEnd = s.lastIndex(of: "}") else { return s }
+        return String(s[jsonStart...jsonEnd])
+    }
 
     // MARK: - Apply Template
 

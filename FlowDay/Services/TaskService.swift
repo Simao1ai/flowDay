@@ -4,6 +4,9 @@
 // The service layer for all task operations. Views talk to this,
 // not directly to SwiftData. This keeps the views thin and makes
 // testing + undo trivial.
+//
+// Supabase sync: every mutating operation fires an async sync to Supabase
+// after the local SwiftData save. Local-first — the sync never blocks the UI.
 
 import Foundation
 import SwiftData
@@ -59,6 +62,7 @@ final class TaskService {
         )
         modelContext.insert(task)
         save()
+        Task { await SupabaseService.shared.syncTask(task) }
         return task
     }
 
@@ -79,18 +83,24 @@ final class TaskService {
 
     // MARK: - Complete
 
-    func toggleComplete(_ task: FDTask) {
+    func toggleComplete(_ task: FDTask, energyLevel: EnergyLevel? = nil) {
         if task.isCompleted {
             task.uncomplete()
+            save()
+            Task { await SupabaseService.shared.syncTask(task) }
         } else {
             task.complete()
             pushUndo(.completedTask(task))
+            save()
+            Task {
+                await SupabaseService.shared.syncTask(task)
+                await SupabaseService.shared.recordCompletion(task: task, energyLevel: energyLevel)
+            }
             // If recurring, create the next occurrence
             if task.recurrenceRule != nil {
                 createNextOccurrence(for: task)
             }
         }
-        save()
     }
 
     func toggleSubtaskComplete(_ subtask: FDSubtask) {
@@ -109,11 +119,13 @@ final class TaskService {
         task.softDelete()
         pushUndo(.deletedTask(task))
         save()
+        Task { await SupabaseService.shared.syncTask(task) }
     }
 
     func restoreTask(_ task: FDTask) {
         task.restore()
         save()
+        Task { await SupabaseService.shared.syncTask(task) }
     }
 
     // MARK: - Update
@@ -132,12 +144,14 @@ final class TaskService {
         if let project { task.project = project }
         task.modifiedAt = .now
         save()
+        Task { await SupabaseService.shared.syncTask(task) }
     }
 
     func rescheduleTask(_ task: FDTask, to time: Date) {
         task.scheduledTime = time
         task.modifiedAt = .now
         save()
+        Task { await SupabaseService.shared.syncTask(task) }
     }
 
     // MARK: - Queries

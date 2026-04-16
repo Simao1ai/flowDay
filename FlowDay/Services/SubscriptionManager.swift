@@ -44,8 +44,8 @@ final class SubscriptionManager {
     static let shared = SubscriptionManager()
 
     // Product IDs
-    static let monthlyProductID = "com.flowday.pro.monthly"
-    static let yearlyProductID = "com.flowday.pro.yearly"
+    static let monthlyProductID = "io.flowday.pro.monthly"
+    static let yearlyProductID = "io.flowday.pro.yearly"
 
     // State
     var status: SubscriptionStatus = .free
