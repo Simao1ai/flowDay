@@ -23,6 +23,14 @@ struct FlowDayApp: App {
     @State private var calendarAccountManager = CalendarAccountManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
+    init() {
+        // Configure Google Sign-In at launch so the client ID is available before
+        // any view appears, preventing a nil-configuration SIGABRT on first tap.
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(
+            clientID: "777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com"
+        )
+    }
+
     var sharedModelContainer: ModelContainer? = {
         let schema = Schema([
             FDTask.self,
@@ -76,11 +84,6 @@ struct FlowDayApp: App {
                 .onAppear {
                     // Restore Supabase auth session (reads persisted JWT from Keychain)
                     authManager.restoreSession()
-
-                    // Configure Google Sign-In with the OAuth Client ID
-                    GIDSignIn.sharedInstance.configuration = GIDConfiguration(
-                        clientID: "777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com"
-                    )
 
                     // Push any local data to Supabase once the session is ready.
                     // Runs async so it never blocks the UI.

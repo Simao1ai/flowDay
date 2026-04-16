@@ -87,7 +87,7 @@ struct GoogleSignInButtonRepresentable: UIViewRepresentable {
         Coordinator(action: action)
     }
 
-    class Coordinator {
+    class Coordinator: NSObject {
         let action: () -> Void
 
         init(action: @escaping () -> Void) {
