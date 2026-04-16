@@ -350,14 +350,3 @@ final class SupabaseService {
     }
 }
 
-// MARK: - EnergyLevel rawValue support
-
-extension EnergyLevel {
-    var rawValue: String {
-        switch self {
-        case .high:   return "high"
-        case .normal: return "normal"
-        case .low:    return "low"
-        }
-    }
-}

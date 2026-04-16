@@ -227,7 +227,7 @@ struct SmartQuickAddView: View {
                         Text(manualPriority?.label ?? "Priority")
                             .font(.fdMicro)
                     }
-                    .foregroundStyle(manualPriority != nil ? manualPriority!.color : Color.fdTextSecondary)
+                    .foregroundStyle(manualPriority?.color ?? Color.fdTextSecondary)
                 }
 
                 quickActionButton(icon: "number", label: "Project") {

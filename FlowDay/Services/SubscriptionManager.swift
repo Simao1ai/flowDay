@@ -39,7 +39,7 @@ enum ProFeature: String, CaseIterable {
 
 // MARK: - SubscriptionManager
 
-@Observable
+@Observable @MainActor
 final class SubscriptionManager {
     static let shared = SubscriptionManager()
 
@@ -59,7 +59,9 @@ final class SubscriptionManager {
     private var dailyUsage: [String: Int] = [:]
     private var lastUsageResetDate: Date?
 
-    private var transactionListener: Task<Void, Error>?
+    // nonisolated(unsafe) allows deinit (which is always nonisolated) to cancel
+    // the background transaction-listener task without a main-actor hop.
+    nonisolated(unsafe) private var transactionListener: Task<Void, Error>?
 
     private init() {
         loadDailyUsage()

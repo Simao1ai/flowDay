@@ -57,7 +57,7 @@ struct BreakdownItem: Codable {
 
 // MARK: - AIFeatureService
 
-@Observable
+@Observable @MainActor
 final class AIFeatureService {
     static let shared = AIFeatureService()
 
