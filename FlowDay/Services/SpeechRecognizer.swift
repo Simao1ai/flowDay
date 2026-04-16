@@ -11,7 +11,7 @@ import Speech
 import AVFoundation
 import Observation
 
-@Observable
+@Observable @MainActor
 class SpeechRecognizer {
     var transcribedText: String = ""
     var isListening: Bool = false
@@ -127,19 +127,21 @@ class SpeechRecognizer {
         }
 
         // Start recognition task
+        // The SFSpeechRecognizer callback arrives on a background thread, so all
+        // @MainActor-isolated mutations are dispatched back to the main actor.
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
-            var isFinal = false
+            let text = result?.bestTranscription.formattedString
+            let isFinal = result?.isFinal ?? false
+            let errorMsg = error?.localizedDescription
 
-            if let result = result {
-                self?.transcribedText = result.bestTranscription.formattedString
-                isFinal = result.isFinal
-            }
-
-            if let error = error {
-                self?.errorMessage = error.localizedDescription
-                self?.stopListening()
-            } else if isFinal {
-                self?.stopListening()
+            Task { @MainActor [weak self] in
+                if let text { self?.transcribedText = text }
+                if let errorMsg {
+                    self?.errorMessage = errorMsg
+                    self?.stopListening()
+                } else if isFinal {
+                    self?.stopListening()
+                }
             }
         }
 
@@ -172,14 +174,8 @@ class SpeechRecognizer {
         }
     }
 
-    deinit {
-        // Cannot call @MainActor stopListening() from deinit; do teardown inline.
-        if audioEngine.isRunning {
-            audioEngine.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
-        }
-        recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
-    }
+    // deinit cannot access @MainActor-isolated properties.
+    // AVAudioEngine, SFSpeechAudioBufferRecognitionRequest, and
+    // SFSpeechRecognitionTask all perform cleanup on deallocation via ARC.
 }
 

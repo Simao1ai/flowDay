@@ -35,7 +35,7 @@ enum AIAction {
 
 // MARK: - AI Assistant Service (Data-Connected)
 
-@Observable
+@Observable @MainActor
 class AIAssistantService {
     var messages: [AIMessage] = []
     var isTyping: Bool = false

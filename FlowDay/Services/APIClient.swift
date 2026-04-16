@@ -136,7 +136,7 @@ final class APIClient {
                 }
             } catch {
                 lastError = .unknown(error)
-                throw lastError!
+                throw lastError ?? .unknown(error)
             }
         }
 
