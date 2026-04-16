@@ -325,15 +325,17 @@ final class SupabaseService {
 
     /// Push all local SwiftData records that have been modified since last sync.
     /// Called once after auth is restored on app launch.
+    ///
+    /// Sequential (not concurrent) so that SwiftData model properties are read
+    /// before any suspension point within each sync call, keeping access on the
+    /// calling actor. A concurrent task group would spawn child tasks on background
+    /// threads that would then touch main-actor-bound SwiftData objects — unsafe.
     func syncAll(tasks: [FDTask], projects: [FDProject]) async {
-        // Fan out all syncs concurrently
-        await withTaskGroup(of: Void.self) { group in
-            for task in tasks {
-                group.addTask { await self.syncTask(task) }
-            }
-            for project in projects {
-                group.addTask { await self.syncProject(project) }
-            }
+        for task in tasks {
+            await syncTask(task)
+        }
+        for project in projects {
+            await syncProject(project)
         }
         #if DEBUG
         print("[SupabaseService] syncAll complete: \(tasks.count) tasks, \(projects.count) projects")

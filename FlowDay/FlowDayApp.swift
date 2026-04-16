@@ -86,12 +86,14 @@ struct FlowDayApp: App {
                     authManager.restoreSession()
 
                     // Push any local data to Supabase once the session is ready.
-                    // Runs async so it never blocks the UI.
+                    // Uses @MainActor task so SwiftData models are accessed on the main
+                    // thread — accessing them from a background task or concurrent task
+                    // group would violate SwiftData's thread-confinement rules and crash.
                     if let container = sharedModelContainer {
-                        Task {
+                        Task { @MainActor in
                             // Small delay to let the auth session finish restoring
                             try? await Task.sleep(nanoseconds: 1_500_000_000)
-                            let context = ModelContext(container)
+                            let context = container.mainContext
                             let tasks = (try? context.fetch(FetchDescriptor<FDTask>())) ?? []
                             let projects = (try? context.fetch(FetchDescriptor<FDProject>())) ?? []
                             await SupabaseService.shared.syncAll(tasks: tasks, projects: projects)

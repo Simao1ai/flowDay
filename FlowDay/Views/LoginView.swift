@@ -25,6 +25,8 @@ struct SignInWithAppleButtonRepresentable: UIViewRepresentable {
 
     class Coordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
         let onAuthorization: (ASAuthorization) -> Void
+        // Retained so it isn't deallocated before the delegate callbacks fire.
+        private var authController: ASAuthorizationController?
 
         init(onAuthorization: @escaping (ASAuthorization) -> Void) {
             self.onAuthorization = onAuthorization
@@ -37,6 +39,7 @@ struct SignInWithAppleButtonRepresentable: UIViewRepresentable {
             let controller = ASAuthorizationController(authorizationRequests: [request])
             controller.delegate = self
             controller.presentationContextProvider = self
+            authController = controller   // keep alive until delegate fires
             controller.performRequests()
         }
 
