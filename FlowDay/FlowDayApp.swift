@@ -34,25 +34,20 @@ struct FlowDayApp: App {
             FDFocusSession.self,
         ])
 
-        // CloudKit-enabled configuration for cross-device sync
-        // To use CloudKit, ensure "iCloud" capability is enabled in Xcode
-        // with a CloudKit container like "iCloud.io.flowday.app"
+        // CloudKit disabled: Supabase handles sync. CloudKit also requires every
+        // attribute to be optional with a default value — a constraint we don't
+        // want to impose on the model layer just for iCloud sync.
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            cloudKitDatabase: .automatic  // Enables iCloud sync
+            cloudKitDatabase: .none
         )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             print("ModelContainer FAILED: \(error)")
-            // Fallback: try without CloudKit if iCloud isn't set up yet
-            let fallbackConfig = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false
-            )
-            return try? ModelContainer(for: schema, configurations: [fallbackConfig])
+            return nil
         }
     }()
 
