@@ -49,5 +49,28 @@
 
 	<key>NSMicrophoneUsageDescription</key>
 	<string>FlowDay needs microphone access for voice-to-task input.</string>
+
+	<!-- App Icon -->
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+
+	<!-- Launch Screen -->
+	<key>UILaunchScreen</key>
+	<dict/>
+
+	<!-- Supported interface orientations (iPhone) -->
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+
+	<!-- Supported interface orientations (iPad) — required for Multitasking -->
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 </dict>
 </plist>

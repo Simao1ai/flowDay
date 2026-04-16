@@ -61,6 +61,7 @@
 		FC94ADF3FB3512E9985AA626 /* FDColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA000F9B4B92F8EC8700E57 /* FDColors.swift */; };
 		FDB7A29FBE8F45CB7113381F /* FDSubtask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80D8110A8390E81B82905524 /* FDSubtask.swift */; };
 		FFC88C433A756FE3B941CEF4 /* Config.example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BEFD7A508C8DC8BA173923 /* Config.example.swift */; };
+		FAFA0002FAFA0002FAFA0002 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAFA0001FAFA0001FAFA0001 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +131,7 @@
 		F494DBD244A9FF1511DAF201 /* SettingsSubViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSubViews.swift; sourceTree = "<group>"; };
 		F9A4FD6B6BECF3087498FAAE /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		FE96A9B3BF0146099917FC1F /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		FAFA0001FAFA0001FAFA0001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +204,7 @@
 		8D03892845FF83DAC30F2D16 /* FlowDay */ = {
 			isa = PBXGroup;
 			children = (
+				FAFA0001FAFA0001FAFA0001 /* Assets.xcassets */,
 				44BEFD7A508C8DC8BA173923 /* Config.example.swift */,
 				447B9A9F09DBD112A817CA10 /* Config.swift */,
 				68369B1B23CD6C9084A0E0D7 /* Configuration.storekit */,
@@ -351,6 +354,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAFA0002FAFA0002FAFA0002 /* Assets.xcassets in Resources */,
 				D8E1399E3AABD8F07FD0C763 /* Configuration.storekit in Resources */,
 				D5C5128353504BC7110AE17F /* PrivacyInfo.xcprivacy in Resources */,
 			);
@@ -441,7 +445,7 @@
 				CODE_SIGN_ENTITLEMENTS = FlowDay/FlowDay.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = FlowDay/Info.plist;
-				INFOPLIST_VALUES = "{\n  \"CFBundleDisplayName\": \"FlowDay\",\n  \"CFBundleName\": \"FlowDay\",\n  \"CFBundleShortVersionString\": \"1.0.0\",\n  \"CFBundleVersion\": \"1\",\n  \"UILaunchScreen\": {},\n  \"UISupportedInterfaceOrientations\": [\"UIInterfaceOrientationPortrait\"],\n  \"NSCalendarsFullAccessUsageDescription\": \"FlowDay shows your calendar events alongside tasks in one daily timeline.\",\n  \"NSSpeechRecognitionUsageDescription\": \"FlowDay uses voice recognition to capture tasks hands-free.\",\n  \"NSMicrophoneUsageDescription\": \"FlowDay uses your microphone for voice task capture.\"\n}";
+				INFOPLIST_VALUES = "{\n  \"CFBundleDisplayName\": \"FlowDay\",\n  \"CFBundleName\": \"FlowDay\",\n  \"CFBundleIconName\": \"AppIcon\",\n  \"CFBundleShortVersionString\": \"1.0.0\",\n  \"CFBundleVersion\": \"1\",\n  \"UILaunchScreen\": {},\n  \"UISupportedInterfaceOrientations\": [\"UIInterfaceOrientationPortrait\"],\n  \"UISupportedInterfaceOrientations~ipad\": [\"UIInterfaceOrientationPortrait\", \"UIInterfaceOrientationPortraitUpsideDown\", \"UIInterfaceOrientationLandscapeLeft\", \"UIInterfaceOrientationLandscapeRight\"],\n  \"NSCalendarsFullAccessUsageDescription\": \"FlowDay shows your calendar events alongside tasks in one daily timeline.\",\n  \"NSSpeechRecognitionUsageDescription\": \"FlowDay uses voice recognition to capture tasks hands-free.\",\n  \"NSMicrophoneUsageDescription\": \"FlowDay uses your microphone for voice task capture.\"\n}";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -614,7 +618,7 @@
 				CODE_SIGN_ENTITLEMENTS = FlowDay/FlowDay.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = FlowDay/Info.plist;
-				INFOPLIST_VALUES = "{\n  \"CFBundleDisplayName\": \"FlowDay\",\n  \"CFBundleName\": \"FlowDay\",\n  \"CFBundleShortVersionString\": \"1.0.0\",\n  \"CFBundleVersion\": \"1\",\n  \"UILaunchScreen\": {},\n  \"UISupportedInterfaceOrientations\": [\"UIInterfaceOrientationPortrait\"],\n  \"NSCalendarsFullAccessUsageDescription\": \"FlowDay shows your calendar events alongside tasks in one daily timeline.\",\n  \"NSSpeechRecognitionUsageDescription\": \"FlowDay uses voice recognition to capture tasks hands-free.\",\n  \"NSMicrophoneUsageDescription\": \"FlowDay uses your microphone for voice task capture.\"\n}";
+				INFOPLIST_VALUES = "{\n  \"CFBundleDisplayName\": \"FlowDay\",\n  \"CFBundleName\": \"FlowDay\",\n  \"CFBundleIconName\": \"AppIcon\",\n  \"CFBundleShortVersionString\": \"1.0.0\",\n  \"CFBundleVersion\": \"1\",\n  \"UILaunchScreen\": {},\n  \"UISupportedInterfaceOrientations\": [\"UIInterfaceOrientationPortrait\"],\n  \"UISupportedInterfaceOrientations~ipad\": [\"UIInterfaceOrientationPortrait\", \"UIInterfaceOrientationPortraitUpsideDown\", \"UIInterfaceOrientationLandscapeLeft\", \"UIInterfaceOrientationLandscapeRight\"],\n  \"NSCalendarsFullAccessUsageDescription\": \"FlowDay shows your calendar events alongside tasks in one daily timeline.\",\n  \"NSSpeechRecognitionUsageDescription\": \"FlowDay uses voice recognition to capture tasks hands-free.\",\n  \"NSMicrophoneUsageDescription\": \"FlowDay uses your microphone for voice task capture.\"\n}";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
