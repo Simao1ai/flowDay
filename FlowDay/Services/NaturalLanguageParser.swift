@@ -232,7 +232,7 @@ final class NaturalLanguageParser {
                   let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text))
             else { continue }
 
-            let fullRange = Range(match.range, in: text)!
+            guard let fullRange = Range(match.range, in: text) else { continue }
             let matched = String(text[fullRange])
             tokens.append(ParsedToken(text: matched, type: .time, range: fullRange))
 

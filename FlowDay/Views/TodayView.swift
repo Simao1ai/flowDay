@@ -16,6 +16,12 @@ struct TodayView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
 
+    /// Falls back to a locally-created TaskService when RootView hasn't
+    /// set one yet (i.e. before onAppear fires).
+    private var resolvedTaskService: TaskService {
+        taskService ?? TaskService(modelContext: modelContext)
+    }
+
     @Query(
         filter: #Predicate<FDTask> { !$0.isDeleted },
         sort: [SortDescriptor(\FDTask.scheduledTime), SortDescriptor(\FDTask.priority)]
@@ -235,8 +241,8 @@ struct TodayView: View {
             TaskRowView(
                 task: task,
                 isExpanded: expandedTaskID == task.id,
-                onToggle: { taskService?.toggleComplete(task) },
-                onToggleSubtask: { sub in taskService?.toggleSubtaskComplete(sub) },
+                onToggle: { resolvedTaskService.toggleComplete(task) },
+                onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
                 onExpand: {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         expandedTaskID = expandedTaskID == task.id ? nil : task.id
@@ -282,8 +288,8 @@ struct TodayView: View {
                     TaskRowView(
                         task: task,
                         isExpanded: expandedTaskID == task.id,
-                        onToggle: { taskService?.toggleComplete(task) },
-                        onToggleSubtask: { sub in taskService?.toggleSubtaskComplete(sub) },
+                        onToggle: { resolvedTaskService.toggleComplete(task) },
+                        onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
                         onExpand: {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 expandedTaskID = expandedTaskID == task.id ? nil : task.id
@@ -316,7 +322,7 @@ struct TodayView: View {
                     .submitLabel(.done)
                     .onSubmit {
                         guard !quickAddText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                        taskService?.createTask(title: quickAddText)
+                        resolvedTaskService.createTask(title: quickAddText)
                         quickAddText = ""
                     }
 

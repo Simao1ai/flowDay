@@ -104,14 +104,18 @@ extension FDHabit {
         else { currentStreak = 0; return }
 
         var streak = 1
-        var checkDate = Calendar.current.date(byAdding: .day, value: -1,
-            to: Calendar.current.startOfDay(for: latest))!
+        guard var checkDate = Calendar.current.date(byAdding: .day, value: -1,
+            to: Calendar.current.startOfDay(for: latest)) else {
+            currentStreak = streak
+            return
+        }
 
         for date in sortedDates.dropFirst() {
             let dayStart = Calendar.current.startOfDay(for: date)
             if dayStart == checkDate {
                 streak += 1
-                checkDate = Calendar.current.date(byAdding: .day, value: -1, to: checkDate)!
+                guard let nextDate = Calendar.current.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = nextDate
             } else if dayStart < checkDate { break }
         }
         currentStreak = streak

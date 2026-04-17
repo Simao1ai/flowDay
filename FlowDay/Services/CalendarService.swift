@@ -192,8 +192,9 @@ final class CalendarService {
     func freeSlotsAllProviders(for date: Date, workdayStart: Int = 9, workdayEnd: Int = 18) async -> [(start: Date, durationMinutes: Int)] {
         let allEvents = await fetchAllEvents(for: date)
         let cal = Calendar.current
-        let dayStart = cal.date(bySettingHour: workdayStart, minute: 0, second: 0, of: date)!
-        let dayEnd = cal.date(bySettingHour: workdayEnd, minute: 0, second: 0, of: date)!
+        guard let dayStart = cal.date(bySettingHour: workdayStart, minute: 0, second: 0, of: date),
+              let dayEnd = cal.date(bySettingHour: workdayEnd, minute: 0, second: 0, of: date)
+        else { return [] }
 
         var slots: [(start: Date, durationMinutes: Int)] = []
         var cursor = dayStart
@@ -226,8 +227,9 @@ final class CalendarService {
     /// Internal helper — compute free slots from Apple EKEvent array
     private func computeFreeSlots(events: [EKEvent], date: Date, workdayStart: Int, workdayEnd: Int) -> [(start: Date, durationMinutes: Int)] {
         let cal = Calendar.current
-        let dayStart = cal.date(bySettingHour: workdayStart, minute: 0, second: 0, of: date)!
-        let dayEnd = cal.date(bySettingHour: workdayEnd, minute: 0, second: 0, of: date)!
+        guard let dayStart = cal.date(bySettingHour: workdayStart, minute: 0, second: 0, of: date),
+              let dayEnd = cal.date(bySettingHour: workdayEnd, minute: 0, second: 0, of: date)
+        else { return [] }
 
         var slots: [(start: Date, durationMinutes: Int)] = []
         var cursor = dayStart

@@ -101,7 +101,9 @@ final class AIPlanner {
         let cal = calendar
 
         // Define work windows based on energy
-        let (peakStart, peakEnd, lightStart, lightEnd) = energyWindows(energy, on: date)
+        guard let (peakStart, peakEnd, lightStart, lightEnd) = energyWindows(energy, on: date) else {
+            return []
+        }
 
         // Peak hours — for high-priority/complex tasks
         var current = peakStart
@@ -124,31 +126,34 @@ final class AIPlanner {
         return slots
     }
 
-    private func energyWindows(_ energy: EnergyLevel, on date: Date) -> (Date, Date, Date, Date) {
+    private func energyWindows(_ energy: EnergyLevel, on date: Date) -> (Date, Date, Date, Date)? {
         let cal = calendar
         switch energy {
         case .high:
             // High energy: deep work 8-12, light work 14-17
-            let peakStart = cal.date(bySettingHour: 8, minute: 0, second: 0, of: date)!
-            let peakEnd = cal.date(bySettingHour: 12, minute: 0, second: 0, of: date)!
-            let lightStart = cal.date(bySettingHour: 14, minute: 0, second: 0, of: date)!
-            let lightEnd = cal.date(bySettingHour: 17, minute: 0, second: 0, of: date)!
+            guard let peakStart = cal.date(bySettingHour: 8, minute: 0, second: 0, of: date),
+                  let peakEnd = cal.date(bySettingHour: 12, minute: 0, second: 0, of: date),
+                  let lightStart = cal.date(bySettingHour: 14, minute: 0, second: 0, of: date),
+                  let lightEnd = cal.date(bySettingHour: 17, minute: 0, second: 0, of: date)
+            else { return nil }
             return (peakStart, peakEnd, lightStart, lightEnd)
 
         case .normal:
             // Normal: balanced 9-12, 14-16
-            let peakStart = cal.date(bySettingHour: 9, minute: 0, second: 0, of: date)!
-            let peakEnd = cal.date(bySettingHour: 12, minute: 0, second: 0, of: date)!
-            let lightStart = cal.date(bySettingHour: 14, minute: 0, second: 0, of: date)!
-            let lightEnd = cal.date(bySettingHour: 16, minute: 0, second: 0, of: date)!
+            guard let peakStart = cal.date(bySettingHour: 9, minute: 0, second: 0, of: date),
+                  let peakEnd = cal.date(bySettingHour: 12, minute: 0, second: 0, of: date),
+                  let lightStart = cal.date(bySettingHour: 14, minute: 0, second: 0, of: date),
+                  let lightEnd = cal.date(bySettingHour: 16, minute: 0, second: 0, of: date)
+            else { return nil }
             return (peakStart, peakEnd, lightStart, lightEnd)
 
         case .low:
             // Low energy: shorter windows, later start 10-11:30, 14-15
-            let peakStart = cal.date(bySettingHour: 10, minute: 0, second: 0, of: date)!
-            let peakEnd = cal.date(bySettingHour: 11, minute: 30, second: 0, of: date)!
-            let lightStart = cal.date(bySettingHour: 14, minute: 0, second: 0, of: date)!
-            let lightEnd = cal.date(bySettingHour: 15, minute: 0, second: 0, of: date)!
+            guard let peakStart = cal.date(bySettingHour: 10, minute: 0, second: 0, of: date),
+                  let peakEnd = cal.date(bySettingHour: 11, minute: 30, second: 0, of: date),
+                  let lightStart = cal.date(bySettingHour: 14, minute: 0, second: 0, of: date),
+                  let lightEnd = cal.date(bySettingHour: 15, minute: 0, second: 0, of: date)
+            else { return nil }
             return (peakStart, peakEnd, lightStart, lightEnd)
         }
     }

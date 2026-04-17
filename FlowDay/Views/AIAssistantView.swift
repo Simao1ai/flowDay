@@ -305,7 +305,7 @@ class AIAssistantService {
 
         pendingTaskSuggestion = nil
 
-        let projectNote = project != nil ? " in \(project!.name)" : ""
+        let projectNote = project.map { " in \($0.name)" } ?? ""
         messages.append(AIMessage(
             content: "Done! Created \"\(suggestion.title)\"\(projectNote). Anything else?",
             isUser: false,

@@ -313,7 +313,7 @@ final class CalendarAccountManager {
     }
 
     private func exchangeMicrosoftCode(_ code: String) async -> Bool {
-        let tokenURL = URL(string: "https://login.microsoftonline.com/\(microsoftTenantId)/oauth2/v2.0/token")!
+        guard let tokenURL = URL(string: "https://login.microsoftonline.com/\(microsoftTenantId)/oauth2/v2.0/token") else { return false }
 
         var request = URLRequest(url: tokenURL)
         request.httpMethod = "POST"
@@ -428,7 +428,7 @@ final class CalendarAccountManager {
     private func refreshMicrosoftToken() async -> Bool {
         guard let refreshToken = KeychainHelper.shared.readString(for: microsoftRefreshKey) else { return false }
 
-        let tokenURL = URL(string: "https://login.microsoftonline.com/\(microsoftTenantId)/oauth2/v2.0/token")!
+        guard let tokenURL = URL(string: "https://login.microsoftonline.com/\(microsoftTenantId)/oauth2/v2.0/token") else { return false }
         var request = URLRequest(url: tokenURL)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")

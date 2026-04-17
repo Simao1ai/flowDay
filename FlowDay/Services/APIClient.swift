@@ -15,6 +15,7 @@ enum APIError: Error, LocalizedError {
     case rateLimited
     case unauthorized
     case invalidAPIKey
+    case invalidURL
     case unknown(Error)
 
     var errorDescription: String? {
@@ -31,6 +32,8 @@ enum APIError: Error, LocalizedError {
             return "Unauthorized. Check your credentials."
         case .invalidAPIKey:
             return "Invalid API key."
+        case .invalidURL:
+            return "Invalid URL."
         case .unknown(let error):
             return "Unknown error: \(error.localizedDescription)"
         }
@@ -50,6 +53,8 @@ enum APIError: Error, LocalizedError {
             return "Check your authentication credentials."
         case .invalidAPIKey:
             return "Verify your API key is correct and active."
+        case .invalidURL:
+            return "The API URL could not be constructed."
         case .unknown:
             return "Try again or contact support."
         }

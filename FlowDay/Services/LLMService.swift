@@ -360,7 +360,9 @@ final class LLMService {
         temperature: Double,
         maxTokens: Int
     ) throws -> URLRequest {
-        let url = URL(string: "https://api.openai.com/v1/chat/completions")!
+        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
+            throw APIError.invalidURL
+        }
 
         var allMessages: [OpenAIRequest.OpenAIMessage] = [
             OpenAIRequest.OpenAIMessage(role: "system", content: systemPrompt)
@@ -446,7 +448,9 @@ final class LLMService {
         temperature: Double,
         maxTokens: Int
     ) throws -> URLRequest {
-        let url = URL(string: "https://api.anthropic.com/v1/messages")!
+        guard let url = URL(string: "https://api.anthropic.com/v1/messages") else {
+            throw APIError.invalidURL
+        }
 
         var anthropicMessages: [AnthropicRequest.AnthropicMessage] = []
 
@@ -511,7 +515,9 @@ final class LLMService {
             throw APIError.invalidAPIKey
         }
 
-        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(geminiModel):generateContent?key=\(geminiKey)")!
+        guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(geminiModel):generateContent?key=\(geminiKey)") else {
+            throw APIError.invalidURL
+        }
 
         var geminiContents: [GeminiRequest.GeminiContent] = []
 
@@ -591,7 +597,7 @@ private struct OpenAIEndpoint: APIEndpoint {
     let apiKey: String
 
     var url: URL {
-        request.url ?? URL(string: "https://api.openai.com/v1/chat/completions")!
+        request.url ?? URL(string: "https://api.openai.com/v1/chat/completions")! // Safe: hardcoded valid URL
     }
 
     var method: HTTPMethod { .post }
@@ -617,7 +623,7 @@ private struct AnthropicEndpoint: APIEndpoint {
     let apiKey: String
 
     var url: URL {
-        request.url ?? URL(string: "https://api.anthropic.com/v1/messages")!
+        request.url ?? URL(string: "https://api.anthropic.com/v1/messages")! // Safe: hardcoded valid URL
     }
 
     var method: HTTPMethod { .post }
