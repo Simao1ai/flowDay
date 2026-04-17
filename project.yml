@@ -46,9 +46,6 @@ targets:
           }
     entitlements:
       path: FlowDay/FlowDay.entitlements
-      properties:
-        com.apple.developer.applesignin:
-          - Default
 
   FlowDayTests:
     type: bundle.unit-test
