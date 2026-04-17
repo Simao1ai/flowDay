@@ -1,13 +1,25 @@
-// FlowDayApp.swift — DIAGNOSTIC BUILD
-// Minimal version to isolate SIGABRT crash
+// FlowDayApp.swift
+// FlowDay — AI Daily Planner & Tasks
+// STEP 2 DIAGNOSTIC: Real LoginView, no Supabase calls at startup
 
 import SwiftUI
 import SwiftData
+import GoogleSignIn
 
 @main
 struct FlowDayApp: App {
 
+    @State private var appState = AppState()
+    @State private var authManager = AuthManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+
+    init() {
+        print("[FlowDay] App init starting")
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(
+            clientID: "777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com"
+        )
+        print("[FlowDay] GIDSignIn configured")
+    }
 
     var sharedModelContainer: ModelContainer? = {
         print("[FlowDay] Creating ModelContainer...")
@@ -43,36 +55,54 @@ struct FlowDayApp: App {
                 Group {
                     if !hasSeenOnboarding {
                         OnboardingView()
+                    } else if !authManager.isAuthenticated {
+                        LoginView()
+                            .environment(authManager)
                     } else {
-                        // DIAGNOSTIC: Simple placeholder instead of full LoginView
-                        VStack(spacing: 20) {
-                            Text("FlowDay")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                            Text("Login screen reached!")
-                                .font(.title2)
-                            Text("If you see this, the crash is NOT in SwiftData or the basic app structure.")
-                                .multilineTextAlignment(.center)
-                                .padding()
-                            Button("Reset Onboarding") {
-                                hasSeenOnboarding = false
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
-                        .padding()
+                        AuthenticatedRootView(appState: appState, authManager: authManager)
+                            .modelContainer(container)
                     }
                 }
                 .tint(Color.fdAccent)
+                // DIAGNOSTIC: No restoreSession(), no Supabase sync, no onChange
+                // Just show the LoginView and see if it crashes
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
             } else {
-                Text("Database Error — ModelContainer failed to initialize")
+                Text("Database Error")
                     .foregroundColor(.red)
             }
         }
     }
+
+    private var databaseErrorView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.fdRed)
+            Text("Database Error")
+                .font(.fdTitle2)
+                .foregroundStyle(Color.fdText)
+        }
+    }
 }
 
-// MARK: - Global App State (kept for compilation)
+// MARK: - Authenticated Root View
+struct AuthenticatedRootView: View {
+    let appState: AppState
+    let authManager: AuthManager
+    @State private var calendarAccountManager = CalendarAccountManager()
 
+    var body: some View {
+        RootView()
+            .environment(appState)
+            .environment(authManager)
+            .environment(calendarAccountManager)
+    }
+}
+
+// MARK: - Global App State
 @Observable
 final class AppState {
     var selectedTab: Tab = .today
@@ -91,11 +121,4 @@ final class AppState {
         case habits = "Habits"
         case browse = "Browse"
     }
-}
-
-// Keep AuthenticatedRootView stub for compilation
-struct AuthenticatedRootView: View {
-    let appState: AppState
-    let authManager: AuthManager
-    var body: some View { EmptyView() }
 }
