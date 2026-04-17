@@ -57,23 +57,17 @@ struct FlowDayApp: App {
                     } else if !authManager.isAuthenticated {
                         LoginView()
                             .environment(authManager)
+                            .onAppear {
+                                authManager.restoreSession()
+                            }
                     } else {
                         AuthenticatedRootView(appState: appState, authManager: authManager)
                             .modelContainer(container)
                     }
                 }
                 .tint(Color.fdAccent)
-                .onChange(of: authManager.isAuthenticated) { oldValue, newValue in
-                    if newValue, let container = sharedModelContainer {
-                        Task { @MainActor in
-                            try? await Task.sleep(nanoseconds: 2_000_000_000)
-                            let context = container.mainContext
-                            let tasks = (try? context.fetch(FetchDescriptor<FDTask>())) ?? []
-                            let projects = (try? context.fetch(FetchDescriptor<FDProject>())) ?? []
-                            await SupabaseService.shared.syncAll(tasks: tasks, projects: projects)
-                        }
-                    }
-                }
+                // Supabase sync disabled — SDK crashes on iOS 26.x
+                // TODO: Replace with direct REST API calls
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }
