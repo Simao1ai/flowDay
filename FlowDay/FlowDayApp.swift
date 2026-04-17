@@ -1,6 +1,5 @@
 // FlowDayApp.swift
 // FlowDay — AI Daily Planner & Tasks
-// STEP 2 DIAGNOSTIC: Real LoginView, no Supabase calls at startup
 
 import SwiftUI
 import SwiftData
@@ -58,14 +57,30 @@ struct FlowDayApp: App {
                     } else if !authManager.isAuthenticated {
                         LoginView()
                             .environment(authManager)
+                            .onAppear {
+                                // Restore session AFTER LoginView is rendered, with delay
+                                Task { @MainActor in
+                                    try? await Task.sleep(nanoseconds: 500_000_000)
+                                    authManager.restoreSession()
+                                }
+                            }
                     } else {
                         AuthenticatedRootView(appState: appState, authManager: authManager)
                             .modelContainer(container)
                     }
                 }
                 .tint(Color.fdAccent)
-                // DIAGNOSTIC: No restoreSession(), no Supabase sync, no onChange
-                // Just show the LoginView and see if it crashes
+                .onChange(of: authManager.isAuthenticated) { oldValue, newValue in
+                    if newValue, let container = sharedModelContainer {
+                        Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 2_000_000_000)
+                            let context = container.mainContext
+                            let tasks = (try? context.fetch(FetchDescriptor<FDTask>())) ?? []
+                            let projects = (try? context.fetch(FetchDescriptor<FDProject>())) ?? []
+                            await SupabaseService.shared.syncAll(tasks: tasks, projects: projects)
+                        }
+                    }
+                }
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }

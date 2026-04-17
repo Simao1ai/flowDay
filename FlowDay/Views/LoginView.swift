@@ -196,18 +196,9 @@ struct LoginView: View {
             .frame(height: 50)
             .cornerRadius(8)
 
-            // Sign in with Google
-            Button(action: {
-                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                      let rootViewController = windowScene.windows.first?.rootViewController else {
-                    authManager.errorMessage = "Unable to present Google Sign-In"
-                    return
-                }
-
-                Task {
-                    await authManager.signInWithGoogle(presenting: rootViewController)
-                }
-            }) {
+            // Sign in with Google — temporarily disabled until OAuth client
+            // is configured for io.flowday.app in Google Cloud Console
+            Button(action: { }) {
                 HStack(spacing: 12) {
                     Image(systemName: "g.circle.fill")
                         .font(.system(size: 20))
@@ -217,11 +208,11 @@ struct LoginView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .foregroundColor(.white)
-                .background(Color(red: 0.2, green: 0.5, blue: 1.0))
+                .foregroundColor(.white.opacity(0.6))
+                .background(Color.gray.opacity(0.35))
                 .cornerRadius(8)
             }
-            .disabled(authManager.isLoading)
+            .disabled(true)
 
             // Divider
             HStack {
