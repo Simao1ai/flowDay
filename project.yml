@@ -47,10 +47,8 @@ targets:
     entitlements:
       path: FlowDay/FlowDay.entitlements
       properties:
-        com.apple.developer.icloud-container-identifiers:
-          - iCloud.io.flowday.app
-        com.apple.developer.icloud-services:
-          - CloudKit
+        com.apple.developer.applesignin:
+          - Default
 
   FlowDayTests:
     type: bundle.unit-test
