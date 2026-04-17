@@ -57,13 +57,6 @@ struct FlowDayApp: App {
                     } else if !authManager.isAuthenticated {
                         LoginView()
                             .environment(authManager)
-                            .onAppear {
-                                // Restore session AFTER LoginView is rendered, with delay
-                                Task { @MainActor in
-                                    try? await Task.sleep(nanoseconds: 500_000_000)
-                                    authManager.restoreSession()
-                                }
-                            }
                     } else {
                         AuthenticatedRootView(appState: appState, authManager: authManager)
                             .modelContainer(container)
