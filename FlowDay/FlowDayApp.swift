@@ -23,14 +23,17 @@ struct FlowDayApp: App {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     init() {
+        print("[FlowDay] App init starting")
         // Configure Google Sign-In at launch so the client ID is available before
         // any view appears, preventing a nil-configuration SIGABRT on first tap.
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(
             clientID: "777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com"
         )
+        print("[FlowDay] GIDSignIn configured")
     }
 
     var sharedModelContainer: ModelContainer? = {
+        print("[FlowDay] Creating ModelContainer...")
         let schema = Schema([
             FDTask.self,
             FDSubtask.self,
@@ -51,7 +54,9 @@ struct FlowDayApp: App {
         )
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            print("[FlowDay] ModelContainer created successfully")
+            return container
         } catch {
             print("ModelContainer FAILED: \(error)")
             return nil
@@ -79,22 +84,26 @@ struct FlowDayApp: App {
                 .tint(Color.fdAccent)
                 // NO .preferredColorScheme(.light) — dark mode is now supported!
                 .onAppear {
-                    // Restore Supabase auth session (reads persisted JWT from Keychain)
+                    print("[FlowDay] onAppear fired, hasSeenOnboarding=\(hasSeenOnboarding)")
+                    // Only restore session after onboarding — no need to touch Supabase during onboarding
+                    guard hasSeenOnboarding else { return }
+
                     authManager.restoreSession()
 
-                    // Push any local data to Supabase once the session is ready.
-                    // Uses @MainActor task so SwiftData models are accessed on the main
-                    // thread — accessing them from a background task or concurrent task
-                    // group would violate SwiftData's thread-confinement rules and crash.
                     if let container = sharedModelContainer {
                         Task { @MainActor in
-                            // Small delay to let the auth session finish restoring
                             try? await Task.sleep(nanoseconds: 1_500_000_000)
+                            guard authManager.isAuthenticated else { return }
                             let context = container.mainContext
                             let tasks = (try? context.fetch(FetchDescriptor<FDTask>())) ?? []
                             let projects = (try? context.fetch(FetchDescriptor<FDProject>())) ?? []
                             await SupabaseService.shared.syncAll(tasks: tasks, projects: projects)
                         }
+                    }
+                }
+                .onChange(of: hasSeenOnboarding) { oldValue, newValue in
+                    if newValue {
+                        authManager.restoreSession()
                     }
                 }
                 .onOpenURL { url in

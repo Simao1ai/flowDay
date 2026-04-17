@@ -162,8 +162,11 @@ final class SupabaseService {
     // The Supabase client — initialized lazily once Config values are available.
     // `SupabaseClient` is thread-safe and meant to be a singleton.
     private(set) lazy var client: SupabaseClient = {
-        SupabaseClient(
-            supabaseURL: URL(string: FlowDayConfig.supabaseURL)!,
+        guard let url = URL(string: FlowDayConfig.supabaseURL) else {
+            fatalError("[SupabaseService] Invalid Supabase URL: \(FlowDayConfig.supabaseURL)")
+        }
+        return SupabaseClient(
+            supabaseURL: url,
             supabaseKey: FlowDayConfig.supabaseAnonKey
         )
     }()

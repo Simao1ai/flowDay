@@ -46,7 +46,7 @@ struct FDUser: Codable, Identifiable {
 // async continuations running on background threads cause undefined behaviour / crashes.
 // GIDSignIn v8.0.0 also requires the presenting call to originate on the main thread.
 @Observable @MainActor
-final class AuthManager: NSObject {
+final class AuthManager {
 
     // MARK: - State
 
@@ -58,12 +58,6 @@ final class AuthManager: NSObject {
     // MARK: - Private
 
     private let logger = Logger(subsystem: "io.flowday.auth", category: "AuthManager")
-
-    // MARK: - Init
-
-    override init() {
-        super.init()
-    }
 
     // MARK: - Session restore
 
