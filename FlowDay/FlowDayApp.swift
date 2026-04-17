@@ -20,7 +20,6 @@ struct FlowDayApp: App {
 
     @State private var appState = AppState()
     @State private var authManager = AuthManager()
-    @State private var calendarAccountManager = CalendarAccountManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     init() {
@@ -71,11 +70,9 @@ struct FlowDayApp: App {
                         LoginView()
                             .environment(authManager)
                     } else {
-                        // Step 3: Main app
-                        RootView()
-                            .environment(appState)
-                            .environment(authManager)
-                            .environment(calendarAccountManager)
+                        // Step 3: Main app — CalendarAccountManager is initialized here,
+                        // after auth, so EventKit is ready when loadAccounts() runs.
+                        AuthenticatedRootView(appState: appState, authManager: authManager)
                             .modelContainer(container)
                     }
                 }
@@ -127,6 +124,23 @@ struct FlowDayApp: App {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
         }
+    }
+}
+
+// MARK: - Authenticated Root View
+
+/// Owns CalendarAccountManager so it is only initialized after the user has
+/// authenticated — not during onboarding or login where EventKit isn't ready.
+struct AuthenticatedRootView: View {
+    let appState: AppState
+    let authManager: AuthManager
+    @State private var calendarAccountManager = CalendarAccountManager()
+
+    var body: some View {
+        RootView()
+            .environment(appState)
+            .environment(authManager)
+            .environment(calendarAccountManager)
     }
 }
 

@@ -497,11 +497,13 @@ final class CalendarAccountManager {
            let accounts = try? JSONDecoder().decode([CalendarAccount].self, from: data) {
             connectedAccounts = accounts
 
-            // Verify Apple Calendar is still authorized
-            if let appleAccount = accounts.first(where: { $0.provider == .apple && $0.isConnected }) {
-                let status = EKEventStore.authorizationStatus(for: .event)
-                if status != .fullAccess {
-                    disconnect(.apple)
+            // Verify Apple Calendar is still authorized (deferred so EventKit is ready)
+            if let _ = accounts.first(where: { $0.provider == .apple && $0.isConnected }) {
+                DispatchQueue.main.async { [weak self] in
+                    let status = EKEventStore.authorizationStatus(for: .event)
+                    if status != .fullAccess {
+                        self?.disconnect(.apple)
+                    }
                 }
             }
         }
