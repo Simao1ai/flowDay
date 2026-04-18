@@ -11,10 +11,7 @@ struct FlowDayApp: App {
     @State private var authManager = AuthManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
-    init() {
-        // Clear stale Keychain sessions from previous builds to prevent crash loop
-        KeychainHelper.shared.delete(for: "io.flowday.auth.user")
-    }
+
 
     var sharedModelContainer: ModelContainer? = {
         let schema = Schema([
@@ -50,7 +47,13 @@ struct FlowDayApp: App {
                     } else if !authManager.isAuthenticated {
                         LoginView()
                             .environment(authManager)
-                            // No restoreSession — testing RootView without crash loop risk
+                            .onAppear {
+                                // Delayed restore so it runs after LoginView is rendered
+                                Task { @MainActor in
+                                    try? await Task.sleep(nanoseconds: 300_000_000)
+                                    authManager.restoreSession()
+                                }
+                            }
                     } else {
                         AuthenticatedRootView(appState: appState, authManager: authManager)
                             .modelContainer(container)

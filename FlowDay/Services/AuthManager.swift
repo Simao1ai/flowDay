@@ -117,10 +117,10 @@ final class AuthManager {
             provider: .apple
         )
 
-        // Keychain save disabled while testing RootView
-        // if let data = try? JSONEncoder().encode(user) {
-        //     keychain.save(data, for: userKey)
-        // }
+        // Persist session to Keychain
+        if let data = try? JSONEncoder().encode(user) {
+            keychain.save(data, for: userKey)
+        }
 
         currentUser = user
         isAuthenticated = true
