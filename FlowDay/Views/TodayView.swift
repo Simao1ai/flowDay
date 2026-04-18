@@ -122,7 +122,7 @@ struct TodayView: View {
                 SettingsView()
             }
             .sheet(isPresented: $showAIPlan) {
-                AIPlanView()
+                AIPlanView(taskService: resolvedTaskService, energyLevel: appState.todayEnergy)
             }
         }
     }
