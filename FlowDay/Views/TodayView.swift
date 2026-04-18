@@ -38,6 +38,7 @@ struct TodayView: View {
     }
 
     @State private var showQuickAdd = false
+    @State private var showSettings = false
     @State private var expandedTaskID: UUID?
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
@@ -92,20 +93,41 @@ struct TodayView: View {
             .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Today")
-                            .font(.fdTitle2)
-                            .foregroundStyle(Color.fdText)
-                        Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
-                            .font(.fdMicro)
-                            .foregroundStyle(Color.fdTextMuted)
+                    HStack(spacing: 12) {
+                        Button {
+                            showSettings = true
+                        } label: {
+                            Image(systemName: "line.3.horizontal")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundStyle(Color.fdText)
+                        }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Today")
+                                .font(.fdTitle2)
+                                .foregroundStyle(Color.fdText)
+                            Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
+                                .font(.fdMicro)
+                                .foregroundStyle(Color.fdTextMuted)
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    if let energy = appState.todayEnergy {
-                        energyBadge(energy)
+                    HStack(spacing: 12) {
+                        if let energy = appState.todayEnergy {
+                            energyBadge(energy)
+                        }
+                        Button {
+                            showSettings = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.fdTextSecondary)
+                        }
                     }
                 }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
         }
     }

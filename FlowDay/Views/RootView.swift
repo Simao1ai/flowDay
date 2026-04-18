@@ -1,19 +1,20 @@
 // RootView.swift
 // FlowDay
 //
-// The main navigation shell. Uses a tab bar on iPhone
-// and a sidebar on iPad (adaptive layout).
+// The main navigation shell with full tab bar.
 
 import SwiftUI
 import SwiftData
 
 struct RootView: View {
     @Environment(AppState.self) private var appState
+    @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var modelContext
 
     @State private var taskService: TaskService?
     @State private var calendarService = CalendarService()
     @State private var showEnergyCheckIn = true
+    @State private var showSettings = false
 
     var body: some View {
         @Bindable var state = appState
@@ -26,23 +27,32 @@ struct RootView: View {
                     }
                     .tag(AppState.Tab.today)
 
-                UpcomingPlaceholderView()
+                UpcomingView()
                     .tabItem {
                         Label("Upcoming", systemImage: "calendar")
                     }
                     .tag(AppState.Tab.upcoming)
 
-                InboxPlaceholderView()
+                // Flow AI — center tab
+                NavigationStack {
+                    AIAssistantView()
+                }
+                .tabItem {
+                    Label("Flow AI", systemImage: "sparkles")
+                }
+                .tag(AppState.Tab.flowAI)
+
+                InboxView()
                     .tabItem {
                         Label("Inbox", systemImage: "tray")
                     }
                     .tag(AppState.Tab.inbox)
 
-                HabitsPlaceholderView()
+                BrowseView()
                     .tabItem {
-                        Label("Habits", systemImage: "flame")
+                        Label("Browse", systemImage: "square.grid.2x2")
                     }
-                    .tag(AppState.Tab.habits)
+                    .tag(AppState.Tab.browse)
             }
             .tint(Color.fdAccent)
 
@@ -54,7 +64,6 @@ struct RootView: View {
                         withAnimation(.easeOut(duration: 0.3)) {
                             showEnergyCheckIn = false
                         }
-                        // Log the energy level
                         let log = FDEnergyLog(level: level)
                         modelContext.insert(log)
                         try? modelContext.save()
@@ -68,70 +77,12 @@ struct RootView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
         }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environment(authManager)
+        }
         .onAppear {
             taskService = TaskService(modelContext: modelContext)
-        }
-    }
-}
-
-// MARK: - Placeholder Views (to be built out)
-
-struct UpcomingPlaceholderView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 12) {
-                Image(systemName: "calendar")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.fdTextMuted)
-                Text("Upcoming")
-                    .font(.fdTitle2)
-                Text("Your upcoming tasks and deadlines will appear here.")
-                    .font(.fdCaption)
-                    .foregroundStyle(Color.fdTextMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .padding()
-            .navigationTitle("Upcoming")
-        }
-    }
-}
-
-struct InboxPlaceholderView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 12) {
-                Image(systemName: "tray")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.fdTextMuted)
-                Text("Inbox")
-                    .font(.fdTitle2)
-                Text("Unscheduled tasks land here. Triage them into projects.")
-                    .font(.fdCaption)
-                    .foregroundStyle(Color.fdTextMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .padding()
-            .navigationTitle("Inbox")
-        }
-    }
-}
-
-struct HabitsPlaceholderView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 12) {
-                Image(systemName: "flame")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.fdTextMuted)
-                Text("Habits")
-                    .font(.fdTitle2)
-                Text("Track your daily habits with streaks and analytics.")
-                    .font(.fdCaption)
-                    .foregroundStyle(Color.fdTextMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .padding()
-            .navigationTitle("Habits")
         }
     }
 }
