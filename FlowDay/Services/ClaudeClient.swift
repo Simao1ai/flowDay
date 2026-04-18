@@ -166,21 +166,31 @@ final class ClaudeClient {
               "status=\(http.statusCode)")
         #endif
 
-        // Decode the response body (success or structured error)
-        let decoded: ClaudeResponse
-        do {
-            decoded = try JSONDecoder().decode(ClaudeResponse.self, from: data)
-        } catch {
-            throw ClaudeClientError.invalidResponse
-        }
-
+        // Check HTTP status first
         guard (200..<300).contains(http.statusCode) else {
-            throw ClaudeClientError.serverError(
-                http.statusCode,
-                decoded.error ?? HTTPURLResponse.localizedString(forStatusCode: http.statusCode)
-            )
+            let body = String(data: data, encoding: .utf8) ?? "no body"
+            #if DEBUG
+            print("[ClaudeClient] HTTP \(http.statusCode): \(body)")
+            #endif
+            throw ClaudeClientError.serverError(http.statusCode, body)
         }
 
-        return decoded.content
+        // Try to decode the structured response
+        if let decoded = try? JSONDecoder().decode(ClaudeResponse.self, from: data) {
+            if let error = decoded.error {
+                throw ClaudeClientError.serverError(http.statusCode, error)
+            }
+            return decoded.content
+        }
+
+        // Fallback: maybe the Edge Function returns plain text or different JSON
+        if let text = String(data: data, encoding: .utf8), !text.isEmpty {
+            #if DEBUG
+            print("[ClaudeClient] Raw response (not ClaudeResponse format): \(text.prefix(200))")
+            #endif
+            return text
+        }
+
+        throw ClaudeClientError.invalidResponse
     }
 }
