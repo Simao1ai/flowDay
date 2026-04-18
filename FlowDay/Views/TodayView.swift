@@ -22,14 +22,20 @@ struct TodayView: View {
         taskService ?? TaskService(modelContext: modelContext)
     }
 
-    @Query(
-        filter: #Predicate<FDTask> { !$0.isDeleted },
-        sort: [SortDescriptor(\FDTask.scheduledTime), SortDescriptor(\FDTask.priority)]
-    )
-    private var allTasks: [FDTask]
+    // Plain @Query — predicates and sorts crash on iOS 26.x beta.
+    // Filtering is done in computed properties instead.
+    @Query private var allTasksRaw: [FDTask]
 
-    @Query(filter: #Predicate<FDHabit> { $0.isActive })
-    private var habits: [FDHabit]
+    private var allTasks: [FDTask] {
+        allTasksRaw.filter { !$0.isDeleted }
+    }
+
+    @Query
+    private var allHabits: [FDHabit]
+
+    private var habits: [FDHabit] {
+        allHabits.filter { $0.isActive }
+    }
 
     @State private var showQuickAdd = false
     @State private var expandedTaskID: UUID?
