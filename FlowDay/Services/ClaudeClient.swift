@@ -113,8 +113,9 @@ final class ClaudeClient {
             throw ClaudeClientError.invalidResponse
         }
 
-        // Retrieve the active session JWT from Supabase
-        let jwt = try await SupabaseService.shared.currentAccessToken()
+        // TODO: Replace with REST-based auth token retrieval
+        // For now, use the anon key directly since Supabase SDK is disabled
+        let jwt = FlowDayConfig.supabaseAnonKey
 
         // Map LLMMessage to the edge-function wire format (skip system messages —
         // the server always injects the correct system prompt for the feature)

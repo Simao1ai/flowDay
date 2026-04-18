@@ -62,7 +62,7 @@ final class TaskService {
         )
         modelContext.insert(task)
         save()
-        Task { await SupabaseService.shared.syncTask(task) }
+        // TODO: Supabase sync via REST API
         return task
     }
 
@@ -87,15 +87,12 @@ final class TaskService {
         if task.isCompleted {
             task.uncomplete()
             save()
-            Task { await SupabaseService.shared.syncTask(task) }
+            // TODO: Supabase sync via REST API
         } else {
             task.complete()
             pushUndo(.completedTask(task))
             save()
-            Task {
-                await SupabaseService.shared.syncTask(task)
-                await SupabaseService.shared.recordCompletion(task: task, energyLevel: energyLevel)
-            }
+            // TODO: Supabase sync via REST API
             // If recurring, create the next occurrence
             if task.recurrenceRule != nil {
                 createNextOccurrence(for: task)
@@ -119,13 +116,13 @@ final class TaskService {
         task.softDelete()
         pushUndo(.deletedTask(task))
         save()
-        Task { await SupabaseService.shared.syncTask(task) }
+        // TODO: Supabase sync via REST API
     }
 
     func restoreTask(_ task: FDTask) {
         task.restore()
         save()
-        Task { await SupabaseService.shared.syncTask(task) }
+        // TODO: Supabase sync via REST API
     }
 
     // MARK: - Update
@@ -144,14 +141,14 @@ final class TaskService {
         if let project { task.project = project }
         task.modifiedAt = .now
         save()
-        Task { await SupabaseService.shared.syncTask(task) }
+        // TODO: Supabase sync via REST API
     }
 
     func rescheduleTask(_ task: FDTask, to time: Date) {
         task.scheduledTime = time
         task.modifiedAt = .now
         save()
-        Task { await SupabaseService.shared.syncTask(task) }
+        // TODO: Supabase sync via REST API
     }
 
     // MARK: - Queries

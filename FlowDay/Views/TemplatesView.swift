@@ -763,27 +763,12 @@ struct TemplatesView: View {
                 task.sortOrder = index
                 modelContext.insert(task)
 
-                // Sync to Supabase (fire-and-forget)
-                Task { await SupabaseService.shared.syncTask(task) }
+                // TODO: Supabase sync via REST API
             }
 
             try? modelContext.save()
 
-            // Persist the template to Supabase for "Recently Generated" history
-            let tasksForSupabase = aiTemplate.tasks.map { t -> [String: Any] in
-                ["title": t.title, "priority": t.priority, "estimatedMinutes": t.estimatedMinutes]
-            }
-            Task {
-                await SupabaseService.shared.saveTemplate(
-                    name: aiTemplate.name,
-                    description: aiTemplate.description,
-                    icon: aiTemplate.icon,
-                    colorHex: aiTemplate.colorHex,
-                    prompt: prompt,
-                    tasks: tasksForSupabase
-                )
-                await SupabaseService.shared.syncProject(project)
-            }
+            // TODO: Supabase template save and project sync via REST API
 
             appliedTemplateName = aiTemplate.name
             showTemplateApplied = true
