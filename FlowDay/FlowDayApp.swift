@@ -61,8 +61,30 @@ struct FlowDayApp: App {
                                 authManager.restoreSession()
                             }
                     } else {
-                        AuthenticatedRootView(appState: appState, authManager: authManager)
-                            .modelContainer(container)
+                        // TEMPORARY: Welcome screen while we fix RootView's Supabase dependencies
+                        VStack(spacing: 24) {
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 64))
+                                .foregroundColor(.fdAccent)
+                            Text("Welcome to FlowDay!")
+                                .font(.fdTitle)
+                                .foregroundColor(.fdText)
+                            Text("Signed in as \(authManager.currentUser?.name ?? "User")")
+                                .font(.fdBody)
+                                .foregroundColor(.fdTextSecondary)
+                            Text(authManager.currentUser?.email ?? "")
+                                .font(.fdCaption)
+                                .foregroundColor(.fdTextMuted)
+                            Spacer()
+                            Button("Sign Out") {
+                                authManager.signOut()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.fdAccent)
+                            .padding(.bottom, 40)
+                        }
+                        .padding()
                     }
                 }
                 .tint(Color.fdAccent)
