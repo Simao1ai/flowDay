@@ -7,8 +7,12 @@ import SwiftData
 struct HabitsView: View {
     @Environment(\.modelContext) private var modelContext
 
-    @Query(filter: #Predicate<FDHabit> { $0.isActive })
-    private var habits: [FDHabit]
+    @Query
+    private var habitsRaw: [FDHabit]
+
+    private var habits: [FDHabit] {
+        habitsRaw.filter { $0.isActive }
+    }
 
     var body: some View {
         NavigationStack {

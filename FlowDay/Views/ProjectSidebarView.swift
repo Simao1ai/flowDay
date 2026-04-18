@@ -13,8 +13,12 @@ struct ProjectSidebarView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
 
-    @Query(sort: [SortDescriptor(\FDProject.sortOrder)])
-    private var projects: [FDProject]
+    @Query
+    private var projectsRaw: [FDProject]
+
+    private var projects: [FDProject] {
+        projectsRaw.sorted { $0.sortOrder < $1.sortOrder }
+    }
 
     @State private var showCreateProject = false
     @State private var showSettings = false

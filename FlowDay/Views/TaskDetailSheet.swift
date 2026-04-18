@@ -13,8 +13,12 @@ struct TaskDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @Query(sort: [SortDescriptor(\FDProject.name)])
-    private var projects: [FDProject]
+    @Query
+    private var projectsRaw: [FDProject]
+
+    private var projects: [FDProject] {
+        projectsRaw.sorted { $0.name < $1.name }
+    }
 
     @State private var newSubtaskText = ""
     @FocusState private var subtaskFieldFocused: Bool

@@ -69,7 +69,11 @@ class AIAssistantService {
             predicate: #Predicate { !$0.isDeleted && !$0.isCompleted },
             sortBy: [SortDescriptor(\.priority), SortDescriptor(\.dueDate)]
         )
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            return []
+        }
     }
 
     private func fetchProjects() -> [FDProject] {
@@ -78,7 +82,11 @@ class AIAssistantService {
             predicate: #Predicate { !$0.isArchived },
             sortBy: [SortDescriptor(\.sortOrder)]
         )
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            return []
+        }
     }
 
     private func fetchTodayEnergy() -> EnergyLevel {
@@ -88,7 +96,11 @@ class AIAssistantService {
             predicate: #Predicate { $0.date >= today },
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
-        return (try? context.fetch(descriptor))?.first?.level ?? .normal
+        do {
+            return (try context.fetch(descriptor)).first?.level ?? .normal
+        } catch {
+            return .normal
+        }
     }
 
     private func fetchCompletedTodayCount() -> Int {
@@ -97,7 +109,11 @@ class AIAssistantService {
         let descriptor = FetchDescriptor<FDTask>(
             predicate: #Predicate { $0.isCompleted && !$0.isDeleted && $0.completedAt != nil && $0.completedAt! >= today }
         )
-        return (try? context.fetchCount(descriptor)) ?? 0
+        do {
+            return try context.fetchCount(descriptor)
+        } catch {
+            return 0
+        }
     }
 
     /// Build a context summary of the user's real data for the system prompt
@@ -345,17 +361,21 @@ class AIAssistantService {
     func completeTask(id: UUID) {
         guard let context = modelContext else { return }
         let descriptor = FetchDescriptor<FDTask>(predicate: #Predicate { $0.id == id })
-        if let task = try? context.fetch(descriptor).first {
-            task.complete()
-            try? context.save()
-            messages.append(AIMessage(
-                content: "Marked \"\(task.title)\" as complete! Nice work 💪",
-                isUser: false,
-                suggestions: [
-                    AISuggestion(text: "What's next?", icon: "arrow.right", action: .planDay),
-                    AISuggestion(text: "How am I doing?", icon: "chart.bar", action: .showProductivity)
-                ]
-            ))
+        do {
+            if let task = try context.fetch(descriptor).first {
+                task.complete()
+                try? context.save()
+                messages.append(AIMessage(
+                    content: "Marked \"\(task.title)\" as complete! Nice work 💪",
+                    isUser: false,
+                    suggestions: [
+                        AISuggestion(text: "What's next?", icon: "arrow.right", action: .planDay),
+                        AISuggestion(text: "How am I doing?", icon: "chart.bar", action: .showProductivity)
+                    ]
+                ))
+            }
+        } catch {
+            // Silently fail and don't update UI
         }
     }
 

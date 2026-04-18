@@ -12,8 +12,12 @@ struct BrowseView: View {
     let taskService: TaskService?
 
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: [SortDescriptor(\FDProject.sortOrder)])
-    private var projects: [FDProject]
+    @Query
+    private var projectsRaw: [FDProject]
+
+    private var projects: [FDProject] {
+        projectsRaw.sorted { $0.sortOrder < $1.sortOrder }
+    }
 
     @State private var showFiltersLabels = false
     @State private var showTemplates = false
@@ -344,8 +348,12 @@ struct BrowseView: View {
 struct ManageProjectsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: [SortDescriptor(\FDProject.sortOrder)])
-    private var projects: [FDProject]
+    @Query
+    private var projectsRaw: [FDProject]
+
+    private var projects: [FDProject] {
+        projectsRaw.sorted { $0.sortOrder < $1.sortOrder }
+    }
 
     var body: some View {
         NavigationStack {

@@ -13,14 +13,21 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @Query(
-        filter: #Predicate<FDTask> { !$0.isDeleted },
-        sort: [SortDescriptor(\FDTask.createdAt, order: .reverse)]
-    )
-    private var allTasks: [FDTask]
+    @Query
+    private var allTasksRaw: [FDTask]
 
-    @Query(sort: [SortDescriptor(\FDProject.sortOrder)])
-    private var allProjects: [FDProject]
+    private var allTasks: [FDTask] {
+        allTasksRaw
+            .filter { !$0.isDeleted }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    @Query
+    private var allProjectsRaw: [FDProject]
+
+    private var allProjects: [FDProject] {
+        allProjectsRaw.sorted { $0.sortOrder < $1.sortOrder }
+    }
 
     @State private var searchText = ""
     @FocusState private var isSearchFocused: Bool

@@ -13,8 +13,12 @@ struct AIPlanView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @Query(filter: #Predicate<FDTask> { !$0.isDeleted && !$0.isCompleted })
-    private var allTasks: [FDTask]
+    @Query
+    private var allTasksRaw: [FDTask]
+
+    private var allTasks: [FDTask] {
+        allTasksRaw.filter { !$0.isDeleted && !$0.isCompleted }
+    }
 
     @State private var planResult: AIPlanResult?
     @State private var selectedSuggestions: Set<UUID> = []

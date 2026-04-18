@@ -8,11 +8,14 @@ struct UpcomingView: View {
     let taskService: TaskService?
     @Environment(\.modelContext) private var modelContext
 
-    @Query(
-        filter: #Predicate<FDTask> { !$0.isDeleted && !$0.isCompleted },
-        sort: [SortDescriptor(\FDTask.dueDate)]
-    )
-    private var upcomingTasks: [FDTask]
+    @Query
+    private var upcomingTasksRaw: [FDTask]
+
+    private var upcomingTasks: [FDTask] {
+        upcomingTasksRaw
+            .filter { !$0.isDeleted && !$0.isCompleted }
+            .sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
+    }
 
     @State private var selectedTask: FDTask?
     @State private var showSmartAdd = false

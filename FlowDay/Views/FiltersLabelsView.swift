@@ -11,11 +11,14 @@ struct FiltersLabelsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    @Query(
-        filter: #Predicate<FDTask> { !$0.isDeleted },
-        sort: [SortDescriptor(\FDTask.createdAt, order: .reverse)]
-    )
-    private var allTasks: [FDTask]
+    @Query
+    private var allTasksRaw: [FDTask]
+
+    private var allTasks: [FDTask] {
+        allTasksRaw
+            .filter { !$0.isDeleted }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
 
     @State private var showAddLabel = false
     @State private var newLabelName = ""

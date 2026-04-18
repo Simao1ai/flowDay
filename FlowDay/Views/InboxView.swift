@@ -8,11 +8,14 @@ struct InboxView: View {
     let taskService: TaskService?
     @Environment(\.modelContext) private var modelContext
 
-    @Query(
-        filter: #Predicate<FDTask> { !$0.isDeleted && !$0.isCompleted },
-        sort: [SortDescriptor(\FDTask.createdAt, order: .reverse)]
-    )
-    private var allActiveTasks: [FDTask]
+    @Query
+    private var allActiveTasksRaw: [FDTask]
+
+    private var allActiveTasks: [FDTask] {
+        allActiveTasksRaw
+            .filter { !$0.isDeleted && !$0.isCompleted }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
 
     private var inboxTasks: [FDTask] {
         allActiveTasks.filter { $0.scheduledTime == nil && $0.dueDate == nil }
