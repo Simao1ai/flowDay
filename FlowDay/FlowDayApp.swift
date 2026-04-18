@@ -1,5 +1,6 @@
-// FlowDayApp.swift — DIAGNOSTIC RETEST
-// Exact copy of the build that worked (build 23), with cleaned-up services
+// FlowDayApp.swift
+// FlowDay — AI Daily Planner & Tasks
+// Build 32: Add auth + LoginView + RootView, NO GIDSignIn config
 
 import SwiftUI
 import SwiftData
@@ -7,6 +8,8 @@ import SwiftData
 @main
 struct FlowDayApp: App {
 
+    @State private var appState = AppState()
+    @State private var authManager = AuthManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     var sharedModelContainer: ModelContainer? = {
@@ -40,22 +43,15 @@ struct FlowDayApp: App {
                 Group {
                     if !hasSeenOnboarding {
                         OnboardingView()
-                    } else {
-                        VStack(spacing: 20) {
-                            Text("FlowDay")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                            Text("Login screen reached!")
-                                .font(.title2)
-                            Text("Build 31 — same as working build 23 + cleaned services")
-                                .multilineTextAlignment(.center)
-                                .padding()
-                            Button("Reset Onboarding") {
-                                hasSeenOnboarding = false
+                    } else if !authManager.isAuthenticated {
+                        LoginView()
+                            .environment(authManager)
+                            .onAppear {
+                                authManager.restoreSession()
                             }
-                            .buttonStyle(.borderedProminent)
-                        }
-                        .padding()
+                    } else {
+                        AuthenticatedRootView(appState: appState, authManager: authManager)
+                            .modelContainer(container)
                     }
                 }
                 .tint(Color.fdAccent)
@@ -67,7 +63,21 @@ struct FlowDayApp: App {
     }
 }
 
-// Stubs for compilation
+// MARK: - Authenticated Root View
+struct AuthenticatedRootView: View {
+    let appState: AppState
+    let authManager: AuthManager
+    @State private var calendarAccountManager = CalendarAccountManager()
+
+    var body: some View {
+        RootView()
+            .environment(appState)
+            .environment(authManager)
+            .environment(calendarAccountManager)
+    }
+}
+
+// MARK: - Global App State
 @Observable
 final class AppState {
     var selectedTab: Tab = .today
@@ -86,10 +96,4 @@ final class AppState {
         case habits = "Habits"
         case browse = "Browse"
     }
-}
-
-struct AuthenticatedRootView: View {
-    let appState: AppState
-    let authManager: AuthManager
-    var body: some View { EmptyView() }
 }
