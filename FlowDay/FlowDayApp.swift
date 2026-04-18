@@ -45,10 +45,11 @@ struct FlowDayApp: App {
                     } else if !authManager.isAuthenticated {
                         LoginView()
                             .environment(authManager)
-                            // No restoreSession — Keychain has stale data causing RootView crash
+                            .onAppear {
+                                authManager.restoreSession()
+                            }
                     } else {
-                        // Welcome screen until RootView services are fixed
-                        welcomeView
+                        AuthenticatedRootView(appState: appState, authManager: authManager)
                             .modelContainer(container)
                     }
                 }
@@ -60,35 +61,6 @@ struct FlowDayApp: App {
         }
     }
 
-    private var welcomeView: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
-                .foregroundColor(.fdAccent)
-            Text("Welcome to FlowDay!")
-                .font(.fdTitle)
-                .foregroundColor(.fdText)
-            Text("Signed in as \(authManager.currentUser?.name ?? "User")")
-                .font(.fdBody)
-                .foregroundColor(.fdTextSecondary)
-            Text(authManager.currentUser?.email ?? "")
-                .font(.fdCaption)
-                .foregroundColor(.fdTextMuted)
-            Text("Main app view coming in next build")
-                .font(.fdCaption)
-                .foregroundColor(.fdTextMuted)
-                .padding(.top, 8)
-            Spacer()
-            Button("Sign Out") {
-                authManager.signOut()
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.fdAccent)
-            .padding(.bottom, 40)
-        }
-        .padding()
-    }
 }
 
 // MARK: - Authenticated Root View (not used until RootView is fixed)

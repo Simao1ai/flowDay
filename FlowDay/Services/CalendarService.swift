@@ -12,7 +12,8 @@ import EventKit
 @Observable
 final class CalendarService {
 
-    let eventStore = EKEventStore()
+    // Lazy to avoid EKEventStore crash during early app init
+    lazy var eventStore = EKEventStore()
 
     var authorizationStatus: EKAuthorizationStatus = .notDetermined
     var todayEvents: [EKEvent] = []
@@ -24,7 +25,10 @@ final class CalendarService {
     var accountManager: CalendarAccountManager?
 
     init() {
-        checkAuthorization()
+        // Defer EventKit access — it can crash during early app startup
+        DispatchQueue.main.async { [weak self] in
+            self?.checkAuthorization()
+        }
     }
 
     // MARK: - Authorization (Apple Calendar)
