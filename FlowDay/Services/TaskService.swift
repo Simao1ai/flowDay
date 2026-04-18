@@ -156,50 +156,34 @@ final class TaskService {
 
     // MARK: - Queries
 
+    // All fetches use plain FetchDescriptor — predicates/sorts crash on iOS 26.x
     func tasksForToday() -> [FDTask] {
         let cal = Calendar.current
         let startOfDay = cal.startOfDay(for: .now)
         guard let endOfDay = cal.date(byAdding: .day, value: 1, to: startOfDay) else { return [] }
 
-        let predicate = #Predicate<FDTask> { task in
+        let all = (try? modelContext.fetch(FetchDescriptor<FDTask>())) ?? []
+        return all.filter { task in
             !task.isDeleted &&
             (
                 (task.scheduledTime != nil && task.scheduledTime! >= startOfDay && task.scheduledTime! < endOfDay) ||
                 (task.dueDate != nil && task.dueDate! >= startOfDay && task.dueDate! < endOfDay)
             )
         }
-
-        let descriptor = FetchDescriptor<FDTask>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.scheduledTime), SortDescriptor(\.priority)]
-        )
-
-        return (try? modelContext.fetch(descriptor)) ?? []
+        .sorted { ($0.scheduledTime ?? .distantFuture) < ($1.scheduledTime ?? .distantFuture) }
     }
 
     func overdueTasks() -> [FDTask] {
         let now = Date.now
-        let predicate = #Predicate<FDTask> { task in
-            !task.isDeleted && !task.isCompleted &&
-            task.dueDate != nil && task.dueDate! < now
-        }
-        let descriptor = FetchDescriptor<FDTask>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.dueDate)]
-        )
-        return (try? modelContext.fetch(descriptor)) ?? []
+        let all = (try? modelContext.fetch(FetchDescriptor<FDTask>())) ?? []
+        return all.filter { !$0.isDeleted && !$0.isCompleted && $0.dueDate != nil && $0.dueDate! < now }
+            .sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
     }
 
     func inboxTasks() -> [FDTask] {
-        let predicate = #Predicate<FDTask> { task in
-            !task.isDeleted && !task.isCompleted &&
-            task.scheduledTime == nil && task.dueDate == nil
-        }
-        let descriptor = FetchDescriptor<FDTask>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        return (try? modelContext.fetch(descriptor)) ?? []
+        let all = (try? modelContext.fetch(FetchDescriptor<FDTask>())) ?? []
+        return all.filter { !$0.isDeleted && !$0.isCompleted && $0.scheduledTime == nil && $0.dueDate == nil }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 
     // MARK: - Undo

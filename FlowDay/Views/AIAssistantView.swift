@@ -63,14 +63,13 @@ class AIAssistantService {
 
     // MARK: - Data Queries
 
+    // All fetches use plain FetchDescriptor — predicates/sorts crash on iOS 26.x
     private func fetchTodayTasks() -> [FDTask] {
         guard let context = modelContext else { return [] }
-        let descriptor = FetchDescriptor<FDTask>(
-            predicate: #Predicate { !$0.isDeleted && !$0.isCompleted },
-            sortBy: [SortDescriptor(\.priority), SortDescriptor(\.dueDate)]
-        )
         do {
-            return try context.fetch(descriptor)
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+            return all.filter { !$0.isDeleted && !$0.isCompleted }
+                .sorted { ($0.priority.rawValue) > ($1.priority.rawValue) }
         } catch {
             return []
         }
@@ -78,12 +77,9 @@ class AIAssistantService {
 
     private func fetchProjects() -> [FDProject] {
         guard let context = modelContext else { return [] }
-        let descriptor = FetchDescriptor<FDProject>(
-            predicate: #Predicate { !$0.isArchived },
-            sortBy: [SortDescriptor(\.sortOrder)]
-        )
         do {
-            return try context.fetch(descriptor)
+            let all = try context.fetch(FetchDescriptor<FDProject>())
+            return all.filter { !$0.isArchived }.sorted { $0.sortOrder < $1.sortOrder }
         } catch {
             return []
         }
@@ -92,12 +88,11 @@ class AIAssistantService {
     private func fetchTodayEnergy() -> EnergyLevel {
         guard let context = modelContext else { return .normal }
         let today = Calendar.current.startOfDay(for: .now)
-        let descriptor = FetchDescriptor<FDEnergyLog>(
-            predicate: #Predicate { $0.date >= today },
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
         do {
-            return (try context.fetch(descriptor)).first?.level ?? .normal
+            let all = try context.fetch(FetchDescriptor<FDEnergyLog>())
+            return all.filter { $0.date >= today }
+                .sorted { $0.date > $1.date }
+                .first?.level ?? .normal
         } catch {
             return .normal
         }
@@ -106,11 +101,9 @@ class AIAssistantService {
     private func fetchCompletedTodayCount() -> Int {
         guard let context = modelContext else { return 0 }
         let today = Calendar.current.startOfDay(for: .now)
-        let descriptor = FetchDescriptor<FDTask>(
-            predicate: #Predicate { $0.isCompleted && !$0.isDeleted && $0.completedAt != nil && $0.completedAt! >= today }
-        )
         do {
-            return try context.fetchCount(descriptor)
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+            return all.filter { $0.isCompleted && !$0.isDeleted && $0.completedAt != nil && $0.completedAt! >= today }.count
         } catch {
             return 0
         }
@@ -360,9 +353,9 @@ class AIAssistantService {
 
     func completeTask(id: UUID) {
         guard let context = modelContext else { return }
-        let descriptor = FetchDescriptor<FDTask>(predicate: #Predicate { $0.id == id })
         do {
-            if let task = try context.fetch(descriptor).first {
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+            if let task = all.first(where: { $0.id == id }) {
                 task.complete()
                 try? context.save()
                 messages.append(AIMessage(
