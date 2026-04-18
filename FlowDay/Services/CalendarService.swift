@@ -12,8 +12,12 @@ import EventKit
 @Observable
 final class CalendarService {
 
-    // Lazy to avoid EKEventStore crash during early app init
-    lazy var eventStore = EKEventStore()
+    // @Observable doesn't support lazy, so we use a private backing + computed property
+    private var _eventStore: EKEventStore?
+    var eventStore: EKEventStore {
+        if _eventStore == nil { _eventStore = EKEventStore() }
+        return _eventStore!
+    }
 
     var authorizationStatus: EKAuthorizationStatus = .notDetermined
     var todayEvents: [EKEvent] = []
