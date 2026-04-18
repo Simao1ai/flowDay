@@ -27,7 +27,7 @@ struct RootView: View {
                     }
                     .tag(AppState.Tab.today)
 
-                UpcomingView()
+                UpcomingView(taskService: taskService)
                     .tabItem {
                         Label("Upcoming", systemImage: "calendar")
                     }
@@ -42,7 +42,7 @@ struct RootView: View {
                 }
                 .tag(AppState.Tab.flowAI)
 
-                InboxView()
+                InboxView(taskService: taskService)
                     .tabItem {
                         Label("Inbox", systemImage: "tray")
                     }
