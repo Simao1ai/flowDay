@@ -48,7 +48,7 @@ struct RootView: View {
                     }
                     .tag(AppState.Tab.inbox)
 
-                BrowseView()
+                BrowseView(taskService: taskService)
                     .tabItem {
                         Label("Browse", systemImage: "square.grid.2x2")
                     }
