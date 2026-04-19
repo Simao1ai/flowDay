@@ -173,7 +173,7 @@ struct TaskCountIntent: AppIntent {
             : count == 1 ? "One task left for today."
             : "\(count) tasks left for today."
 
-        return .result(value: count, dialog: IntentDialog(full: message, supporting: message))
+        return .result(value: count, dialog: "\(message)")
     }
 }
 
