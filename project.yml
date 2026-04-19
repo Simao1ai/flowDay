@@ -1,4 +1,4 @@
-name: FlowDay
+name: Flow Day-ios
 options:
   bundleIdPrefix: io.flowday
   deploymentTarget:
