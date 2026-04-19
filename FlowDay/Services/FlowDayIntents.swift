@@ -41,16 +41,16 @@ struct AddTaskIntent: AppIntent {
 
     static var openAppWhenRun: Bool = false
 
-    @Parameter(title: "Task", description: "What should get done?")
+    @Parameter(title: "Task")
     var title: String
 
     @Parameter(title: "Priority", default: .none)
     var priority: TaskPriorityAppEnum
 
-    @Parameter(title: "Due Date", description: "Optional", default: nil)
+    @Parameter(title: "Due Date")
     var dueDate: Date?
 
-    @Parameter(title: "Estimated Minutes", description: "Optional", default: nil)
+    @Parameter(title: "Estimated Minutes")
     var estimatedMinutes: Int?
 
     static var parameterSummary: some ParameterSummary {
@@ -91,7 +91,7 @@ struct CompleteTaskIntent: AppIntent {
 
     static var openAppWhenRun: Bool = false
 
-    @Parameter(title: "Task Name", description: "Part of the task's title")
+    @Parameter(title: "Task Name")
     var query: String
 
     static var parameterSummary: some ParameterSummary {
