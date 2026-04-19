@@ -25,6 +25,9 @@ struct ProjectDetailView: View {
     @State private var editingSection: String?
     @State private var editingSectionName = ""
     @State private var collapsedSections: Set<String> = []
+    @AppStorage("project_view_mode") private var viewMode: ProjectViewMode = .list
+
+    enum ProjectViewMode: String { case list, board }
 
     private func sortedActiveTasks(in section: String?) -> [FDTask] {
         project.tasks
@@ -61,51 +64,19 @@ struct ProjectDetailView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    projectHeader
-
-                    // Ungrouped tasks — only show if there are any
-                    if hasUngroupedTasks {
-                        sectionBlock(
-                            title: "No Section",
-                            icon: "tray",
-                            sectionKey: nil,
-                            tasks: sortedActiveTasks(in: nil),
-                            canRename: false
-                        )
+            Group {
+                if viewMode == .board {
+                    VStack(spacing: 0) {
+                        projectHeader
+                            .padding(.horizontal, 20)
+                            .padding(.top, 8)
+                        BoardView(project: project, taskService: taskService)
                     }
-
-                    // Named sections
-                    ForEach(orderedSectionNames, id: \.self) { name in
-                        sectionBlock(
-                            title: name,
-                            icon: "square.stack.3d.up",
-                            sectionKey: name,
-                            tasks: sortedActiveTasks(in: name),
-                            canRename: true
-                        )
-                    }
-
-                    // Add a section
-                    addSectionRow
-
-                    // Completed tasks
-                    if !completedTasks.isEmpty {
-                        completedBlock
-                    }
-
-                    // Empty state
-                    if project.tasks.filter({ !$0.isDeleted }).isEmpty && project.sections.isEmpty {
-                        emptyState
-                    }
-
-                    Spacer(minLength: 80)
+                    .background(Color.fdBackground)
+                } else {
+                    listBody
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
             }
-            .background(Color.fdBackground)
             .navigationTitle(project.name)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -120,39 +91,44 @@ struct ProjectDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        newTaskSection = nil
-                        showAddTask = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.fdAccent)
+                    HStack(spacing: 10) {
+                        viewModeToggle
+                        Button {
+                            newTaskSection = nil
+                            showAddTask = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                        }
                     }
                 }
             }
             .overlay(alignment: .bottom) {
-                Button {
-                    newTaskSection = nil
-                    showAddTask = true
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.fdAccent)
-                        Text("Add a task...")
-                            .font(.fdBody)
-                            .foregroundStyle(Color.fdTextMuted)
-                        Spacer()
+                if viewMode == .list {
+                    Button {
+                        newTaskSection = nil
+                        showAddTask = true
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                            Text("Add a task...")
+                                .font(.fdBody)
+                                .foregroundStyle(Color.fdTextMuted)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.fdSurface)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.fdSurface)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 8)
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 8)
             }
             .sheet(isPresented: $showAddTask) { addTaskSheet }
             .sheet(item: $selectedTask) { task in
@@ -182,6 +158,77 @@ struct ProjectDetailView: View {
                 }
                 Button("Cancel", role: .cancel) { editingSection = nil }
             }
+        }
+    }
+
+    // MARK: - List Body (default view mode)
+
+    private var listBody: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                projectHeader
+
+                if hasUngroupedTasks {
+                    sectionBlock(
+                        title: "No Section",
+                        icon: "tray",
+                        sectionKey: nil,
+                        tasks: sortedActiveTasks(in: nil),
+                        canRename: false
+                    )
+                }
+
+                ForEach(orderedSectionNames, id: \.self) { name in
+                    sectionBlock(
+                        title: name,
+                        icon: "square.stack.3d.up",
+                        sectionKey: name,
+                        tasks: sortedActiveTasks(in: name),
+                        canRename: true
+                    )
+                }
+
+                addSectionRow
+
+                if !completedTasks.isEmpty {
+                    completedBlock
+                }
+
+                if project.tasks.filter({ !$0.isDeleted }).isEmpty && project.sections.isEmpty {
+                    emptyState
+                }
+
+                Spacer(minLength: 80)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+        }
+        .background(Color.fdBackground)
+    }
+
+    // MARK: - View Mode Toggle
+
+    private var viewModeToggle: some View {
+        Menu {
+            Button {
+                Haptics.pick()
+                viewMode = .list
+            } label: {
+                Label("List", systemImage: "list.bullet")
+            }
+            Button {
+                Haptics.pick()
+                viewMode = .board
+            } label: {
+                Label("Board", systemImage: "rectangle.split.3x1")
+            }
+        } label: {
+            Image(systemName: viewMode == .board ? "rectangle.split.3x1" : "list.bullet")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.fdTextSecondary)
+                .frame(width: 30, height: 30)
+                .background(Color.fdSurfaceHover)
+                .clipShape(Circle())
         }
     }
 

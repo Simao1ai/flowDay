@@ -32,6 +32,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.flowday.app
+        TARGETED_DEVICE_FAMILY: "1,2"
         INFOPLIST_VALUES: >-
           {
             "CFBundleDisplayName": "FlowDay",
@@ -39,10 +40,26 @@ targets:
             "CFBundleShortVersionString": "1.0.0",
             "CFBundleVersion": "1",
             "UILaunchScreen": {},
-            "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
+            "UISupportedInterfaceOrientations": [
+              "UIInterfaceOrientationPortrait",
+              "UIInterfaceOrientationLandscapeLeft",
+              "UIInterfaceOrientationLandscapeRight"
+            ],
+            "UISupportedInterfaceOrientations~ipad": [
+              "UIInterfaceOrientationPortrait",
+              "UIInterfaceOrientationPortraitUpsideDown",
+              "UIInterfaceOrientationLandscapeLeft",
+              "UIInterfaceOrientationLandscapeRight"
+            ],
+            "UIRequiresFullScreen": false,
             "NSCalendarsFullAccessUsageDescription": "FlowDay shows your calendar events alongside tasks in one daily timeline.",
             "NSSpeechRecognitionUsageDescription": "FlowDay uses voice recognition to capture tasks hands-free.",
-            "NSMicrophoneUsageDescription": "FlowDay uses your microphone for voice task capture."
+            "NSMicrophoneUsageDescription": "FlowDay uses your microphone for voice task capture.",
+            "NSUserActivityTypes": [
+              "io.flowday.app.add-task",
+              "io.flowday.app.complete-task",
+              "io.flowday.app.plan-day"
+            ]
           }
     entitlements:
       path: FlowDay/FlowDay.entitlements
