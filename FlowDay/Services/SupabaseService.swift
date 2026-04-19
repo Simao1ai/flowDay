@@ -71,6 +71,7 @@ final class SupabaseService: @unchecked Sendable {
     /// Upsert a task row. Fire-and-forget from TaskService.
     func syncTask(_ task: FDTask) async {
         guard let jwt = currentJWT else { return }
+        SyncStatusService.begin()
         do {
             let row = TaskRow.from(task, userId: currentUserId ?? "")
             let url = URL(string: "\(baseURL)/rest/v1/tasks")!
@@ -78,11 +79,14 @@ final class SupabaseService: @unchecked Sendable {
             request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
             request.setValue("id", forHTTPHeaderField: "on_conflict")
             request.httpBody = try encoder.encode(row)
-            let (_, _) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await URLSession.shared.data(for: request)
+            try checkHTTPStatus(response)
+            SyncStatusService.end(success: true)
         } catch {
             #if DEBUG
             print("[SupabaseService] syncTask failed: \(error.localizedDescription)")
             #endif
+            SyncStatusService.end(success: false, message: error.localizedDescription)
         }
     }
 
@@ -112,6 +116,7 @@ final class SupabaseService: @unchecked Sendable {
     /// Upsert a project row.
     func syncProject(_ project: FDProject) async {
         guard let jwt = currentJWT, let userId = currentUserId else { return }
+        SyncStatusService.begin()
         do {
             let row = ProjectRow.from(project, userId: userId)
             let url = URL(string: "\(baseURL)/rest/v1/projects")!
@@ -119,11 +124,14 @@ final class SupabaseService: @unchecked Sendable {
             request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
             request.setValue("id", forHTTPHeaderField: "on_conflict")
             request.httpBody = try encoder.encode(row)
-            let (_, _) = try await URLSession.shared.data(for: request)
+            let (_, response) = try await URLSession.shared.data(for: request)
+            try checkHTTPStatus(response)
+            SyncStatusService.end(success: true)
         } catch {
             #if DEBUG
             print("[SupabaseService] syncProject failed: \(error.localizedDescription)")
             #endif
+            SyncStatusService.end(success: false, message: error.localizedDescription)
         }
     }
 
@@ -297,6 +305,7 @@ private struct TaskRow: Codable {
     let estimatedMinutes: Int?
     let priority: Int
     let labels: [String]
+    let section: String?
     let sortOrder: Int
     let isCompleted: Bool
     let completedAt: Date?
@@ -309,7 +318,7 @@ private struct TaskRow: Codable {
     let modifiedAt: Date
 
     enum CodingKeys: String, CodingKey {
-        case id, title, notes, priority, labels
+        case id, title, notes, priority, labels, section
         case userId = "user_id"
         case projectId = "project_id"
         case startDate = "start_date"
@@ -341,6 +350,7 @@ private struct TaskRow: Codable {
             estimatedMinutes: task.estimatedMinutes,
             priority: task.priority.rawValue,
             labels: task.labels,
+            section: task.section,
             sortOrder: task.sortOrder,
             isCompleted: task.isCompleted,
             completedAt: task.completedAt,

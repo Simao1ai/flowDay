@@ -104,10 +104,11 @@ struct TodayView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: 10) {
                         if let energy = appState.todayEnergy {
                             energyBadge(energy)
                         }
+                        SyncStatusBadge()
                         Button {
                             showSettings = true
                         } label: {
@@ -344,8 +345,10 @@ struct TodayView: View {
                     .focused($quickAddFocused)
                     .submitLabel(.done)
                     .onSubmit {
-                        guard !quickAddText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                        resolvedTaskService.createTask(title: quickAddText)
+                        let trimmed = quickAddText.trimmingCharacters(in: .whitespaces)
+                        guard !trimmed.isEmpty else { return }
+                        Haptics.tock()
+                        resolvedTaskService.createTask(title: trimmed)
                         quickAddText = ""
                     }
 
@@ -443,8 +446,17 @@ struct TaskRowView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Main row
             HStack(alignment: .top, spacing: 12) {
-                // Checkbox
-                Button(action: onToggle) {
+                // Checkbox — spring + haptic on tap
+                Button {
+                    if task.isCompleted {
+                        Haptics.tap()
+                    } else {
+                        Haptics.tock()
+                    }
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                        onToggle()
+                    }
+                } label: {
                     RoundedRectangle(cornerRadius: 6)
                         .stroke(task.isCompleted ? Color.fdGreen : priorityColor.opacity(0.5), lineWidth: 2)
                         .fill(task.isCompleted ? Color.fdGreen : Color.clear)
@@ -454,11 +466,14 @@ struct TaskRowView: View {
                                 Image(systemName: "checkmark")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundStyle(.white)
+                                    .transition(.scale.combined(with: .opacity))
                             }
                         }
+                        .scaleEffect(task.isCompleted ? 1.06 : 1.0)
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 2)
+                .accessibilityLabel(task.isCompleted ? "Mark task incomplete" : "Complete task")
 
                 // Content
                 VStack(alignment: .leading, spacing: 5) {
@@ -528,7 +543,12 @@ struct TaskRowView: View {
                 VStack(spacing: 0) {
                     ForEach(task.subtasks.sorted(by: { $0.sortOrder < $1.sortOrder })) { subtask in
                         HStack(spacing: 10) {
-                            Button { onToggleSubtask(subtask) } label: {
+                            Button {
+                                Haptics.tap()
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    onToggleSubtask(subtask)
+                                }
+                            } label: {
                                 RoundedRectangle(cornerRadius: 4)
                                     .stroke(subtask.isCompleted ? Color.fdGreen : Color.fdBorder, lineWidth: 1.5)
                                     .fill(subtask.isCompleted ? Color.fdGreen : Color.clear)
@@ -538,10 +558,12 @@ struct TaskRowView: View {
                                             Image(systemName: "checkmark")
                                                 .font(.system(size: 8, weight: .bold))
                                                 .foregroundStyle(.white)
+                                                .transition(.scale.combined(with: .opacity))
                                         }
                                     }
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(subtask.isCompleted ? "Mark subtask incomplete" : "Complete subtask")
 
                             Text(subtask.title)
                                 .font(.fdCaption)
@@ -610,13 +632,22 @@ struct HabitCardView: View {
 
     var body: some View {
         Button {
-            let _ = habit.toggleToday()
+            let wasCompleted = habit.isCompletedToday
+            if wasCompleted {
+                Haptics.tap()
+            } else {
+                Haptics.success()
+            }
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                let _ = habit.toggleToday()
+            }
             try? modelContext.save()
         } label: {
             VStack(spacing: 6) {
                 ZStack(alignment: .topTrailing) {
                     Text(habit.emoji)
                         .font(.title2)
+                        .scaleEffect(habit.isCompletedToday ? 1.12 : 1.0)
                     if habit.isCompletedToday {
                         Circle()
                             .fill(Color(hex: habit.colorHex))
@@ -627,6 +658,7 @@ struct HabitCardView: View {
                                     .foregroundStyle(.white)
                             }
                             .offset(x: 6, y: -4)
+                            .transition(.scale.combined(with: .opacity))
                     }
                 }
                 Text(habit.name)

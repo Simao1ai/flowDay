@@ -1,0 +1,44 @@
+// EnergyCheckInSettingsView.swift
+// FlowDay
+
+import SwiftUI
+
+struct EnergyCheckInSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var enabled = true
+    @State private var frequency = "Daily"
+    @State private var checkInTime = "Morning"
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    FDSettingsUI.group {
+                        FDSettingsUI.toggleRow(title: "Energy check-in enabled", isOn: $enabled, subtitle: nil)
+                    }
+
+                    FDSettingsUI.group {
+                        FDSettingsUI.pickerRow(title: "Frequency", selection: $frequency, options: ["Daily", "Weekdays only", "Manual"])
+                        Divider().padding(.leading, 16)
+                        FDSettingsUI.pickerRow(title: "Check-in time", selection: $checkInTime, options: ["Morning", "When I open the app", "Custom time"])
+                    }
+
+                    FDSettingsUI.infoCard(
+                        icon: "bolt.fill",
+                        title: "Why Energy Matters",
+                        message: "Your energy level changes how the AI schedules your day. High energy means harder tasks get front-loaded."
+                    )
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                .padding(.bottom, 40)
+            }
+            .background(Color.fdBackground)
+            .navigationTitle("Energy Check-in")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
+            }
+        }
+    }
+}

@@ -90,6 +90,7 @@ create table if not exists public.tasks (
   estimated_minutes   integer,
   priority            integer not null default 4 check (priority between 1 and 4),
   labels              jsonb not null default '[]',   -- [string]
+  section             text,                          -- name matching an entry in projects.sections
   sort_order          integer not null default 0,
   is_completed        boolean not null default false,
   completed_at        timestamptz,
