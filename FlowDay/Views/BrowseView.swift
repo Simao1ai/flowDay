@@ -28,6 +28,7 @@ struct BrowseView: View {
     @State private var expandProjects = true
     @State private var selectedProject: FDProject?
     @State private var showManageProjects = false
+    @State private var selectedFilter: SmartFilter?
 
     var body: some View {
         NavigationStack {
@@ -35,6 +36,7 @@ struct BrowseView: View {
                 VStack(spacing: 20) {
                     profileHeader
                     quickActions
+                    smartFiltersSection
                     if !favoriteProjects.isEmpty { favoritesSection }
                     projectsSection
                     bottomActions
@@ -56,7 +58,61 @@ struct BrowseView: View {
             .sheet(item: $selectedProject) { project in
                 ProjectDetailView(project: project, taskService: taskService)
             }
+            .sheet(item: $selectedFilter) { filter in
+                SmartFilterView(filter: filter, taskService: taskService)
+            }
         }
+    }
+
+    // MARK: - Smart Filters
+
+    private var smartFiltersSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Smart Filters")
+                .font(.fdTitle3)
+                .foregroundStyle(Color.fdText)
+
+            LazyVGrid(
+                columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)],
+                spacing: 10
+            ) {
+                ForEach(SmartFilter.allCases) { filter in
+                    smartFilterCard(filter)
+                }
+            }
+        }
+    }
+
+    private func smartFilterCard(_ filter: SmartFilter) -> some View {
+        Button {
+            Haptics.tap()
+            selectedFilter = filter
+        } label: {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(filter.tint.opacity(0.12))
+                        .frame(width: 34, height: 34)
+                    Image(systemName: filter.iconName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(filter.tint)
+                }
+                Text(filter.title)
+                    .font(.fdCaptionBold)
+                    .foregroundStyle(Color.fdText)
+                    .lineLimit(1)
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color.fdSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.fdBorderLight, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Profile Header

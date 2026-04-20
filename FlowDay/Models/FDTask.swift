@@ -30,6 +30,10 @@ final class FDTask {
     var priority: TaskPriority
     var labels: [String]
     var sortOrder: Int
+    /// Name of the section within the task's project. nil = "No Section".
+    /// Matches a string in FDProject.sections. Kept as free-form text so renaming
+    /// a section updates in one place without a separate join table.
+    var section: String?
 
     // Status
     var isCompleted: Bool
@@ -60,6 +64,7 @@ final class FDTask {
         estimatedMinutes: Int? = nil,
         priority: TaskPriority = .none,
         labels: [String] = [],
+        section: String? = nil,
         recurrenceRule: String? = nil,
         cognitiveLoad: Int? = nil,
         project: FDProject? = nil
@@ -76,6 +81,7 @@ final class FDTask {
         self.priority = priority
         self.labels = labels
         self.sortOrder = 0
+        self.section = section
         self.isCompleted = false
         self.completedAt = nil
         self.isDeleted = false

@@ -46,6 +46,7 @@ final class TaskService {
         scheduledTime: Date? = nil,
         estimatedMinutes: Int? = nil,
         labels: [String] = [],
+        section: String? = nil,
         recurrenceRule: String? = nil
     ) -> FDTask {
         let task = FDTask(
@@ -57,6 +58,7 @@ final class TaskService {
             estimatedMinutes: estimatedMinutes,
             priority: priority,
             labels: labels,
+            section: section,
             recurrenceRule: recurrenceRule,
             project: project
         )
@@ -64,6 +66,59 @@ final class TaskService {
         save()
         Task { await SupabaseService.shared.syncTask(task) }
         return task
+    }
+
+    // MARK: - Sections
+
+    /// Move a task into a named section (or clear the section with nil).
+    func moveTask(_ task: FDTask, to section: String?) {
+        task.section = section
+        task.modifiedAt = .now
+        save()
+        Task { await SupabaseService.shared.syncTask(task) }
+    }
+
+    /// Add a section to a project. Idempotent.
+    func addSection(_ name: String, to project: FDProject) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !project.sections.contains(trimmed) else { return }
+        project.sections.append(trimmed)
+        save()
+        Task { await SupabaseService.shared.syncProject(project) }
+    }
+
+    /// Rename a section and all tasks that reference it.
+    func renameSection(_ oldName: String, to newName: String, in project: FDProject) {
+        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, oldName != trimmed else { return }
+        project.sections = project.sections.map { $0 == oldName ? trimmed : $0 }
+        for task in project.tasks where task.section == oldName {
+            task.section = trimmed
+            task.modifiedAt = .now
+        }
+        save()
+        Task {
+            await SupabaseService.shared.syncProject(project)
+            for task in project.tasks where task.section == trimmed {
+                await SupabaseService.shared.syncTask(task)
+            }
+        }
+    }
+
+    /// Delete a section. Tasks in it are moved to "no section", not deleted.
+    func deleteSection(_ name: String, in project: FDProject) {
+        project.sections.removeAll { $0 == name }
+        for task in project.tasks where task.section == name {
+            task.section = nil
+            task.modifiedAt = .now
+        }
+        save()
+        Task {
+            await SupabaseService.shared.syncProject(project)
+            for task in project.tasks where task.section == nil {
+                await SupabaseService.shared.syncTask(task)
+            }
+        }
     }
 
     /// Add a subtask inline (no navigation required — fixes Todoist UX)
@@ -237,6 +292,7 @@ final class TaskService {
                 dueDate: nextDate,
                 priority: task.priority,
                 labels: task.labels,
+                section: task.section,
                 recurrenceRule: task.recurrenceRule,
                 cognitiveLoad: task.cognitiveLoad,
                 project: task.project
