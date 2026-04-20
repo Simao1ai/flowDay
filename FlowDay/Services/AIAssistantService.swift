@@ -197,7 +197,8 @@ final class AIAssistantService {
                 tasks: Array(tasks.prefix(20)),
                 energyLevel: energy,
                 calendarEvents: events,
-                freeSlots: freeSlots.map { (start: $0.start, end: Calendar.current.date(byAdding: .minute, value: $0.durationMinutes, to: $0.start) ?? $0.start) }
+                freeSlots: freeSlots.map { (start: $0.start, end: Calendar.current.date(byAdding: .minute, value: $0.durationMinutes, to: $0.start) ?? $0.start) },
+                history: recentConversationHistory()
             )
 
             let taskList = plan.scheduledTasks.map { "• \($0.taskTitle) → \($0.suggestedTime)" }.joined(separator: "\n")
@@ -224,7 +225,10 @@ final class AIAssistantService {
 
     private func handleCreateTask(userMessage: String) async -> AIMessage {
         do {
-            let suggestion = try await AIFeatureService.shared.parseTaskWithAI(input: userMessage)
+            let suggestion = try await AIFeatureService.shared.parseTaskWithAI(
+                input: userMessage,
+                history: recentConversationHistory()
+            )
             pendingTaskSuggestion = suggestion
 
             var details = "📝 \(suggestion.title)\n"
@@ -358,7 +362,10 @@ final class AIAssistantService {
         }
 
         do {
-            let breakdown = try await AIFeatureService.shared.breakdownTask(goal: goal)
+            let breakdown = try await AIFeatureService.shared.breakdownTask(
+                goal: goal,
+                history: recentConversationHistory()
+            )
 
             let subtaskList = breakdown.subtasks.enumerated().map { i, item in
                 "\(i + 1). \(item.title) [P\(item.priority), ~\(item.estimatedMinutes)min]"
@@ -403,33 +410,35 @@ final class AIAssistantService {
         )
     }
 
-    // MARK: - General Chat (context-rich)
+    // MARK: - General Chat (context-rich, server-cached)
 
+    /// All chat now goes through the Supabase Edge Function so it benefits
+    /// from the same prompt caching and server-managed Anthropic key as the
+    /// structured features. The user's live SwiftData snapshot is prepended
+    /// as a synthetic "user" turn — that keeps the cached system prompt
+    /// stable while still giving the model fresh context every call.
     private func handleGeneralChat(userMessage: String) async -> AIMessage {
         let context = buildUserContext()
-        let conversationHistory: [LLMMessage] = messages.suffix(10).map { msg in
-            LLMMessage(role: msg.isUser ? .user : .assistant, content: msg.content)
-        }
+        let history = recentConversationHistory()
 
-        let systemPrompt = """
-        You are Flow, FlowDay's AI productivity assistant. You're warm, encouraging, and concise (2-3 sentences max unless asked for detail). Never use markdown headers.
-
-        You have REAL access to the user's data. Use it to give personalized advice.
-
-        \(context)
-
-        CAPABILITIES you can suggest:
-        - "Plan my day" — generates an energy-aware schedule
-        - "Create a task: [description]" — parses natural language into a task
-        - "Break down [goal]" — splits a goal into subtasks
-        - "Complete [task name]" — marks a task done
-        - "How am I doing?" — shows productivity stats
-        """
+        // Prepend a context-only message so Claude sees the user's current
+        // state without having to refetch it.
+        var messages: [LLMMessage] = [
+            LLMMessage(
+                role: .user,
+                content: "Context for this conversation (do not respond to this message directly):\n\n\(context)"
+            ),
+            LLMMessage(
+                role: .assistant,
+                content: "Got it. I'll factor that in."
+            )
+        ]
+        messages.append(contentsOf: history)
 
         do {
-            let response = try await LLMService.shared.chat(
-                messages: conversationHistory,
-                systemPrompt: systemPrompt,
+            let response = try await ClaudeClient.shared.chat(
+                feature: .flowAI,
+                messages: messages,
                 temperature: 0.7,
                 maxTokens: 400
             )
@@ -443,6 +452,19 @@ final class AIAssistantService {
                     AISuggestion(text: "Create a task", icon: "plus.circle", action: .createTask(title: ""))
                 ]
             )
+        }
+    }
+
+    // MARK: - Conversation History
+
+    /// Last N turns of the on-screen chat, mapped to LLMMessage so feature
+    /// calls can give Claude the same context the user is looking at.
+    /// Skips the welcome message (which is just a static greeting).
+    private func recentConversationHistory(limit: Int = 8) -> [LLMMessage] {
+        // Drop the first message if it's our welcome greeting from init()
+        let trimmed = messages.dropFirst()
+        return trimmed.suffix(limit).map { msg in
+            LLMMessage(role: msg.isUser ? .user : .assistant, content: msg.content)
         }
     }
 
