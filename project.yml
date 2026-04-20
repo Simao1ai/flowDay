@@ -63,6 +63,9 @@ targets:
           }
     entitlements:
       path: FlowDay/FlowDay.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
 
   FlowDayTests:
     type: bundle.unit-test
@@ -71,3 +74,21 @@ targets:
       - path: FlowDayTests
     dependencies:
       - target: FlowDay
+
+schemes:
+  Flow Day-ios:
+    build:
+      targets:
+        FlowDay: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - FlowDayTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
