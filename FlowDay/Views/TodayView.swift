@@ -40,9 +40,11 @@ struct TodayView: View {
     @State private var showQuickAdd = false
     @State private var showSettings = false
     @State private var showAIPlan = false
+    @State private var showRamble = false
     @State private var expandedTaskID: UUID?
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
+    @State private var selection = SelectionState()
 
     private var todayTasks: [FDTask] {
         allTasks.filter { $0.isScheduledToday }
@@ -59,37 +61,49 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
+                VStack(spacing: 0) {
+                    SelectionHeader(selection: selection)
 
-                        // Header stats
-                        headerSection
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 20) {
 
-                        // AI Banner
-                        aiBannerSection
+                            // Header stats
+                            headerSection
 
-                        // Habits row
-                        if !habits.isEmpty {
-                            habitsSection
+                            // AI Banner
+                            aiBannerSection
+
+                            // Habits row
+                            if !habits.isEmpty {
+                                habitsSection
+                            }
+
+                            // Unified Timeline
+                            timelineSection
+
+                            // Unscheduled tasks
+                            if !unscheduledTasks.isEmpty {
+                                unscheduledSection
+                            }
+
+                            Spacer(minLength: 100) // Room for quick-add bar
                         }
-
-                        // Unified Timeline
-                        timelineSection
-
-                        // Unscheduled tasks
-                        if !unscheduledTasks.isEmpty {
-                            unscheduledSection
-                        }
-
-                        Spacer(minLength: 100) // Room for quick-add bar
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
                 }
                 .background(Color.fdBackground)
 
-                // Quick Add bar (always visible at bottom)
-                quickAddBar
+                // Bottom-anchored: batch action bar (when selecting) or quick-add bar
+                if selection.isActive {
+                    BatchActionBar(
+                        selection: selection,
+                        taskService: resolvedTaskService,
+                        allTasks: allTasks
+                    )
+                } else {
+                    quickAddBar
+                }
             }
             .navigationTitle("")
             .toolbar {
@@ -124,6 +138,10 @@ struct TodayView: View {
             }
             .sheet(isPresented: $showAIPlan) {
                 AIPlanView(taskService: resolvedTaskService, energyLevel: appState.todayEnergy)
+            }
+            .fullScreenCover(isPresented: $showRamble) {
+                RambleView(taskService: resolvedTaskService)
+                    .environment(appState)
             }
         }
     }
@@ -262,17 +280,7 @@ struct TodayView: View {
     private func timelineItemView(_ item: TimelineItem) -> some View {
         switch item {
         case .task(let task):
-            TaskRowView(
-                task: task,
-                isExpanded: expandedTaskID == task.id,
-                onToggle: { resolvedTaskService.toggleComplete(task) },
-                onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
-                onExpand: {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        expandedTaskID = expandedTaskID == task.id ? nil : task.id
-                    }
-                }
-            )
+            selectableRow(for: task)
         case .calendarEvent(let event):
             CalendarEventRow(event: event)
         case .habit(let habit):
@@ -280,20 +288,63 @@ struct TodayView: View {
         }
     }
 
-    private var emptyTimelineView: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "sun.max")
-                .font(.system(size: 32))
-                .foregroundStyle(Color.fdTextMuted.opacity(0.5))
-            Text("Nothing scheduled yet")
-                .font(.fdCaption)
-                .foregroundStyle(Color.fdTextMuted)
-            Text("Add a task or tap \"Plan\" to let AI build your day")
-                .font(.fdMicro)
-                .foregroundStyle(Color.fdTextMuted.opacity(0.7))
+    /// Wraps a TaskRowView with multi-select gestures + a checkmark overlay
+    /// when SelectionState is active.
+    @ViewBuilder
+    private func selectableRow(for task: FDTask) -> some View {
+        let isSelected = selection.contains(task.id)
+        TaskRowView(
+            task: task,
+            isExpanded: expandedTaskID == task.id,
+            onToggle: { resolvedTaskService.toggleComplete(task) },
+            onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
+            onExpand: {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    expandedTaskID = expandedTaskID == task.id ? nil : task.id
+                }
+            }
+        )
+        .overlay(alignment: .topLeading) {
+            if selection.isActive {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18))
+                    .foregroundStyle(isSelected ? Color.fdAccent : Color.fdTextMuted)
+                    .padding(8)
+                    .background(Circle().fill(Color.fdSurface))
+                    .offset(x: -6, y: -6)
+                    .transition(.scale.combined(with: .opacity))
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 32)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(isSelected ? Color.fdAccent : .clear, lineWidth: isSelected ? 2 : 0)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if selection.isActive {
+                Haptics.tap()
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                    selection.toggle(task.id)
+                }
+                if selection.count == 0 {
+                    withAnimation { selection.exit() }
+                }
+            }
+        }
+        .onLongPressGesture(minimumDuration: 0.35) {
+            if !selection.isActive {
+                Haptics.tock()
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) {
+                    selection.enter(initial: task.id)
+                }
+            }
+        }
+    }
+
+    private var emptyTimelineView: some View {
+        EmptyStateView.todayEmpty(energy: appState.todayEnergy) {
+            quickAddFocused = true
+        }
     }
 
     // MARK: - Unscheduled
@@ -309,17 +360,7 @@ struct TodayView: View {
 
             LazyVStack(spacing: 8) {
                 ForEach(unscheduledTasks) { task in
-                    TaskRowView(
-                        task: task,
-                        isExpanded: expandedTaskID == task.id,
-                        onToggle: { resolvedTaskService.toggleComplete(task) },
-                        onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
-                        onExpand: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                expandedTaskID = expandedTaskID == task.id ? nil : task.id
-                            }
-                        }
-                    )
+                    selectableRow(for: task)
                 }
             }
         }
@@ -353,12 +394,14 @@ struct TodayView: View {
                     }
 
                 Button {
-                    // Voice capture — Phase 2
+                    Haptics.tap()
+                    showRamble = true
                 } label: {
-                    Image(systemName: "mic")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.fdAccent.opacity(0.6))
+                    Image(systemName: "waveform")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.fdAccent)
                 }
+                .accessibilityLabel("Ramble — dictate multiple tasks")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

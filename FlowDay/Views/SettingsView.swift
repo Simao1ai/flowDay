@@ -28,6 +28,8 @@ struct SettingsView: View {
     @State private var showAISettings = false
     @State private var showHelp = false
     @State private var showAbout = false
+    @State private var showWhatsNew = false
+    @State private var syncStatus = SyncStatusService.shared
 
     var body: some View {
         NavigationStack {
@@ -74,6 +76,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showAISettings) { AISettingsView() }
             .sheet(isPresented: $showHelp) { HelpFeedbackView() }
             .sheet(isPresented: $showAbout) { AboutView() }
+            .sheet(isPresented: $showWhatsNew) { WhatsNewView() }
         }
     }
 
@@ -159,6 +162,10 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
+                settingsRow(icon: "gift", title: "What's New", color: .fdAccent) { showWhatsNew = true }
+                Divider().padding(.leading, 52)
+                syncStatusRow
+                Divider().padding(.leading, 52)
                 settingsRow(icon: "questionmark.circle", title: "Help & Feedback", color: .fdBlue) { showHelp = true }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "info.circle", title: "About", color: .fdTextSecondary) { showAbout = true }
@@ -170,6 +177,58 @@ struct SettingsView: View {
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+        }
+    }
+
+    /// Always-visible sync transparency row — explicit timestamp, not just
+    /// a glyph in the toolbar.
+    private var syncStatusRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: syncIcon)
+                .font(.system(size: 15))
+                .foregroundStyle(syncTint)
+                .frame(width: 28)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Sync")
+                    .font(.fdBody)
+                    .foregroundStyle(Color.fdText)
+                Text(syncSubtitle)
+                    .font(.fdMicro)
+                    .foregroundStyle(Color.fdTextMuted)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+    }
+
+    private var syncIcon: String {
+        switch syncStatus.state {
+        case .idle:    "cloud"
+        case .syncing: "arrow.triangle.2.circlepath"
+        case .synced:  "checkmark.icloud.fill"
+        case .offline: "icloud.slash"
+        case .error:   "exclamationmark.icloud.fill"
+        }
+    }
+
+    private var syncTint: Color {
+        switch syncStatus.state {
+        case .idle:    .fdTextMuted
+        case .syncing: .fdBlue
+        case .synced:  .fdGreen
+        case .offline: .fdTextMuted
+        case .error:   .fdRed
+        }
+    }
+
+    private var syncSubtitle: String {
+        switch syncStatus.state {
+        case .idle:             "Up to date"
+        case .syncing:          "Syncing now…"
+        case .synced(let at):   "Last successful sync: \(at.formatted(.relative(presentation: .named)))"
+        case .offline:          "Offline — changes saved locally"
+        case .error(let msg):   "Sync failed: \(msg)"
         }
     }
 
