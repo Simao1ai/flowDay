@@ -213,9 +213,13 @@ final class AIAssistantService {
                 ]
             )
         } catch {
+            #if DEBUG
+            print("[Flow AI] generateSmartPlan failed: \(error)")
+            #endif
             let topTasks = tasks.prefix(5).map { "• \($0.title) [\($0.priority.label)]" }.joined(separator: "\n")
+            let fallback = "I couldn't reach the AI planner right now — here are your top priorities at \(energy.label.lowercased()) energy:\n\n\(topTasks)\n\nFocus on P1/P2 tasks first, then work through the rest."
             return AIMessage(
-                content: "I couldn't generate an AI plan right now, but here are your top priorities at \(energy.label.lowercased()) energy:\n\n\(topTasks)\n\nFocus on P1/P2 tasks first, then work through the rest.",
+                content: Self.friendlyError(from: error, fallback: fallback),
                 isUser: false
             )
         }
@@ -248,8 +252,14 @@ final class AIAssistantService {
                 pendingTask: suggestion
             )
         } catch {
+            #if DEBUG
+            print("[Flow AI] parseTaskWithAI failed: \(error)")
+            #endif
             return AIMessage(
-                content: "Tell me about the task — what's it called, when is it due, and how important is it?",
+                content: Self.friendlyError(
+                    from: error,
+                    fallback: "Tell me about the task — what's it called, when is it due, and how important is it?"
+                ),
                 isUser: false
             )
         }
@@ -444,8 +454,14 @@ final class AIAssistantService {
             )
             return AIMessage(content: response, isUser: false)
         } catch {
+            #if DEBUG
+            print("[Flow AI] handleGeneralChat failed: \(error)")
+            #endif
             return AIMessage(
-                content: "I'm having trouble connecting right now. Try asking me to plan your day or create a task — those work offline too!",
+                content: Self.friendlyError(
+                    from: error,
+                    fallback: "I'm having trouble connecting right now. Try asking me to plan your day or create a task — those work offline too!"
+                ),
                 isUser: false,
                 suggestions: [
                     AISuggestion(text: "Plan my day", icon: "calendar", action: .planDay),
@@ -453,6 +469,30 @@ final class AIAssistantService {
                 ]
             )
         }
+    }
+
+    // MARK: - Error Formatting
+
+    /// Produce a human-readable message from a thrown error. Surfaces the
+    /// underlying reason (HTTP code, auth, etc.) so users can report what
+    /// actually broke — instead of hiding behind a generic "trouble
+    /// connecting" line.
+    private static func friendlyError(from error: Error, fallback: String) -> String {
+        if let claudeError = error as? ClaudeClientError {
+            switch claudeError {
+            case .notAuthenticated:
+                return "I can't reach the AI service — you may need to sign in again. (Settings → Account)"
+            case .serverError(let code, let body):
+                let snippet = body.prefix(120)
+                return "AI service returned an error (\(code)).\n\nDetails: \(snippet)"
+            case .networkError:
+                return "Network issue reaching the AI service. Check your connection and try again."
+            case .invalidResponse:
+                return "The AI service returned an unexpected response. Please try again."
+            }
+        }
+        let desc = error.localizedDescription
+        return desc.isEmpty ? fallback : "\(fallback)\n\nDetails: \(desc)"
     }
 
     // MARK: - Conversation History

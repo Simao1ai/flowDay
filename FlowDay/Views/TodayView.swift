@@ -67,6 +67,11 @@ struct TodayView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 20) {
 
+                            Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
+                                .font(.fdMicro)
+                                .foregroundStyle(Color.fdTextMuted)
+                                .padding(.top, 4)
+
                             // Header stats
                             headerSection
 
@@ -105,18 +110,9 @@ struct TodayView: View {
                     quickAddBar
                 }
             }
-            .navigationTitle("")
+            .navigationTitle("Today")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Today")
-                            .font(.fdTitle2)
-                            .foregroundStyle(Color.fdText)
-                        Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
-                            .font(.fdMicro)
-                            .foregroundStyle(Color.fdTextMuted)
-                    }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 10) {
                         if let energy = appState.todayEnergy {
