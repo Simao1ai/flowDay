@@ -68,12 +68,15 @@ final class AIFeatureService {
 
     // MARK: - Feature 1: Smart Daily Planning
 
-    /// Generate an optimized daily plan based on tasks, energy, and calendar availability
+    /// Generate an optimized daily plan based on tasks, energy, and calendar availability.
+    /// `history` lets the planner reference earlier turns of the conversation
+    /// (e.g. "the goal we discussed earlier") instead of treating each call cold.
     func generateSmartPlan(
         tasks: [FDTask],
         energyLevel: EnergyLevel,
         calendarEvents: [String],
-        freeSlots: [(start: Date, end: Date)]
+        freeSlots: [(start: Date, end: Date)],
+        history: [LLMMessage] = []
     ) async throws -> SmartPlan {
         isProcessing = true
         defer { isProcessing = false }
@@ -118,19 +121,17 @@ final class AIFeatureService {
         """
 
         do {
-            let response = try await ClaudeClient.shared.chat(
+            let plan: SmartPlan = try await chatJSON(
                 feature: .flowAI,
-                messages: [LLMMessage(role: .user, content: userMessage)],
+                history: history,
+                userMessage: userMessage,
                 temperature: 0.5,
-                maxTokens: 2048
+                maxTokens: 2048,
+                fallback: { [weak self] raw in
+                    self?.parseSmartPlanFallback(raw) ?? SmartPlan(scheduledTasks: [], summary: "Plan generated", tips: [])
+                }
             )
-
-            if let plan = parseJSON(response, as: SmartPlan.self) {
-                return plan
-            } else {
-                // Fallback parser for non-JSON responses
-                return parseSmartPlanFallback(response)
-            }
+            return plan
         } catch {
             lastError = "Failed to generate smart plan: \(error.localizedDescription)"
             throw error
@@ -139,8 +140,13 @@ final class AIFeatureService {
 
     // MARK: - Feature 2: Natural Language Task Creation
 
-    /// Parse natural language input into structured task details
-    func parseTaskWithAI(input: String) async throws -> AITaskSuggestion {
+    /// Parse natural language input into structured task details.
+    /// `history` is forwarded so the parser can resolve references like
+    /// "make it a P1" to the previous turn.
+    func parseTaskWithAI(
+        input: String,
+        history: [LLMMessage] = []
+    ) async throws -> AITaskSuggestion {
         isProcessing = true
         defer { isProcessing = false }
 
@@ -164,19 +170,18 @@ final class AIFeatureService {
         """
 
         do {
-            let response = try await ClaudeClient.shared.chat(
+            let suggestion: AITaskSuggestion = try await chatJSON(
                 feature: .flowAI,
-                messages: [LLMMessage(role: .user, content: userMessage)],
+                history: history,
+                userMessage: userMessage,
                 temperature: 0.3,
-                maxTokens: 512
+                maxTokens: 512,
+                fallback: { [weak self] raw in
+                    self?.parseTaskSuggestionFallback(raw, originalInput: input)
+                        ?? AITaskSuggestion(title: input, priority: 4, dueDate: nil, scheduledTime: nil, estimatedMinutes: nil, project: nil, labels: [])
+                }
             )
-
-            if let suggestion = parseJSON(response, as: AITaskSuggestion.self) {
-                return suggestion
-            } else {
-                // Fallback parser
-                return parseTaskSuggestionFallback(response, originalInput: input)
-            }
+            return suggestion
         } catch {
             lastError = "Failed to parse task: \(error.localizedDescription)"
             throw error
@@ -185,8 +190,13 @@ final class AIFeatureService {
 
     // MARK: - Feature 3: AI Task Breakdown
 
-    /// Break down a high-level goal into actionable subtasks
-    func breakdownTask(goal: String, context: String? = nil) async throws -> TaskBreakdown {
+    /// Break down a high-level goal into actionable subtasks.
+    /// `history` lets the LLM see anything previously discussed about the goal.
+    func breakdownTask(
+        goal: String,
+        context: String? = nil,
+        history: [LLMMessage] = []
+    ) async throws -> TaskBreakdown {
         isProcessing = true
         defer { isProcessing = false }
 
@@ -215,23 +225,83 @@ final class AIFeatureService {
         """
 
         do {
-            let response = try await ClaudeClient.shared.chat(
+            let breakdown: TaskBreakdown = try await chatJSON(
                 feature: .flowAI,
-                messages: [LLMMessage(role: .user, content: userMessage)],
+                history: history,
+                userMessage: userMessage,
                 temperature: 0.7,
-                maxTokens: 2048
+                maxTokens: 2048,
+                fallback: { [weak self] raw in
+                    self?.parseTaskBreakdownFallback(raw, originalGoal: goal)
+                        ?? TaskBreakdown(originalGoal: goal, subtasks: [], projectSuggestion: nil)
+                }
             )
-
-            if let breakdown = parseJSON(response, as: TaskBreakdown.self) {
-                return breakdown
-            } else {
-                // Fallback parser
-                return parseTaskBreakdownFallback(response, originalGoal: goal)
-            }
+            return breakdown
         } catch {
             lastError = "Failed to break down task: \(error.localizedDescription)"
             throw error
         }
+    }
+
+    // MARK: - JSON-with-Recovery Helper
+
+    /// Send a chat request that's expected to return JSON. If the first response
+    /// can't be decoded, automatically retry with a strict "JSON only" prompt
+    /// before resorting to the regex-based fallback. This recovers from the
+    /// common case where Claude wraps JSON in prose without inflating cost on
+    /// happy-path calls.
+    private func chatJSON<T: Decodable>(
+        feature: ClaudeFeature,
+        history: [LLMMessage],
+        userMessage: String,
+        temperature: Double,
+        maxTokens: Int,
+        fallback: @escaping (String) -> T
+    ) async throws -> T {
+        // Forward conversation history so the LLM has memory of prior turns
+        let messages = history + [LLMMessage(role: .user, content: userMessage)]
+
+        let firstAttempt = try await ClaudeClient.shared.chat(
+            feature: feature,
+            messages: messages,
+            temperature: temperature,
+            maxTokens: maxTokens
+        )
+
+        if let parsed = parseJSON(firstAttempt, as: T.self) {
+            return parsed
+        }
+
+        // First attempt didn't yield valid JSON — retry with a strict prompt
+        // that quotes the previous (broken) reply so Claude can correct itself.
+        #if DEBUG
+        print("[AIFeatureService] JSON parse failed; retrying with strict prompt")
+        #endif
+
+        let recoveryMessages: [LLMMessage] = messages + [
+            LLMMessage(role: .assistant, content: firstAttempt),
+            LLMMessage(
+                role: .user,
+                content: "That response wasn't valid JSON. Reply with ONLY the JSON object — no markdown, no prose, no explanation."
+            )
+        ]
+
+        let secondAttempt = try await ClaudeClient.shared.chat(
+            feature: feature,
+            messages: recoveryMessages,
+            temperature: 0.1,   // tighten for the retry
+            maxTokens: maxTokens
+        )
+
+        if let parsed = parseJSON(secondAttempt, as: T.self) {
+            return parsed
+        }
+
+        // Two failed attempts — fall back to crude parser, but log loudly
+        #if DEBUG
+        print("[AIFeatureService] JSON recovery failed; using regex fallback")
+        #endif
+        return fallback(secondAttempt)
     }
 
     // MARK: - JSON Parsing Helper
@@ -337,34 +407,30 @@ final class AIFeatureService {
         )
     }
 
-    /// Fallback text parser for TaskBreakdown when JSON parsing fails
+    /// Last-resort text parser for TaskBreakdown. Only runs after a JSON-only
+    /// retry has already failed. Extracts whatever bulleted list is in the
+    /// text — does NOT substitute generic "Research/Setup/Core work" subtasks
+    /// because those silently throw away the user's actual goal.
     private func parseTaskBreakdownFallback(_ text: String, originalGoal: String) -> TaskBreakdown {
         let lines = text.split(separator: "\n")
         var subtasks: [BreakdownItem] = []
 
-        // Extract basic subtasks from bullet points
         for line in lines {
             let trimmed = String(line).trimmingCharacters(in: .whitespaces)
-            if trimmed.starts(with: "-") || trimmed.starts(with: "•") {
-                let title = trimmed.dropFirst().trimmingCharacters(in: .whitespaces)
-                subtasks.append(BreakdownItem(
-                    title: String(title),
-                    priority: 2,
-                    estimatedMinutes: 30,
-                    reasoning: "Extracted from goal breakdown"
-                ))
-            }
-        }
+            // Match common list markers: "- ", "• ", "* ", "1. "
+            let stripped = trimmed
+                .replacingOccurrences(of: "^[-•*]\\s+", with: "", options: .regularExpression)
+                .replacingOccurrences(of: "^\\d+[.)]\\s+", with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespaces)
 
-        // Create default subtasks if none found
-        if subtasks.isEmpty {
-            subtasks = [
-                BreakdownItem(title: "Research and planning", priority: 2, estimatedMinutes: 30, reasoning: "Foundation step"),
-                BreakdownItem(title: "Setup and preparation", priority: 2, estimatedMinutes: 45, reasoning: "Necessary groundwork"),
-                BreakdownItem(title: "Core work", priority: 1, estimatedMinutes: 120, reasoning: "Main effort"),
-                BreakdownItem(title: "Review and refine", priority: 2, estimatedMinutes: 30, reasoning: "Quality check"),
-                BreakdownItem(title: "Launch or finalize", priority: 2, estimatedMinutes: 20, reasoning: "Final step")
-            ]
+            guard stripped != trimmed, !stripped.isEmpty, stripped.count < 200 else { continue }
+
+            subtasks.append(BreakdownItem(
+                title: stripped,
+                priority: 2,
+                estimatedMinutes: 30,
+                reasoning: "Parsed from goal breakdown"
+            ))
         }
 
         return TaskBreakdown(

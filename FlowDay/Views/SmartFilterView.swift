@@ -96,21 +96,33 @@ struct SmartFilterView: View {
     // MARK: - Empty
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(filter.tint.opacity(0.12))
-                    .frame(width: 80, height: 80)
-                Image(systemName: filter.iconName)
-                    .font(.system(size: 32))
-                    .foregroundStyle(filter.tint)
-            }
-            Text(filter.emptyMessage)
-                .font(.fdBody)
-                .foregroundStyle(Color.fdTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-        }
+        EmptyStateView(
+            mood: emptyMood,
+            title: emptyTitle,
+            message: filter.emptyMessage
+        )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptyMood: EmptyStateView.Mood {
+        switch filter {
+        case .overdue:        .overdueClean
+        case .completedToday: .allDone
+        case .today:          .calm
+        default:              .calm
+        }
+    }
+
+    private var emptyTitle: String {
+        switch filter {
+        case .today:          "Inbox zero, today edition"
+        case .overdue:        "Caught up"
+        case .thisWeek:       "Nothing this week"
+        case .noDate:         "All scheduled"
+        case .priority1:      "No fires"
+        case .priority2Plus:  "No high-priority items"
+        case .scheduled:      "No time blocks yet"
+        case .completedToday: "Building momentum"
+        }
     }
 }
