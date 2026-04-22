@@ -41,6 +41,7 @@ struct TodayView: View {
     @State private var showSettings = false
     @State private var showAIPlan = false
     @State private var showRamble = false
+    @State private var showDayRecap = false
     @State private var expandedTaskID: UUID?
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
@@ -125,6 +126,13 @@ struct TodayView: View {
                         }
                         SyncStatusBadge()
                         Button {
+                            showDayRecap = true
+                        } label: {
+                            Image(systemName: "moon.stars")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.fdTextSecondary)
+                        }
+                        Button {
                             showSettings = true
                         } label: {
                             Image(systemName: "gearshape")
@@ -142,6 +150,10 @@ struct TodayView: View {
             }
             .fullScreenCover(isPresented: $showRamble) {
                 RambleView(taskService: resolvedTaskService)
+                    .environment(appState)
+            }
+            .sheet(isPresented: $showDayRecap) {
+                DayRecapView()
                     .environment(appState)
             }
         }

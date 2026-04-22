@@ -8,6 +8,7 @@ struct UpcomingView: View {
     let taskService: TaskService?
     @Environment(\.modelContext) private var modelContext
 
+    // Plain @Query — no predicates (crash on iOS 26.x). Filtered in computed props.
     @Query
     private var upcomingTasksRaw: [FDTask]
 
@@ -19,6 +20,9 @@ struct UpcomingView: View {
 
     @State private var selectedTask: FDTask?
     @State private var showSmartAdd = false
+    @State private var viewMode: UpcomingViewMode = .list
+
+    private enum UpcomingViewMode { case list, week }
 
     private var futureTasks: [FDTask] {
         upcomingTasks.filter { task in
@@ -29,30 +33,33 @@ struct UpcomingView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if futureTasks.isEmpty {
-                        emptyState
-                    } else {
-                        LazyVStack(spacing: 10) {
-                            ForEach(futureTasks) { task in
-                                upcomingTaskRow(task)
-                                    .onTapGesture { selectedTask = task }
-                            }
-                        }
-                    }
+            Group {
+                if viewMode == .list {
+                    listContent
+                } else {
+                    WeekView(taskService: taskService, selectedTask: $selectedTask)
                 }
-                .padding(20)
             }
             .background(Color.fdBackground)
             .navigationTitle("Upcoming")
             .toolbarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showSmartAdd = true } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.fdAccent)
+                    HStack(spacing: 14) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                viewMode = viewMode == .list ? .week : .list
+                            }
+                        } label: {
+                            Image(systemName: viewMode == .list ? "calendar" : "list.bullet")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                        }
+                        Button { showSmartAdd = true } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                        }
                     }
                 }
             }
@@ -62,6 +69,26 @@ struct UpcomingView: View {
             .sheet(isPresented: $showSmartAdd) {
                 SmartQuickAddView(taskService: taskService, onDismiss: { showSmartAdd = false })
             }
+        }
+    }
+
+    // MARK: - List content
+
+    private var listContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                if futureTasks.isEmpty {
+                    emptyState
+                } else {
+                    LazyVStack(spacing: 10) {
+                        ForEach(futureTasks) { task in
+                            upcomingTaskRow(task)
+                                .onTapGesture { selectedTask = task }
+                        }
+                    }
+                }
+            }
+            .padding(20)
         }
     }
 

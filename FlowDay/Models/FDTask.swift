@@ -48,6 +48,10 @@ final class FDTask {
     var aiSuggestedTime: Date?
     var cognitiveLoad: Int?
 
+    // Attachments — stored as JSON-encoded [TaskAttachment]
+    @Attribute(.externalStorage)
+    var attachmentsData: Data
+
     // Relationships
     @Relationship(deleteRule: .cascade)
     var subtasks: [FDSubtask]
@@ -91,6 +95,7 @@ final class FDTask {
         self.cognitiveLoad = cognitiveLoad
         self.subtasks = []
         self.project = project
+        self.attachmentsData = Data()
     }
 }
 
@@ -179,6 +184,32 @@ extension FDTask {
     func restore() {
         isDeleted = false
         deletedAt = nil
+        modifiedAt = .now
+    }
+}
+
+// MARK: - Attachments
+
+extension FDTask {
+    var attachments: [TaskAttachment] {
+        get { (try? JSONDecoder().decode([TaskAttachment].self, from: attachmentsData)) ?? [] }
+        set { attachmentsData = (try? JSONEncoder().encode(newValue)) ?? Data() }
+    }
+
+    func addAttachment(_ attachment: TaskAttachment) {
+        var current = attachments
+        current.append(attachment)
+        attachments = current
+        modifiedAt = .now
+    }
+
+    func removeAttachment(id: UUID) {
+        var current = attachments
+        if let idx = current.firstIndex(where: { $0.id == id }) {
+            current[idx].deleteFile()
+            current.remove(at: idx)
+        }
+        attachments = current
         modifiedAt = .now
     }
 }

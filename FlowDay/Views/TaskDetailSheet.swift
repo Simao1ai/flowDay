@@ -25,29 +25,46 @@ struct TaskDetailSheet: View {
     @State private var showDatePicker = false
     @State private var showStartDatePicker = false
     @State private var showTimePicker = false
+    @State private var showAttachmentPicker = false
+    @State private var showCopiedToast = false
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Title section
-                    titleSection
+            ZStack(alignment: .top) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Title section
+                        titleSection
 
-                    Divider().padding(.horizontal, 20)
+                        Divider().padding(.horizontal, 20)
 
-                    // Metadata fields
-                    metadataSection
+                        // Metadata fields
+                        metadataSection
 
-                    Divider().padding(.horizontal, 20)
+                        Divider().padding(.horizontal, 20)
 
-                    // Subtasks
-                    subtasksSection
+                        // Subtasks
+                        subtasksSection
 
-                    // Notes
-                    notesSection
+                        // Notes
+                        notesSection
+
+                        // Attachments
+                        if !task.attachments.isEmpty {
+                            Divider().padding(.horizontal, 20)
+                            attachmentsSection
+                        }
+                    }
+                }
+                .background(Color.fdBackground)
+
+                // Copied toast
+                if showCopiedToast {
+                    toastBanner
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(10)
                 }
             }
-            .background(Color.fdBackground)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -56,7 +73,24 @@ struct TaskDetailSheet: View {
                         .foregroundStyle(Color.fdTextSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showAttachmentPicker = true
+                    } label: {
+                        Image(systemName: "paperclip")
+                            .foregroundStyle(Color.fdTextSecondary)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        Button {
+                            UIPasteboard.general.string = "flowday://task/\(task.id.uuidString)"
+                            withAnimation(.spring(response: 0.3)) { showCopiedToast = true }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation(.spring(response: 0.3)) { showCopiedToast = false }
+                            }
+                        } label: {
+                            Label("Copy Link", systemImage: "link")
+                        }
                         Button(role: .destructive) {
                             taskService?.deleteTask(task)
                             dismiss()
@@ -69,7 +103,28 @@ struct TaskDetailSheet: View {
                     }
                 }
             }
+            .sheet(isPresented: $showAttachmentPicker) {
+                AttachmentPickerView(task: task)
+            }
         }
+    }
+
+    // MARK: - Toast
+
+    private var toastBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.fdGreen)
+            Text("Link copied")
+                .font(.fdCaptionBold)
+                .foregroundStyle(Color.fdText)
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+        .background(Color.fdSurface)
+        .clipShape(Capsule())
+        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
+        .padding(.top, 8)
     }
 
     // MARK: - Title
@@ -518,6 +573,34 @@ struct TaskDetailSheet: View {
             return m > 0 ? "\(h)h \(m)m" : "\(h)h"
         }
         return "\(mins)m"
+    }
+
+    // MARK: - Attachments
+
+    private var attachmentsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "paperclip")
+                    .font(.system(size: 11))
+                Text("Attachments")
+            }
+            .fdSectionHeader()
+            .padding(.horizontal, 20)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 4) {
+                    ForEach(task.attachments) { attachment in
+                        AttachmentThumbnailView(attachment: attachment) {
+                            task.removeAttachment(id: attachment.id)
+                            try? modelContext.save()
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 8)
+            }
+        }
+        .padding(.vertical, 16)
     }
 
     private func recurrenceDisplayText(_ rule: String) -> String {
