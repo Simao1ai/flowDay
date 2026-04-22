@@ -11,6 +11,12 @@ import SwiftData
 extension TemplatesView {
 
     func applyTemplate(_ template: TemplateItem) {
+        // Delegate to the rich premium version when one exists for this template.
+        if let premium = PremiumTemplateLibrary.find(named: template.name) {
+            applyPremiumTemplate(premium)
+            return
+        }
+
         Haptics.success()
         let colorHex = template.color.toHex() ?? "#D4713B"
         let project = FDProject(name: template.name, colorHex: colorHex, iconName: template.icon)
@@ -35,10 +41,64 @@ extension TemplatesView {
         }
     }
 
+    func applyPremiumTemplate(_ template: PremiumTemplate) {
+        Haptics.success()
+
+        let sectionTitles = template.sections.map { $0.title }
+        let project = FDProject(
+            name: template.name,
+            colorHex: template.colorHex,
+            iconName: template.icon,
+            sections: sectionTitles
+        )
+        modelContext.insert(project)
+
+        let today = Calendar.current.startOfDay(for: .now)
+
+        for section in template.sections {
+            for templateTask in section.tasks {
+                var dueDate: Date? = nil
+                if let days = templateTask.relativeDueDays {
+                    dueDate = Calendar.current.date(byAdding: .day, value: days, to: today)
+                }
+
+                let priority = TaskPriority(rawValue: templateTask.priority) ?? .medium
+
+                let task = FDTask(
+                    title: templateTask.title,
+                    notes: templateTask.notes ?? "",
+                    dueDate: dueDate,
+                    estimatedMinutes: templateTask.estimatedMinutes,
+                    priority: priority,
+                    labels: templateTask.labels,
+                    section: section.title,
+                    recurrenceRule: templateTask.recurringInterval?.rawValue,
+                    project: project
+                )
+                modelContext.insert(task)
+
+                for (i, sub) in templateTask.subtasks.enumerated() {
+                    let subtask = FDSubtask(title: sub.title, sortOrder: i, parentTask: task)
+                    modelContext.insert(subtask)
+                }
+            }
+        }
+
+        try? modelContext.save()
+        appliedTemplateName = template.name
+        showTemplateApplied = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            dismiss()
+        }
+    }
+
     func templateTasks(for template: TemplateItem) -> [String] {
         switch template.name {
 
         // Featured
+        case "Project Tracker":
+            return ["Write project brief and define success criteria", "Identify stakeholders and decision-makers", "Set milestones and target dates", "Weekly project check-in", "Write retrospective and archive"]
         case "Energy-Aware Day":
             return ["Log your energy level for morning, afternoon & evening", "Identify your peak energy window this week", "Schedule your hardest task during peak energy", "Move low-effort tasks to your energy dip hours", "Review & rate how the energy-matched day felt"]
         case "AI Task Breakdown":

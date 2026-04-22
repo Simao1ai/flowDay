@@ -10,6 +10,10 @@ extension TemplatesView {
 
     var featuredTemplates: [TemplateItem] {
         [
+            TemplateItem(name: "Project Tracker",
+                         description: "End-to-end project management with milestones, weekly check-ins, and a retrospective",
+                         icon: "chart.gantt", color: Color.fdBlue, category: "featured",
+                         projects: 1, labels: 3, filters: 1),
             TemplateItem(name: "AI Task Breakdown",
                          description: "Let AI break any complex goal into actionable subtasks",
                          icon: "wand.and.stars", color: Color.fdPurple, category: "featured",
