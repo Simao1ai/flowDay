@@ -22,6 +22,7 @@ struct FlowDayApp: App {
             FDHabitLog.self,
             FDEnergyLog.self,
             FDFocusSession.self,
+            FDTaskAttachment.self,
         ])
 
         let modelConfiguration = ModelConfiguration(
@@ -60,6 +61,9 @@ struct FlowDayApp: App {
                     }
                 }
                 .tint(Color.fdAccent)
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
             } else {
                 Text("Database Error")
                     .foregroundColor(.red)
@@ -67,19 +71,49 @@ struct FlowDayApp: App {
         }
     }
 
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "flowday" else { return }
+        if url.host == "task",
+           let idString = url.pathComponents.dropFirst().first,
+           let id = UUID(uuidString: idString) {
+            appState.deepLinkedTaskID = id
+        } else if url.host == "recap" {
+            appState.showEndOfDayRecap = true
+        }
+    }
+
 }
 
-// MARK: - Authenticated Root View (not used until RootView is fixed)
+// MARK: - Authenticated Root View
 struct AuthenticatedRootView: View {
     let appState: AppState
     let authManager: AuthManager
     @State private var calendarAccountManager = CalendarAccountManager()
 
+    @Query private var allTasksRaw: [FDTask]
+
+    private var deepLinkedTask: FDTask? {
+        guard let id = appState.deepLinkedTaskID else { return nil }
+        return allTasksRaw.first { $0.id == id }
+    }
+
     var body: some View {
+        @Bindable var state = appState
         RootView()
             .environment(appState)
             .environment(authManager)
             .environment(calendarAccountManager)
+            .sheet(isPresented: Binding(
+                get: { appState.deepLinkedTaskID != nil && deepLinkedTask != nil },
+                set: { if !$0 { appState.deepLinkedTaskID = nil } }
+            )) {
+                if let task = deepLinkedTask {
+                    TaskDetailSheet(task: task, taskService: nil)
+                }
+            }
+            .sheet(isPresented: $state.showEndOfDayRecap) {
+                EndOfDayRecapView()
+            }
     }
 }
 
@@ -93,6 +127,8 @@ final class AppState {
     var selectedDate: Date = .now
     var sidebarVisible: Bool = true
     var hasSeededData: Bool = false
+    var deepLinkedTaskID: UUID? = nil
+    var showEndOfDayRecap: Bool = false
 
     enum Tab: String, CaseIterable {
         case today = "Today"

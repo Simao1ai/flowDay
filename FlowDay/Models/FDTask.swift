@@ -52,6 +52,9 @@ final class FDTask {
     @Relationship(deleteRule: .cascade)
     var subtasks: [FDSubtask]
 
+    @Relationship(deleteRule: .cascade)
+    var attachments: [FDTaskAttachment]
+
     @Relationship(inverse: \FDProject.tasks)
     var project: FDProject?
 
@@ -90,6 +93,7 @@ final class FDTask {
         self.aiSuggestedTime = nil
         self.cognitiveLoad = cognitiveLoad
         self.subtasks = []
+        self.attachments = []
         self.project = project
     }
 }

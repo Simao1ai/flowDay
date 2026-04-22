@@ -19,6 +19,8 @@ struct UpcomingView: View {
 
     @State private var selectedTask: FDTask?
     @State private var showSmartAdd = false
+    @State private var showWeekView = false
+    @State private var showRecap = false
 
     private var futureTasks: [FDTask] {
         upcomingTasks.filter { task in
@@ -31,13 +33,18 @@ struct UpcomingView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if futureTasks.isEmpty {
-                        emptyState
+                    if showWeekView {
+                        WeekCalendarView(tasks: upcomingTasks, taskService: taskService)
+                            .padding(.vertical, 8)
                     } else {
-                        LazyVStack(spacing: 10) {
-                            ForEach(futureTasks) { task in
-                                upcomingTaskRow(task)
-                                    .onTapGesture { selectedTask = task }
+                        if futureTasks.isEmpty {
+                            emptyState
+                        } else {
+                            LazyVStack(spacing: 10) {
+                                ForEach(futureTasks) { task in
+                                    upcomingTaskRow(task)
+                                        .onTapGesture { selectedTask = task }
+                                }
                             }
                         }
                     }
@@ -48,11 +55,31 @@ struct UpcomingView: View {
             .navigationTitle("Upcoming")
             .toolbarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showSmartAdd = true } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showRecap = true
+                    } label: {
+                        Image(systemName: "moon.stars")
+                            .font(.system(size: 16))
                             .foregroundStyle(Color.fdAccent)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 12) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showWeekView.toggle()
+                            }
+                        } label: {
+                            Image(systemName: showWeekView ? "list.bullet" : "calendar")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.fdAccent)
+                        }
+                        Button { showSmartAdd = true } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                        }
                     }
                 }
             }
@@ -61,6 +88,9 @@ struct UpcomingView: View {
             }
             .sheet(isPresented: $showSmartAdd) {
                 SmartQuickAddView(taskService: taskService, onDismiss: { showSmartAdd = false })
+            }
+            .sheet(isPresented: $showRecap) {
+                EndOfDayRecapView()
             }
         }
     }

@@ -2,7 +2,8 @@
 // FlowDay
 //
 // Todoist shows a detail sheet when you tap a task (screenshot 2).
-// FlowDay's version adds: energy level, start date, inline subtask add.
+// FlowDay's version adds: energy level, start date, inline subtask add,
+// file/photo/link attachments, and a deep-link share button.
 
 import SwiftUI
 import SwiftData
@@ -45,6 +46,11 @@ struct TaskDetailSheet: View {
 
                     // Notes
                     notesSection
+
+                    Divider().padding(.horizontal, 20)
+
+                    // Attachments
+                    TaskAttachmentsSection(task: task)
                 }
             }
             .background(Color.fdBackground)
@@ -57,6 +63,20 @@ struct TaskDetailSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        Button {
+                            let deepLink = "flowday://task/\(task.id.uuidString)"
+                            UIPasteboard.general.string = deepLink
+                        } label: {
+                            Label("Copy Link", systemImage: "link")
+                        }
+                        ShareLink(
+                            item: URL(string: "flowday://task/\(task.id.uuidString)")!,
+                            subject: Text(task.title),
+                            message: Text("Open in FlowDay: \(task.title)")
+                        ) {
+                            Label("Share Task Link", systemImage: "square.and.arrow.up")
+                        }
+                        Divider()
                         Button(role: .destructive) {
                             taskService?.deleteTask(task)
                             dismiss()

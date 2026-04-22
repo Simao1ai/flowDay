@@ -99,6 +99,10 @@
 		F7DD3709B259588DC3B3486F /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB9E586773F019C0B8C90DA /* BoardView.swift */; };
 		F7F8ECB3E4AC97381A9F635C /* TimelineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */; };
 		FA44323B68E14E6F969618A6 /* SelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0921538F27AD6AEDA566ADD /* SelectionState.swift */; };
+		F1E6D5C4B3A2F1E0D9C8B7A1 /* FDTaskAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B7C8D9E0F1A2B3C4D5E6F1 /* FDTaskAttachment.swift */; };
+		F1E6D5C4B3A2F1E0D9C8B7A2 /* TaskAttachmentsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B7C8D9E0F1A2B3C4D5E6F2 /* TaskAttachmentsSection.swift */; };
+		F1E6D5C4B3A2F1E0D9C8B7A3 /* WeekCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B7C8D9E0F1A2B3C4D5E6F3 /* WeekCalendarView.swift */; };
+		F1E6D5C4B3A2F1E0D9C8B7A4 /* EndOfDayRecapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B7C8D9E0F1A2B3C4D5E6F4 /* EndOfDayRecapView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -206,6 +210,10 @@
 		FADBC93E0E12708D6DB7157E /* TaskDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailSheet.swift; sourceTree = "<group>"; };
 		FD333AD25605BD8B8E54EAE6 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
 		FE614E953BC8D9011AC5E078 /* BatchActionBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchActionBar.swift; sourceTree = "<group>"; };
+		A4B7C8D9E0F1A2B3C4D5E6F1 /* FDTaskAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDTaskAttachment.swift; sourceTree = "<group>"; };
+		A4B7C8D9E0F1A2B3C4D5E6F2 /* TaskAttachmentsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttachmentsSection.swift; sourceTree = "<group>"; };
+		A4B7C8D9E0F1A2B3C4D5E6F3 /* WeekCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekCalendarView.swift; sourceTree = "<group>"; };
+		A4B7C8D9E0F1A2B3C4D5E6F4 /* EndOfDayRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndOfDayRecapView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -266,9 +274,12 @@
 				4D44C1066F0967D360746BC9 /* SmartFilterView.swift */,
 				9EBB74AE9F37870084C76C13 /* SmartQuickAddView.swift */,
 				FADBC93E0E12708D6DB7157E /* TaskDetailSheet.swift */,
+				A4B7C8D9E0F1A2B3C4D5E6F2 /* TaskAttachmentsSection.swift */,
 				EEBF2554508C741F03B647A8 /* TemplatesView.swift */,
 				E3A5B8FDF56FE4407B71D614 /* TodayView.swift */,
 				33782DE01ADE80B93783E8ED /* UpcomingView.swift */,
+				A4B7C8D9E0F1A2B3C4D5E6F3 /* WeekCalendarView.swift */,
+				A4B7C8D9E0F1A2B3C4D5E6F4 /* EndOfDayRecapView.swift */,
 				2A22A17FFD90E1567FF0E1D8 /* AI */,
 				46B46C274AD66AB71DACE07B /* Board */,
 				AE1647238E42AE3EC146BF85 /* Ramble */,
@@ -396,6 +407,7 @@
 				826008D550CA1C6F77B46879 /* FDProject.swift */,
 				7EC6BE9A83D10777772185D6 /* FDSubtask.swift */,
 				F0C6D53545DAF905C552AE88 /* FDTask.swift */,
+				A4B7C8D9E0F1A2B3C4D5E6F1 /* FDTaskAttachment.swift */,
 				1546F8784C5B2543C30C3F3C /* SmartFilter.swift */,
 				2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */,
 			);
@@ -630,6 +642,10 @@
 				C5AC6F4B184A3C1CAE84A333 /* UpcomingView.swift in Sources */,
 				B74C0F8DA464DCADB2CE28B1 /* VoiceInputView.swift in Sources */,
 				34E7302CFDD76447A185909F /* WhatsNewView.swift in Sources */,
+				F1E6D5C4B3A2F1E0D9C8B7A1 /* FDTaskAttachment.swift in Sources */,
+				F1E6D5C4B3A2F1E0D9C8B7A2 /* TaskAttachmentsSection.swift in Sources */,
+				F1E6D5C4B3A2F1E0D9C8B7A3 /* WeekCalendarView.swift in Sources */,
+				F1E6D5C4B3A2F1E0D9C8B7A4 /* EndOfDayRecapView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

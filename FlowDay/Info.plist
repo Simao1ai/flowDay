@@ -18,9 +18,19 @@
 	<key>CFBundleDisplayName</key>
 	<string>FlowDay</string>
 
-	<!-- Google Sign-In URL Scheme -->
+	<!-- URL Schemes: FlowDay deep links + Google Sign-In -->
 	<key>CFBundleURLTypes</key>
 	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>flowday</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>FlowDay Deep Link</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
@@ -38,6 +48,12 @@
 	<string>777744388308-7k3sm0fcdkg6qg7tlqjc463oj5qam6b3.apps.googleusercontent.com</string>
 
 	<!-- Privacy Usage Descriptions -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FlowDay needs access to your photo library so you can attach photos to tasks.</string>
+
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>FlowDay needs permission to save photos to your library.</string>
+
 	<key>NSCalendarsUsageDescription</key>
 	<string>FlowDay needs access to your calendar to show your events and find free time slots for task scheduling.</string>
 
