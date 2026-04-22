@@ -22,6 +22,7 @@ struct FlowDayApp: App {
             FDHabitLog.self,
             FDEnergyLog.self,
             FDFocusSession.self,
+            TaskAttachment.self,
         ])
 
         let modelConfiguration = ModelConfiguration(

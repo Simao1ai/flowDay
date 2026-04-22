@@ -19,6 +19,7 @@ struct UpcomingView: View {
 
     @State private var selectedTask: FDTask?
     @State private var showSmartAdd = false
+    @State private var showWeekView = false
 
     private var futureTasks: [FDTask] {
         upcomingTasks.filter { task in
@@ -27,32 +28,52 @@ struct UpcomingView: View {
         }
     }
 
+    // Week view shows all non-deleted, non-completed tasks that have a due date
+    private var weekViewTasks: [FDTask] {
+        upcomingTasksRaw.filter { !$0.isDeleted && !$0.isCompleted && $0.dueDate != nil }
+    }
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if futureTasks.isEmpty {
-                        emptyState
-                    } else {
-                        LazyVStack(spacing: 10) {
-                            ForEach(futureTasks) { task in
-                                upcomingTaskRow(task)
-                                    .onTapGesture { selectedTask = task }
+            Group {
+                if showWeekView {
+                    WeekView(tasks: weekViewTasks, onTaskTap: { task in selectedTask = task })
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            if futureTasks.isEmpty {
+                                emptyState
+                            } else {
+                                LazyVStack(spacing: 10) {
+                                    ForEach(futureTasks) { task in
+                                        upcomingTaskRow(task)
+                                            .onTapGesture { selectedTask = task }
+                                    }
+                                }
                             }
                         }
+                        .padding(20)
                     }
                 }
-                .padding(20)
             }
             .background(Color.fdBackground)
             .navigationTitle("Upcoming")
             .toolbarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showSmartAdd = true } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.fdAccent)
+                    HStack(spacing: 4) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) { showWeekView.toggle() }
+                        } label: {
+                            Image(systemName: showWeekView ? "list.bullet" : "calendar")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                        }
+                        Button { showSmartAdd = true } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.fdAccent)
+                        }
                     }
                 }
             }

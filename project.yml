@@ -29,6 +29,7 @@ targets:
     dependencies:
       - package: GoogleSignIn
       - package: Supabase
+      - sdk: PhotosUI.framework
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.flowday.app

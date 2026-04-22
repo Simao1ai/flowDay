@@ -19,8 +19,9 @@ import Foundation
 
 /// Identifies which server-side system prompt to use.
 enum ClaudeFeature: String, Codable {
-    case flowAI           = "flowAI"
+    case flowAI            = "flowAI"
     case templateGenerator = "templateGenerator"
+    case dayRecap          = "dayRecap"
 }
 
 // MARK: - Errors

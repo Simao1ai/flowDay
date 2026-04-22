@@ -26,6 +26,7 @@ struct SettingsView: View {
     @State private var showAIScheduling = false
     @State private var showEnergyCheckIn = false
     @State private var showAISettings = false
+    @State private var showDayRecap = false
     @State private var showHelp = false
     @State private var showAbout = false
     @State private var showWhatsNew = false
@@ -74,6 +75,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showAIScheduling) { AISchedulingSettingsView() }
             .sheet(isPresented: $showEnergyCheckIn) { EnergyCheckInSettingsView() }
             .sheet(isPresented: $showAISettings) { AISettingsView() }
+            .sheet(isPresented: $showDayRecap) { DayRecapView() }
             .sheet(isPresented: $showHelp) { HelpFeedbackView() }
             .sheet(isPresented: $showAbout) { AboutView() }
             .sheet(isPresented: $showWhatsNew) { WhatsNewView() }
@@ -144,6 +146,8 @@ struct SettingsView: View {
                 settingsRow(icon: "bolt.fill", title: "Energy Check-in", subtitle: "Daily", color: .fdYellow) { showEnergyCheckIn = true }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "cpu", title: "AI Settings", color: .fdPurple) { showAISettings = true }
+                Divider().padding(.leading, 52)
+                settingsRow(icon: "moon.stars.fill", title: "Day Recap", subtitle: "AI Summary", color: .fdPurple) { showDayRecap = true }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))

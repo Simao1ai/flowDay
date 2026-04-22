@@ -6,6 +6,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct TaskDetailSheet: View {
     @Bindable var task: FDTask
@@ -26,6 +27,14 @@ struct TaskDetailSheet: View {
     @State private var showStartDatePicker = false
     @State private var showTimePicker = false
 
+    // Attachments
+    @State private var showAttachmentOptions = false
+    @State private var showPhotoPicker = false
+    @State private var showFilePicker = false
+    @State private var showLinkInput = false
+    @State private var linkInputText = ""
+    @State private var linkCopied = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -43,6 +52,11 @@ struct TaskDetailSheet: View {
                     // Subtasks
                     subtasksSection
 
+                    Divider().padding(.horizontal, 20)
+
+                    // Attachments
+                    attachmentsSection
+
                     // Notes
                     notesSection
                 }
@@ -57,6 +71,16 @@ struct TaskDetailSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        ShareLink(item: "flowday://task/\(task.id.uuidString)") {
+                            Label("Share Task", systemImage: "square.and.arrow.up")
+                        }
+                        Button {
+                            UIPasteboard.general.string = "flowday://task/\(task.id.uuidString)"
+                            linkCopied = true
+                        } label: {
+                            Label(linkCopied ? "Link Copied!" : "Copy Link", systemImage: "link")
+                        }
+                        Divider()
                         Button(role: .destructive) {
                             taskService?.deleteTask(task)
                             dismiss()
@@ -489,6 +513,86 @@ struct TaskDetailSheet: View {
                 }
         }
         .padding(.vertical, 16)
+    }
+
+    // MARK: - Attachments
+
+    private var attachmentsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "paperclip")
+                    .font(.system(size: 11))
+                Text("Attachments")
+                Spacer()
+                Button {
+                    showAttachmentOptions = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.fdAccent)
+                }
+                .padding(.trailing, 20)
+            }
+            .fdSectionHeader()
+            .padding(.leading, 20)
+
+            let sorted = task.attachments.sorted { $0.createdAt < $1.createdAt }
+            ForEach(sorted) { attachment in
+                AttachmentRow(attachment: attachment) {
+                    task.attachments.removeAll { $0.id == attachment.id }
+                    try? modelContext.save()
+                }
+            }
+
+            if task.attachments.isEmpty {
+                Text("No attachments")
+                    .font(.fdCaption)
+                    .foregroundStyle(Color.fdTextMuted)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 4)
+            }
+        }
+        .padding(.vertical, 16)
+        .confirmationDialog("Add Attachment", isPresented: $showAttachmentOptions, titleVisibility: .visible) {
+            Button("Photo from Library") { showPhotoPicker = true }
+            Button("Browse Files") { showFilePicker = true }
+            Button("Add Link") { showLinkInput = true }
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showPhotoPicker) {
+            PhotoAttachmentPicker { attachment in
+                task.attachments.append(attachment)
+                try? modelContext.save()
+            }
+        }
+        .sheet(isPresented: $showFilePicker) {
+            FileAttachmentPicker { attachment in
+                task.attachments.append(attachment)
+                try? modelContext.save()
+            }
+        }
+        .alert("Add Link", isPresented: $showLinkInput) {
+            TextField("https://...", text: $linkInputText)
+                .keyboardType(.URL)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+            Button("Add") {
+                let trimmed = linkInputText.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return }
+                let urlStr = trimmed.hasPrefix("http") ? trimmed : "https://\(trimmed)"
+                let attachment = TaskAttachment(
+                    filename: urlStr,
+                    attachmentType: "link",
+                    urlString: urlStr
+                )
+                task.attachments.append(attachment)
+                try? modelContext.save()
+                linkInputText = ""
+            }
+            Button("Cancel", role: .cancel) { linkInputText = "" }
+        } message: {
+            Text("Enter a URL to attach to this task.")
+        }
     }
 
     // MARK: - Helpers
