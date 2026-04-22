@@ -106,6 +106,7 @@ struct TodayView: View {
                 }
             }
             .navigationTitle("")
+            .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     VStack(alignment: .leading, spacing: 1) {

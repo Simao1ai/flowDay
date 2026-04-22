@@ -215,7 +215,7 @@ final class AIAssistantService {
         } catch {
             let topTasks = tasks.prefix(5).map { "• \($0.title) [\($0.priority.label)]" }.joined(separator: "\n")
             return AIMessage(
-                content: "I couldn't generate an AI plan right now, but here are your top priorities at \(energy.label.lowercased()) energy:\n\n\(topTasks)\n\nFocus on P1/P2 tasks first, then work through the rest.",
+                content: "Couldn't reach AI right now (\(error.localizedDescription)), but here are your top priorities at \(energy.label.lowercased()) energy:\n\n\(topTasks)\n\nFocus on P1/P2 tasks first, then work through the rest.",
                 isUser: false
             )
         }
@@ -249,7 +249,7 @@ final class AIAssistantService {
             )
         } catch {
             return AIMessage(
-                content: "Tell me about the task — what's it called, when is it due, and how important is it?",
+                content: "AI parsing failed (\(error.localizedDescription)). Tell me about the task — what's it called, when is it due, and how important is it?",
                 isUser: false
             )
         }
@@ -383,7 +383,7 @@ final class AIAssistantService {
             )
         } catch {
             return AIMessage(
-                content: "I couldn't break that down right now. Try rephrasing your goal, or create a task directly.",
+                content: "Breakdown failed (\(error.localizedDescription)). Try rephrasing your goal, or create a task directly.",
                 isUser: false
             )
         }
@@ -445,7 +445,7 @@ final class AIAssistantService {
             return AIMessage(content: response, isUser: false)
         } catch {
             return AIMessage(
-                content: "I'm having trouble connecting right now. Try asking me to plan your day or create a task — those work offline too!",
+                content: "Connection failed: \(error.localizedDescription)\n\nTry asking me to plan your day or create a task — those work offline too!",
                 isUser: false,
                 suggestions: [
                     AISuggestion(text: "Plan my day", icon: "calendar", action: .planDay),
