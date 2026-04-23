@@ -84,9 +84,11 @@ final class AuthManager {
         errorMessage = nil
         defer { isLoading = false }
 
-        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              let tokenData = credential.identityToken,
+              let idToken = String(data: tokenData, encoding: .utf8) else {
             errorMessage = "Invalid Apple ID credential"
-            logger.error("Could not cast to ASAuthorizationAppleIDCredential")
+            logger.error("Could not extract Apple identity token")
             return
         }
 
@@ -108,6 +110,15 @@ final class AuthManager {
         .compactMap { $0 }
         .joined(separator: " ")
         .trimmingCharacters(in: .whitespaces)
+
+        // Try to get a Supabase JWT for API access (non-blocking)
+        do {
+            let session = try await SupabaseService.shared.signInWithAppleToken(idToken)
+            SupabaseService.shared.saveSession(session)
+            logger.info("Supabase session obtained")
+        } catch {
+            logger.warning("Supabase auth failed (AI will use anon key): \(error.localizedDescription)")
+        }
 
         let user = FDUser(
             id: UUID(uuidString: credential.user) ?? UUID(),

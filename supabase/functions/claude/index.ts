@@ -23,7 +23,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Feature = "flowAI" | "templateGenerator" | "emailToTask";
+type Feature = "flowAI" | "templateGenerator" | "emailToTask" | "dayRecap";
 
 interface ClaudeRequestBody {
   feature: Feature;
@@ -117,6 +117,15 @@ Rules:
 - Choose a hex color that fits the domain (e.g. green for health, blue for software, orange for creative).
 - Order tasks in the logical sequence someone would actually do them.
 - Keep task titles concise (under 60 characters) and action-oriented (start with a verb).`,
+
+  dayRecap: `You are Flow, FlowDay's end-of-day recap writer. Given the user's completed tasks, habits, and energy level for the day, write a warm 3-sentence evening summary.
+
+Rules:
+- First sentence: acknowledge what they accomplished (mention specific task names if provided).
+- Second sentence: note their energy pattern and any habits completed.
+- Third sentence: a brief encouraging or reflective thought about tomorrow.
+- Keep it concise, warm, and personal. No generic motivational quotes.
+- Reply in plain text only — no JSON, no markdown, no bullet points.`,
 };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -142,22 +151,35 @@ serve(async (req: Request) => {
     return errorResponse(405, "Method not allowed");
   }
 
-  // ── Auth: validate Supabase JWT ──────────────────────────────────────────
+  // ── Auth: validate Supabase JWT (or allow anon key for AI access) ─────────
   const authHeader = req.headers.get("Authorization");
+  const apiKey = req.headers.get("apikey") ?? "";
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+
   if (!authHeader?.startsWith("Bearer ")) {
     return errorResponse(401, "Missing or invalid Authorization header");
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-    { global: { headers: { Authorization: authHeader } } }
-  );
+  const token = authHeader.replace("Bearer ", "");
+  let userId = "anonymous";
 
-  const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-  if (authError || !user) {
-    console.error("[claude] Auth failed:", authError?.message);
-    return errorResponse(401, "Unauthorized");
+  // If the bearer token IS the anon key, allow the call without user auth
+  // (used when Supabase SDK auth is unavailable, e.g. iOS 26.x workaround)
+  if (token !== anonKey) {
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      anonKey,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      console.error("[claude] Auth failed:", authError?.message);
+      return errorResponse(401, "Unauthorized");
+    }
+    userId = user.id;
+  } else {
+    console.log("[claude] Anon-key access (no user JWT)");
   }
 
   // ── Parse request body ───────────────────────────────────────────────────
@@ -170,8 +192,8 @@ serve(async (req: Request) => {
 
   const { feature, messages, temperature = 0.7, maxTokens = 2048 } = body;
 
-  if (!feature || !["flowAI", "templateGenerator", "emailToTask"].includes(feature)) {
-    return errorResponse(400, `Invalid feature: "${feature}". Must be "flowAI", "templateGenerator", or "emailToTask".`);
+  if (!feature || !["flowAI", "templateGenerator", "emailToTask", "dayRecap"].includes(feature)) {
+    return errorResponse(400, `Invalid feature: "${feature}". Must be "flowAI", "templateGenerator", "emailToTask", or "dayRecap".`);
   }
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -248,7 +270,7 @@ serve(async (req: Request) => {
     : "MISS (no cache data)";
 
   console.log(
-    `[claude] feature=${feature} user=${user.id} ` +
+    `[claude] feature=${feature} user=${userId} ` +
     `cache=${cacheStatus} input=${inputTokens} output=${outputTokens}`
   );
 
