@@ -74,12 +74,14 @@ struct AuthenticatedRootView: View {
     let appState: AppState
     let authManager: AuthManager
     @State private var calendarAccountManager = CalendarAccountManager()
+    @State private var emailAccountService = EmailAccountService()
 
     var body: some View {
         RootView()
             .environment(appState)
             .environment(authManager)
             .environment(calendarAccountManager)
+            .environment(emailAccountService)
     }
 }
 

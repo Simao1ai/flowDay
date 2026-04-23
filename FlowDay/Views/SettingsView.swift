@@ -12,10 +12,13 @@ struct SettingsView: View {
     @Environment(AppState.self) private var appState
     @Environment(AuthManager.self) private var authManager
 
+    @Environment(EmailAccountService.self) private var emailAccountService
+
     @State private var showAccount = false
     @State private var showGeneral = false
     @State private var showSubscription = false
     @State private var showCalendar = false
+    @State private var showEmailConnections = false
     @State private var showTheme = false
     @State private var showAppIcon = false
     @State private var showNavigation = false
@@ -37,6 +40,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     accountSection
+                    integrationsSection
                     personalizationSection
                     productivitySection
                     aboutSection
@@ -65,6 +69,10 @@ struct SettingsView: View {
             .sheet(isPresented: $showGeneral) { GeneralSettingsView() }
             .sheet(isPresented: $showSubscription) { SubscriptionSettingsView() }
             .sheet(isPresented: $showCalendar) { CalendarSettingsView() }
+            .sheet(isPresented: $showEmailConnections) {
+                EmailConnectionsView()
+                    .environment(emailAccountService)
+            }
             .sheet(isPresented: $showTheme) { ThemeSettingsView() }
             .sheet(isPresented: $showAppIcon) { AppIconSettingsView() }
             .sheet(isPresented: $showNavigation) { NavigationSettingsView() }
@@ -100,6 +108,36 @@ struct SettingsView: View {
         .background(Color.fdSurface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+    }
+
+    // MARK: - Integrations
+
+    private var integrationsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Integrations")
+                .font(.fdCaptionBold)
+                .textCase(.uppercase)
+                .foregroundStyle(Color.fdTextMuted)
+                .padding(.leading, 4)
+
+            VStack(spacing: 0) {
+                settingsRow(
+                    icon: "envelope",
+                    title: "Email Connections",
+                    subtitle: emailConnectedSubtitle,
+                    color: Color(hex: "EA4335")
+                ) { showEmailConnections = true }
+            }
+            .background(Color.fdSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+        }
+    }
+
+    private var emailConnectedSubtitle: String? {
+        let count = emailAccountService.connectedAccounts.count
+        if count == 0 { return nil }
+        return count == 1 ? "1 connected" : "\(count) connected"
     }
 
     // MARK: - Personalization
