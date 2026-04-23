@@ -83,6 +83,16 @@ struct RootView: View {
         }
         .onAppear {
             taskService = TaskService(modelContext: modelContext)
+
+            // Request calendar access and fetch events
+            Task {
+                let granted = await calendarService.requestAccess()
+                if granted {
+                    await MainActor.run {
+                        calendarService.fetchTodayEvents()
+                    }
+                }
+            }
         }
     }
 }
