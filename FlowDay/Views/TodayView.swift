@@ -108,10 +108,9 @@ struct TodayView: View {
                     quickAddBar
                 }
             }
-            .navigationTitle("")
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+            .navigationBarHidden(true)
+            .safeAreaInset(edge: .top) {
+                HStack {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Today")
                             .font(.fdTitle2)
@@ -120,8 +119,7 @@ struct TodayView: View {
                             .font(.fdMicro)
                             .foregroundStyle(Color.fdTextMuted)
                     }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
+                    Spacer()
                     HStack(spacing: 10) {
                         if let energy = appState.todayEnergy {
                             energyBadge(energy)
@@ -143,6 +141,9 @@ struct TodayView: View {
                         }
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .background(Color.fdBackground)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
