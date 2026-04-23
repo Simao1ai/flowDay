@@ -49,7 +49,6 @@ final class EmailFetchService {
         switch provider {
         case .gmail:   return await fetchGmail()
         case .outlook: return await fetchOutlook()
-        case .iCloud:  return await fetchICloud()
         }
     }
 
@@ -201,14 +200,6 @@ final class EmailFetchService {
         } catch {
             return []
         }
-    }
-
-    // MARK: - iCloud (IMAP stub — full IMAP implementation is Phase 2)
-
-    private func fetchICloud() async -> [EmailMessage] {
-        // IMAP from iOS requires a full IMAP client library.
-        // Phase 1 stores credentials; Phase 2 will implement the IMAP fetch.
-        return []
     }
 
     // MARK: - Helpers
