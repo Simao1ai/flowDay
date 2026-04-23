@@ -4,8 +4,7 @@
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES"
-      runPostActionsOnFailure = "NO">
+      buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "00A4CAE1F3CFC25DFC0AC573"
+               BlueprintIdentifier = "FlowDay"
                BuildableName = "FlowDay.app"
                BlueprintName = "FlowDay"
                ReferencedContainer = "container:Flow Day-ios.xcodeproj">
@@ -28,31 +27,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      onlyGenerateCoverageForSpecifiedTargets = "NO">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "00A4CAE1F3CFC25DFC0AC573"
-            BuildableName = "FlowDay.app"
-            BlueprintName = "FlowDay"
-            ReferencedContainer = "container:Flow Day-ios.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "32DEE6BEB302B854BEB7B84B"
-               BuildableName = "FlowDayTests.xctest"
-               BlueprintName = "FlowDayTests"
-               ReferencedContainer = "container:Flow Day-ios.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
-      <CommandLineArguments>
-      </CommandLineArguments>
+      shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -68,14 +43,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "00A4CAE1F3CFC25DFC0AC573"
+            BlueprintIdentifier = "FlowDay"
             BuildableName = "FlowDay.app"
             BlueprintName = "FlowDay"
             ReferencedContainer = "container:Flow Day-ios.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -87,14 +60,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "00A4CAE1F3CFC25DFC0AC573"
+            BlueprintIdentifier = "FlowDay"
             BuildableName = "FlowDay.app"
             BlueprintName = "FlowDay"
             ReferencedContainer = "container:Flow Day-ios.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
