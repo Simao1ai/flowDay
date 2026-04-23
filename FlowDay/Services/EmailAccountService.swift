@@ -1,7 +1,7 @@
 // EmailAccountService.swift
 // FlowDay — Multi-provider email account management
 //
-// Manages OAuth tokens and credentials for Gmail, Outlook, and iCloud Mail.
+// Manages OAuth tokens for Gmail and Outlook.
 // Tokens are stored securely in Keychain via KeychainHelper.
 
 import Foundation
@@ -11,9 +11,8 @@ import GoogleSignIn
 // MARK: - Email Provider
 
 enum EmailProvider: String, CaseIterable, Codable, Identifiable {
-    case gmail = "gmail"
+    case gmail   = "gmail"
     case outlook = "outlook"
-    case iCloud = "icloud"
 
     var id: String { rawValue }
 
@@ -21,7 +20,6 @@ enum EmailProvider: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .gmail:   "Gmail"
         case .outlook: "Outlook"
-        case .iCloud:  "iCloud Mail"
         }
     }
 
@@ -29,7 +27,6 @@ enum EmailProvider: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .gmail:   "envelope.fill"
         case .outlook: "envelope.badge.fill"
-        case .iCloud:  "applelogo"
         }
     }
 
@@ -37,7 +34,6 @@ enum EmailProvider: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .gmail:   "EA4335"
         case .outlook: "0078D4"
-        case .iCloud:  "147EFB"
         }
     }
 }
@@ -61,13 +57,11 @@ final class EmailAccountService {
     var connectionError: String? = nil
 
     // Keychain keys
-    private let accountsKey        = "email_connected_accounts"
-    private let gmailTokenKey      = "email_gmail_access_token"
-    private let gmailRefreshKey    = "email_gmail_refresh_token"
-    private let outlookTokenKey    = "email_outlook_access_token"
-    private let outlookRefreshKey  = "email_outlook_refresh_token"
-    private let iCloudEmailKey     = "email_icloud_email"
-    private let iCloudPasswordKey  = "email_icloud_app_password"
+    private let accountsKey       = "email_connected_accounts"
+    private let gmailTokenKey     = "email_gmail_access_token"
+    private let gmailRefreshKey   = "email_gmail_refresh_token"
+    private let outlookTokenKey   = "email_outlook_access_token"
+    private let outlookRefreshKey = "email_outlook_refresh_token"
 
     // Gmail scope — read-only access to inbox
     private let gmailScope = "https://www.googleapis.com/auth/gmail.readonly"
@@ -75,10 +69,10 @@ final class EmailAccountService {
     // Microsoft OAuth config — replace client ID with one registered in Azure Portal
     // Register at https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps
     // Add "Mail.Read" permission under Microsoft Graph
-    private let outlookClientId      = "YOUR_MICROSOFT_CLIENT_ID"
-    private let outlookTenantId      = "common"
+    private let outlookClientId       = "YOUR_MICROSOFT_CLIENT_ID"
+    private let outlookTenantId       = "common"
     private let outlookRedirectScheme = "msauth.io.flowday.app"
-    private let outlookScope         = "Mail.Read"
+    private let outlookScope          = "Mail.Read"
 
     init() {
         loadAccounts()
@@ -219,11 +213,11 @@ final class EmailAccountService {
             string: "https://login.microsoftonline.com/\(outlookTenantId)/oauth2/v2.0/authorize"
         )
         components?.queryItems = [
-            URLQueryItem(name: "client_id",      value: outlookClientId),
-            URLQueryItem(name: "response_type",  value: "code"),
-            URLQueryItem(name: "redirect_uri",   value: "\(outlookRedirectScheme)://auth"),
-            URLQueryItem(name: "scope",          value: "\(outlookScope) offline_access openid profile email"),
-            URLQueryItem(name: "response_mode",  value: "query"),
+            URLQueryItem(name: "client_id",     value: outlookClientId),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "redirect_uri",  value: "\(outlookRedirectScheme)://auth"),
+            URLQueryItem(name: "scope",         value: "\(outlookScope) offline_access openid profile email"),
+            URLQueryItem(name: "response_mode", value: "query"),
         ]
         return components?.url
     }
@@ -319,41 +313,6 @@ final class EmailAccountService {
         }
     }
 
-    // MARK: - iCloud Mail (IMAP with app-specific password)
-
-    func connectICloud(email: String, appPassword: String) async -> Bool {
-        await MainActor.run {
-            isConnecting = .iCloud
-            connectionError = nil
-        }
-
-        guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
-              !appPassword.isEmpty else {
-            await MainActor.run {
-                connectionError = "Email and app-specific password are required."
-                isConnecting = nil
-            }
-            return false
-        }
-
-        KeychainHelper.shared.saveString(email.trimmingCharacters(in: .whitespaces), for: iCloudEmailKey)
-        KeychainHelper.shared.saveString(appPassword, for: iCloudPasswordKey)
-
-        let account = EmailAccount(
-            id: EmailProvider.iCloud.rawValue,
-            provider: .iCloud,
-            email: email.trimmingCharacters(in: .whitespaces),
-            connectedAt: .now
-        )
-
-        await MainActor.run {
-            upsertAccount(account)
-            isConnecting = nil
-        }
-
-        return true
-    }
-
     // MARK: - Disconnect
 
     func disconnect(_ provider: EmailProvider) {
@@ -364,9 +323,6 @@ final class EmailAccountService {
         case .outlook:
             KeychainHelper.shared.delete(for: outlookTokenKey)
             KeychainHelper.shared.delete(for: outlookRefreshKey)
-        case .iCloud:
-            KeychainHelper.shared.delete(for: iCloudEmailKey)
-            KeychainHelper.shared.delete(for: iCloudPasswordKey)
         }
 
         connectedAccounts.removeAll { $0.provider == provider }
@@ -379,14 +335,7 @@ final class EmailAccountService {
         switch provider {
         case .gmail:   KeychainHelper.shared.readString(for: gmailTokenKey)
         case .outlook: KeychainHelper.shared.readString(for: outlookTokenKey)
-        case .iCloud:  nil
         }
-    }
-
-    func iCloudCredentials() -> (email: String, password: String)? {
-        guard let email    = KeychainHelper.shared.readString(for: iCloudEmailKey),
-              let password = KeychainHelper.shared.readString(for: iCloudPasswordKey) else { return nil }
-        return (email, password)
     }
 
     // MARK: - Persistence
