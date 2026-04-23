@@ -14,6 +14,7 @@ struct TodayView: View {
     let calendarService: CalendarService
 
     @Environment(AppState.self) private var appState
+    @Environment(EmailAccountService.self) private var emailAccountService
     @Environment(\.modelContext) private var modelContext
 
     /// Falls back to a locally-created TaskService when RootView hasn't
@@ -42,6 +43,10 @@ struct TodayView: View {
     @State private var showAIPlan = false
     @State private var showRamble = false
     @State private var showDayRecap = false
+    @State private var showEmailTasks = false
+    @State private var emailSuggestions: [EmailTaskSuggestion] = []
+    @State private var hasScannedEmails = false
+    @State private var isScanningEmails = false
     @State private var expandedTaskID: UUID?
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
@@ -76,6 +81,11 @@ struct TodayView: View {
                             // AI Banner
                             aiBannerSection
 
+                            // Email Tasks card — shown when AI found actionable emails
+                            if !emailSuggestions.isEmpty {
+                                emailTasksCard
+                            }
+
                             // Habits row
                             if !habits.isEmpty {
                                 habitsSection
@@ -109,6 +119,7 @@ struct TodayView: View {
                 }
             }
             .navigationBarHidden(true)
+            .onAppear { triggerEmailScan() }
             .safeAreaInset(edge: .top) {
                 HStack {
                     VStack(alignment: .leading, spacing: 1) {
@@ -147,6 +158,9 @@ struct TodayView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showEmailTasks) {
+                EmailTasksView(suggestions: $emailSuggestions)
             }
             .sheet(isPresented: $showAIPlan) {
                 AIPlanView(taskService: resolvedTaskService, energyLevel: appState.todayEnergy)
@@ -251,6 +265,73 @@ struct TodayView: View {
         .onAppear {
             withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false).delay(0.8)) {
                 planButtonShimmer = true
+            }
+        }
+    }
+
+    // MARK: - Email Tasks Card
+
+    private var emailTasksCard: some View {
+        Button { showEmailTasks = true } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(hex: "EA4335"))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "envelope.fill")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Email Tasks")
+                        .font(.fdCaptionBold)
+                        .foregroundStyle(Color.fdText)
+                    Text("\(emailSuggestions.count) email\(emailSuggestions.count == 1 ? "" : "s") need\(emailSuggestions.count == 1 ? "s" : "") your attention")
+                        .font(.fdMicro)
+                        .foregroundStyle(Color.fdTextSecondary)
+                }
+
+                Spacer()
+
+                Text("Review")
+                    .font(.fdCaptionBold)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(Color(hex: "EA4335"))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .padding(16)
+            .background(Color(hex: "EA4335").opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color(hex: "EA4335").opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Email Scan
+
+    private func triggerEmailScan() {
+        guard !hasScannedEmails,
+              !emailAccountService.connectedAccounts.isEmpty else { return }
+        hasScannedEmails = true
+        isScanningEmails = true
+
+        Task {
+            let fetchService = EmailFetchService(accountService: emailAccountService)
+            let emails = await fetchService.fetchAllAccounts()
+            guard !emails.isEmpty else {
+                await MainActor.run { isScanningEmails = false }
+                return
+            }
+            let suggestions = await EmailScanService.shared.scan(emails: emails)
+            await MainActor.run {
+                emailSuggestions = suggestions
+                isScanningEmails = false
             }
         }
     }

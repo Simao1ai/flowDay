@@ -5,11 +5,11 @@ import SwiftUI
 
 struct AISchedulingSettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var enabled = true
-    @State private var peakStart = "8:00 AM"
-    @State private var peakEnd = "12:00 PM"
-    @State private var respectCalendar = true
-    @State private var autoSuggest = false
+    @AppStorage("ai_scheduling_enabled") private var enabled = true
+    @AppStorage("ai_peak_start") private var peakStart = "8:00 AM"
+    @AppStorage("ai_peak_end") private var peakEnd = "12:00 PM"
+    @AppStorage("ai_respect_calendar") private var respectCalendar = true
+    @AppStorage("ai_auto_suggest") private var autoSuggest = false
 
     var body: some View {
         NavigationStack {

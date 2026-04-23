@@ -5,9 +5,9 @@ import SwiftUI
 
 struct EnergyCheckInSettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var enabled = true
-    @State private var frequency = "Daily"
-    @State private var checkInTime = "Morning"
+    @AppStorage("energy_checkin_enabled") private var enabled = true
+    @AppStorage("energy_checkin_frequency") private var frequency = "Daily"
+    @AppStorage("energy_checkin_time") private var checkInTime = "Morning"
 
     var body: some View {
         NavigationStack {

@@ -5,9 +5,9 @@ import SwiftUI
 
 struct ThemeSettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedTheme = "FlowDay"
-    @State private var syncTheme = true
-    @State private var autoDarkMode = false
+    @AppStorage("selected_theme") private var selectedTheme = "FlowDay"
+    @AppStorage("theme_sync") private var syncTheme = true
+    @AppStorage("theme_auto_dark_mode") private var autoDarkMode = false
 
     var body: some View {
         NavigationStack {
