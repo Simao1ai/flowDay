@@ -19,7 +19,6 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -131,10 +130,8 @@ Rules:
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
-// claude-sonnet-4-5 supports prompt caching and is the latest Sonnet at time of writing
-const ANTHROPIC_MODEL = "claude-sonnet-4-5";
+const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const ANTHROPIC_VERSION = "2023-06-01";
-const ANTHROPIC_BETA = "prompt-caching-2024-07-31";
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
@@ -151,36 +148,9 @@ serve(async (req: Request) => {
     return errorResponse(405, "Method not allowed");
   }
 
-  // ── Auth: validate Supabase JWT (or allow anon key for AI access) ─────────
-  const authHeader = req.headers.get("Authorization");
-  const apiKey = req.headers.get("apikey") ?? "";
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-
-  if (!authHeader?.startsWith("Bearer ")) {
-    return errorResponse(401, "Missing or invalid Authorization header");
-  }
-
-  const token = authHeader.replace("Bearer ", "");
-  let userId = "anonymous";
-
-  // If the bearer token IS the anon key, allow the call without user auth
-  // (used when Supabase SDK auth is unavailable, e.g. iOS 26.x workaround)
-  if (token !== anonKey) {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      anonKey,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      console.error("[claude] Auth failed:", authError?.message);
-      return errorResponse(401, "Unauthorized");
-    }
-    userId = user.id;
-  } else {
-    console.log("[claude] Anon-key access (no user JWT)");
-  }
+  // ── Auth: DISABLED — open access while iOS transitions to proper JWT ────
+  const userId = "anonymous";
+  console.log("[claude] Open access (auth disabled)");
 
   // ── Parse request body ───────────────────────────────────────────────────
   let body: ClaudeRequestBody;
@@ -236,7 +206,6 @@ serve(async (req: Request) => {
         "Content-Type": "application/json",
         "x-api-key": anthropicKey,
         "anthropic-version": ANTHROPIC_VERSION,
-        "anthropic-beta": ANTHROPIC_BETA,
       },
       body: JSON.stringify(anthropicRequest),
     });
@@ -248,7 +217,7 @@ serve(async (req: Request) => {
   if (!anthropicResponse.ok) {
     const errText = await anthropicResponse.text();
     console.error(`[claude] Anthropic error ${anthropicResponse.status}:`, errText);
-    return errorResponse(502, `Anthropic API error: ${anthropicResponse.status}`);
+    return errorResponse(502, `Anthropic API error ${anthropicResponse.status}: ${errText}`);
   }
 
   const anthropicData = await anthropicResponse.json();
