@@ -46,6 +46,8 @@ struct TodayView: View {
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
     @State private var selection = SelectionState()
+    @State private var planButtonShimmer = false
+    @State private var taskSwipeOffsets: [UUID: CGFloat] = [:]
 
     private var todayTasks: [FDTask] {
         allTasks.filter { $0.isScheduledToday }
@@ -197,9 +199,9 @@ struct TodayView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 40, height: 40)
+                    .frame(width: 44, height: 44)
                 Image(systemName: "sparkles")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(.white)
             }
 
@@ -224,18 +226,32 @@ struct TodayView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 9)
                     .background(Color.fdAccent)
+                    .overlay(
+                        LinearGradient(
+                            colors: [.clear, .white.opacity(0.35), .clear],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: 36)
+                        .offset(x: planButtonShimmer ? 60 : -60)
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
-        .padding(16)
+        .padding(18)
         .background(
             LinearGradient(
-                colors: [Color.fdAccentLight, Color.fdPurpleLight],
+                colors: [Color.fdAccent.opacity(0.13), Color.fdPurple.opacity(0.1)],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .onAppear {
+            withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false).delay(0.8)) {
+                planButtonShimmer = true
+            }
+        }
     }
 
     // MARK: - Habits
@@ -301,57 +317,132 @@ struct TodayView: View {
         }
     }
 
-    /// Wraps a TaskRowView with multi-select gestures + a checkmark overlay
-    /// when SelectionState is active.
+    /// Wraps a TaskRowView with multi-select gestures + swipe actions + checkmark overlay.
     @ViewBuilder
     private func selectableRow(for task: FDTask) -> some View {
         let isSelected = selection.contains(task.id)
-        TaskRowView(
-            task: task,
-            isExpanded: expandedTaskID == task.id,
-            onToggle: { resolvedTaskService.toggleComplete(task) },
-            onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
-            onExpand: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    expandedTaskID = expandedTaskID == task.id ? nil : task.id
+        let swipeOffset = taskSwipeOffsets[task.id] ?? 0
+        let revealWidth: CGFloat = 68
+
+        ZStack {
+            // Complete action revealed by swipe-right
+            HStack {
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                        taskSwipeOffsets[task.id] = 0
+                    }
+                    Haptics.tock()
+                    resolvedTaskService.toggleComplete(task)
+                } label: {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: revealWidth)
+                        .frame(maxHeight: .infinity)
+                }
+                .background(Color.fdGreen)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .opacity(swipeOffset > 8 ? 1 : 0)
+                Spacer()
+            }
+
+            // Delete action revealed by swipe-left
+            HStack {
+                Spacer()
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                        taskSwipeOffsets[task.id] = 0
+                    }
+                    Haptics.warning()
+                    resolvedTaskService.deleteTask(task)
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: revealWidth)
+                        .frame(maxHeight: .infinity)
+                }
+                .background(Color.fdRed)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .opacity(swipeOffset < -8 ? 1 : 0)
+            }
+
+            TaskRowView(
+                task: task,
+                isExpanded: expandedTaskID == task.id,
+                onToggle: { resolvedTaskService.toggleComplete(task) },
+                onToggleSubtask: { sub in resolvedTaskService.toggleSubtaskComplete(sub) },
+                onExpand: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        expandedTaskID = expandedTaskID == task.id ? nil : task.id
+                    }
+                }
+            )
+            .offset(x: swipeOffset)
+            .overlay(alignment: .topLeading) {
+                if selection.isActive {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 18))
+                        .foregroundStyle(isSelected ? Color.fdAccent : Color.fdTextMuted)
+                        .padding(8)
+                        .background(Circle().fill(Color.fdSurface))
+                        .offset(x: -6, y: -6)
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
-        )
-        .overlay(alignment: .topLeading) {
-            if selection.isActive {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 18))
-                    .foregroundStyle(isSelected ? Color.fdAccent : Color.fdTextMuted)
-                    .padding(8)
-                    .background(Circle().fill(Color.fdSurface))
-                    .offset(x: -6, y: -6)
-                    .transition(.scale.combined(with: .opacity))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.fdAccent : .clear, lineWidth: isSelected ? 2 : 0)
+            )
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if swipeOffset != 0 {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                        taskSwipeOffsets[task.id] = 0
+                    }
+                } else if selection.isActive {
+                    Haptics.tap()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                        selection.toggle(task.id)
+                    }
+                    if selection.count == 0 {
+                        withAnimation { selection.exit() }
+                    }
+                }
             }
+            .onLongPressGesture(minimumDuration: 0.35) {
+                if !selection.isActive && swipeOffset == 0 {
+                    Haptics.tock()
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) {
+                        selection.enter(initial: task.id)
+                    }
+                }
+            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 25)
+                    .onChanged { value in
+                        guard !selection.isActive else { return }
+                        let t = value.translation.width
+                        withAnimation(.interactiveSpring()) {
+                            taskSwipeOffsets[task.id] = max(-revealWidth, min(revealWidth, t))
+                        }
+                    }
+                    .onEnded { value in
+                        guard !selection.isActive else { return }
+                        let t = value.translation.width
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            if t > 44 {
+                                taskSwipeOffsets[task.id] = revealWidth
+                            } else if t < -44 {
+                                taskSwipeOffsets[task.id] = -revealWidth
+                            } else {
+                                taskSwipeOffsets[task.id] = 0
+                            }
+                        }
+                    }
+            )
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(isSelected ? Color.fdAccent : .clear, lineWidth: isSelected ? 2 : 0)
-        )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if selection.isActive {
-                Haptics.tap()
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                    selection.toggle(task.id)
-                }
-                if selection.count == 0 {
-                    withAnimation { selection.exit() }
-                }
-            }
-        }
-        .onLongPressGesture(minimumDuration: 0.35) {
-            if !selection.isActive {
-                Haptics.tock()
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) {
-                    selection.enter(initial: task.id)
-                }
-            }
-        }
+        .clipped()
     }
 
     private var emptyTimelineView: some View {
@@ -387,15 +478,18 @@ struct TodayView: View {
                 colors: [Color.fdBackground.opacity(0), Color.fdBackground],
                 startPoint: .top, endPoint: .bottom
             )
-            .frame(height: 20)
+            .frame(height: 24)
+            .allowsHitTesting(false)
 
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Image(systemName: "plus")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(Color.fdAccent)
 
                 TextField("Add a task...", text: $quickAddText)
                     .font(.fdBody)
+                    .foregroundStyle(Color.fdText)
+                    .tint(Color.fdAccent)
                     .focused($quickAddFocused)
                     .submitLabel(.done)
                     .onSubmit {
@@ -410,19 +504,21 @@ struct TodayView: View {
                     Haptics.tap()
                     showRamble = true
                 } label: {
-                    Image(systemName: "waveform")
+                    Image(systemName: "mic")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(Color.fdAccent)
                 }
                 .accessibilityLabel("Ramble — dictate multiple tasks")
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color.fdSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.06), radius: 12, y: -2)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 14)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .shadow(color: .black.opacity(0.08), radius: 18, x: 0, y: -3)
             .padding(.horizontal, 20)
             .padding(.bottom, 8)
+            .scaleEffect(quickAddFocused ? 1.01 : 1.0)
+            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: quickAddFocused)
         }
     }
 
@@ -461,10 +557,10 @@ struct StatCard: View {
     let color: Color
 
     var body: some View {
-        VStack(spacing: 6) {
-            HStack(spacing: 4) {
+        VStack(spacing: 8) {
+            HStack(spacing: 5) {
                 Image(systemName: icon)
-                    .font(.system(size: 12))
+                    .font(.system(size: 13))
                     .foregroundStyle(color)
                 Text(value)
                     .font(.fdCaptionBold)
@@ -475,13 +571,23 @@ struct StatCard: View {
                 .foregroundStyle(Color.fdTextMuted)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color.fdSurface)
+        .padding(.vertical, 16)
+        .background(
+            ZStack {
+                Color.fdSurface
+                LinearGradient(
+                    colors: [color.opacity(0.09), color.opacity(0)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        )
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.fdBorderLight, lineWidth: 1)
         )
+        .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
     }
 }
 
@@ -502,33 +608,29 @@ struct TaskRowView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Main row
             HStack(alignment: .top, spacing: 12) {
-                // Checkbox — spring + haptic on tap
+                // Animated circle checkbox
                 Button {
-                    if task.isCompleted {
-                        Haptics.tap()
-                    } else {
-                        Haptics.tock()
-                    }
+                    if task.isCompleted { Haptics.tap() } else { Haptics.tock() }
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
                         onToggle()
                     }
                 } label: {
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(task.isCompleted ? Color.fdGreen : priorityColor.opacity(0.5), lineWidth: 2)
-                        .fill(task.isCompleted ? Color.fdGreen : Color.clear)
-                        .frame(width: 20, height: 20)
-                        .overlay {
-                            if task.isCompleted {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .transition(.scale.combined(with: .opacity))
-                            }
+                    ZStack {
+                        Circle()
+                            .stroke(task.isCompleted ? Color.fdGreen : priorityColor.opacity(0.55), lineWidth: 2)
+                        if task.isCompleted {
+                            Circle().fill(Color.fdGreen)
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(.white)
+                                .transition(.scale.combined(with: .opacity))
                         }
-                        .scaleEffect(task.isCompleted ? 1.06 : 1.0)
+                    }
+                    .frame(width: 22, height: 22)
+                    .scaleEffect(task.isCompleted ? 1.08 : 1.0)
                 }
                 .buttonStyle(.plain)
-                .padding(.top, 2)
+                .padding(.top, 1)
                 .accessibilityLabel(task.isCompleted ? "Mark task incomplete" : "Complete task")
 
                 // Content
@@ -538,21 +640,18 @@ struct TaskRowView: View {
                         .foregroundStyle(task.isCompleted ? Color.fdTextMuted : Color.fdText)
                         .strikethrough(task.isCompleted)
 
+                    // Metadata row
                     HStack(spacing: 8) {
-                        // Priority badge
-                        Text(task.priority.label)
-                            .font(.system(size: 10, weight: .bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(priorityColor.opacity(0.12))
-                            .foregroundStyle(priorityColor)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
-
-                        // Project
+                        // Project as colored dot + label
                         if let project = task.project {
-                            Text(project.name)
-                                .font(.fdMicro)
-                                .foregroundStyle(Color(hex: project.colorHex))
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(Color(hex: project.colorHex))
+                                    .frame(width: 6, height: 6)
+                                Text(project.name)
+                                    .font(.fdMicro)
+                                    .foregroundStyle(Color.fdTextSecondary)
+                            }
                         }
 
                         // Time
@@ -581,12 +680,18 @@ struct TaskRowView: View {
                                     Image(systemName: "chevron.down")
                                         .font(.system(size: 8))
                                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExpanded)
                                 }
                                 .font(.fdMono)
                                 .foregroundStyle(Color.fdTextMuted)
                             }
                             .buttonStyle(.plain)
                         }
+                    }
+
+                    // Due date chip
+                    if let dueDate = task.dueDate {
+                        dueDateChip(for: dueDate)
                     }
                 }
 
@@ -605,18 +710,18 @@ struct TaskRowView: View {
                                     onToggleSubtask(subtask)
                                 }
                             } label: {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .stroke(subtask.isCompleted ? Color.fdGreen : Color.fdBorder, lineWidth: 1.5)
-                                    .fill(subtask.isCompleted ? Color.fdGreen : Color.clear)
-                                    .frame(width: 15, height: 15)
-                                    .overlay {
-                                        if subtask.isCompleted {
-                                            Image(systemName: "checkmark")
-                                                .font(.system(size: 8, weight: .bold))
-                                                .foregroundStyle(.white)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
+                                ZStack {
+                                    Circle()
+                                        .stroke(subtask.isCompleted ? Color.fdGreen : Color.fdBorder, lineWidth: 1.5)
+                                    if subtask.isCompleted {
+                                        Circle().fill(Color.fdGreen)
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 8, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
+                                }
+                                .frame(width: 16, height: 16)
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(subtask.isCompleted ? "Mark subtask incomplete" : "Complete subtask")
@@ -631,17 +736,42 @@ struct TaskRowView: View {
                         .padding(.vertical, 6)
                     }
                 }
-                .padding(.leading, 46)
+                .padding(.leading, 48)
                 .padding(.trailing, 14)
                 .padding(.bottom, 12)
             }
         }
         .background(Color.fdSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(alignment: .leading) {
+            // Left priority border strip
+            Rectangle()
+                .fill(priorityColor)
+                .frame(width: 4)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.fdBorderLight, lineWidth: 1)
         )
+        .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
+    }
+
+    private func dueDateChip(for date: Date) -> some View {
+        let isOverdue = date < Calendar.current.startOfDay(for: .now) && !task.isCompleted
+        let isToday = Calendar.current.isDateInToday(date)
+        let chipColor: Color = isOverdue ? .fdRed : isToday ? .fdAccent : .fdBlue
+
+        return HStack(spacing: 3) {
+            Image(systemName: "calendar")
+                .font(.system(size: 9))
+            Text(isToday ? "Today" : isOverdue ? "Overdue" : date.formatted(.dateTime.month(.abbreviated).day()))
+        }
+        .font(.fdMicro)
+        .foregroundStyle(chipColor)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(chipColor.opacity(0.1))
+        .clipShape(Capsule())
     }
 }
 
