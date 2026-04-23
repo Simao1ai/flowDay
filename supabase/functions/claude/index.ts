@@ -23,7 +23,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Feature = "flowAI" | "templateGenerator";
+type Feature = "flowAI" | "templateGenerator" | "emailToTask";
 
 interface ClaudeRequestBody {
   feature: Feature;
@@ -73,6 +73,26 @@ Rules:
 - For general conversation, reply naturally in plain text (no JSON).
 - Be concise, actionable, and warm. You know the user's tasks and energy level from their context.
 - Never mention competitors. Never mention other AI models or that you are Claude.`,
+
+  emailToTask: `You are FlowDay's Email Task Parser. Extract the single most actionable task from an email.
+
+Rules:
+- Always return a single JSON object — no prose, no markdown fences, just raw JSON.
+- The JSON must match this exact shape:
+  {
+    "title": "Action-oriented task title starting with a verb, under 80 chars",
+    "priority": 2,
+    "dueDate": "YYYY-MM-DD or null",
+    "scheduledTime": "HH:mm or null",
+    "estimatedMinutes": 30,
+    "notes": "1–2 sentence context: who sent it, what it's about, any deadline",
+    "labels": []
+  }
+- Priority: 1=urgent (today/ASAP), 2=high (this week), 3=medium (eventually), 4=low.
+- dueDate: Extract only if explicitly stated (e.g. "by Friday June 6" → "2026-06-06"). Use null if ambiguous.
+- estimatedMinutes: Realistic effort estimate (15–120 min typical).
+- title: The action YOU need to take, not a summary of the email. Start with a verb.
+- If there are multiple action items, return only the single most important one.`,
 
   templateGenerator: `You are FlowDay's AI Template Generator. Your job is to create structured task templates from a user's description of a project or workflow.
 
@@ -150,8 +170,8 @@ serve(async (req: Request) => {
 
   const { feature, messages, temperature = 0.7, maxTokens = 2048 } = body;
 
-  if (!feature || !["flowAI", "templateGenerator"].includes(feature)) {
-    return errorResponse(400, `Invalid feature: "${feature}". Must be "flowAI" or "templateGenerator".`);
+  if (!feature || !["flowAI", "templateGenerator", "emailToTask"].includes(feature)) {
+    return errorResponse(400, `Invalid feature: "${feature}". Must be "flowAI", "templateGenerator", or "emailToTask".`);
   }
 
   if (!Array.isArray(messages) || messages.length === 0) {

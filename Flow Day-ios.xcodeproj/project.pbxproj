@@ -23,6 +23,7 @@
 		19F976F46A6611AFDC558690 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA8F738830068A9E08CC017 /* SettingsView.swift */; };
 		1B0093CA5E3F9B0112B58CE4 /* FiltersLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */; };
 		262CA5D83F2C1A1AE5357B3F /* PremiumTemplateLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78D68ABD24064E3390562C13 /* PremiumTemplateLibrary.swift */; };
+		299597C34C8BCD85923FF33D /* EmailToTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */; };
 		2BCC3540C1EB21EFC548A3A0 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B08F3B8A16DBF67A1CAEEF8E /* Supabase */; };
 		2F55C57EF3EC387011D12448 /* Config.example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B68BCECA4C17744B50DCB1 /* Config.example.swift */; };
 		2FE3898598E1C4AD0A9C141E /* EnergyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0B0C59D5F1C0B19F5A4214 /* EnergyCheckInView.swift */; };
@@ -187,6 +188,7 @@
 		A1033D2A7D35A2D38D03F7B8 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		A274440580CC7FC4EA146EDC /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		A275A13EF05C7458890ABB45 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
+		A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailToTaskView.swift; sourceTree = "<group>"; };
 		A6C71E0B82691E599D0ECDC0 /* AIFeatureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIFeatureService.swift; sourceTree = "<group>"; };
 		AB64EC93FF8869FBB45D0E27 /* TemplatesView+Catalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Catalog.swift"; sourceTree = "<group>"; };
 		AE1783BA1CC1A644D02B11B5 /* TaskAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttachment.swift; sourceTree = "<group>"; };
@@ -448,6 +450,7 @@
 				C7E29BC0CD5171D38B783F34 /* AppIconSettingsView.swift */,
 				1D64692D089723E18917C605 /* CalendarSettingsView.swift */,
 				36ED8864514B69F2FC36225A /* EmailConnectionsView.swift */,
+				A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */,
 				D99EFB9954757FC822EBBBA8 /* EnergyCheckInSettingsView.swift */,
 				77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */,
 				7772398B98B06B035C5D4FD3 /* HelpFeedbackView.swift */,
@@ -603,6 +606,7 @@
 				A1D4C46892DBA437372888FD /* EmailAccountService.swift in Sources */,
 				42F0D0A2A616D9A430408BB7 /* EmailConnectionsView.swift in Sources */,
 				6441BD345CFF78905EC19FE7 /* EmailFetchService.swift in Sources */,
+				299597C34C8BCD85923FF33D /* EmailToTaskView.swift in Sources */,
 				8DAB35EBE7482B12327E084C /* EmptyStateView.swift in Sources */,
 				6784C0D397775A5EA7A3B952 /* EnergyCheckInSettingsView.swift in Sources */,
 				2FE3898598E1C4AD0A9C141E /* EnergyCheckInView.swift in Sources */,

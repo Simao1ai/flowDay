@@ -22,6 +22,7 @@ enum ClaudeFeature: String, Codable {
     case flowAI            = "flowAI"
     case templateGenerator = "templateGenerator"
     case dayRecap          = "dayRecap"
+    case emailToTask       = "emailToTask"
 }
 
 // MARK: - Errors
