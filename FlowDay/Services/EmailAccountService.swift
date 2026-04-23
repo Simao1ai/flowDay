@@ -319,41 +319,6 @@ final class EmailAccountService {
         }
     }
 
-    // MARK: - iCloud Mail (IMAP with app-specific password)
-
-    func connectICloud(email: String, appPassword: String) async -> Bool {
-        await MainActor.run {
-            isConnecting = .iCloud
-            connectionError = nil
-        }
-
-        guard !email.trimmingCharacters(in: .whitespaces).isEmpty,
-              !appPassword.isEmpty else {
-            await MainActor.run {
-                connectionError = "Email and app-specific password are required."
-                isConnecting = nil
-            }
-            return false
-        }
-
-        KeychainHelper.shared.saveString(email.trimmingCharacters(in: .whitespaces), for: iCloudEmailKey)
-        KeychainHelper.shared.saveString(appPassword, for: iCloudPasswordKey)
-
-        let account = EmailAccount(
-            id: EmailProvider.iCloud.rawValue,
-            provider: .iCloud,
-            email: email.trimmingCharacters(in: .whitespaces),
-            connectedAt: .now
-        )
-
-        await MainActor.run {
-            upsertAccount(account)
-            isConnecting = nil
-        }
-
-        return true
-    }
-
     // MARK: - Disconnect
 
     func disconnect(_ provider: EmailProvider) {

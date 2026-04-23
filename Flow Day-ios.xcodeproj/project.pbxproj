@@ -26,6 +26,7 @@
 		2BCC3540C1EB21EFC548A3A0 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B08F3B8A16DBF67A1CAEEF8E /* Supabase */; };
 		2F55C57EF3EC387011D12448 /* Config.example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B68BCECA4C17744B50DCB1 /* Config.example.swift */; };
 		2FE3898598E1C4AD0A9C141E /* EnergyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0B0C59D5F1C0B19F5A4214 /* EnergyCheckInView.swift */; };
+		30DB5A81EEC9D5803E5081ED /* ShareExtensionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AF6663B98C009EC3F9B77B /* ShareExtensionView.swift */; };
 		34E7302CFDD76447A185909F /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECD29289D60DD95D4A93C42 /* WhatsNewView.swift */; };
 		3767C18AB0AC7290A4B1C9C1 /* AttachmentPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE8B8EFA0F72466BCE8AED4 /* AttachmentPickerView.swift */; };
 		385ED930599052F5151B51A1 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 775317287E1726750C70A35A /* CalendarService.swift */; };
@@ -129,6 +130,7 @@
 		11D614808F1945559D249C7C /* AIPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPlanner.swift; sourceTree = "<group>"; };
 		1304E9DCABCC777297652AF4 /* AIMessageModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIMessageModels.swift; sourceTree = "<group>"; };
 		1546F8784C5B2543C30C3F3C /* SmartFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFilter.swift; sourceTree = "<group>"; };
+		17AF6663B98C009EC3F9B77B /* ShareExtensionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionView.swift; sourceTree = "<group>"; };
 		17D499ADF437B993EC28FB4A /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		1D64692D089723E18917C605 /* CalendarSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarSettingsView.swift; sourceTree = "<group>"; };
 		1E2CE0AA7AF472F473D76225 /* TemplatesView+Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Types.swift"; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 				D7EEC40BECD97B2C7602AED8 /* FlowDayApp.swift */,
 				D3638034AA3A1A6385637554 /* Info.plist */,
 				9F04052000CEA28E02EB2CAC /* PrivacyInfo.xcprivacy */,
+				CDB5B48301AAB855CC840474 /* Extensions */,
 				BF480B950A115C30ECD0C2AE /* Models */,
 				5BA73EC4DB56E693B0D13AC9 /* Services */,
 				4F73633997F5B4B1E75E898A /* Theme */,
@@ -429,6 +432,14 @@
 				2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		CDB5B48301AAB855CC840474 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				17AF6663B98C009EC3F9B77B /* ShareExtensionView.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		E9EF2DE6AB3FA1B9545F6045 /* Utilities */ = {
@@ -645,6 +656,7 @@
 				FA44323B68E14E6F969618A6 /* SelectionState.swift in Sources */,
 				EDFEF25A4D59CFC78EA2B1E6 /* SettingsComponents.swift in Sources */,
 				19F976F46A6611AFDC558690 /* SettingsView.swift in Sources */,
+				30DB5A81EEC9D5803E5081ED /* ShareExtensionView.swift in Sources */,
 				BD911FFE12869FB49165F337 /* ShareOptionsView.swift in Sources */,
 				8E72B1599532DFC11C3D986B /* SmartFilter.swift in Sources */,
 				4031B0BF38AD1D6D4FB2B6EE /* SmartFilterView.swift in Sources */,
