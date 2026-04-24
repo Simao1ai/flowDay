@@ -29,6 +29,7 @@ struct SettingsView: View {
     @State private var showAIScheduling = false
     @State private var showEnergyCheckIn = false
     @State private var showAISettings = false
+    @State private var showFocusTimerSettings = false
     @State private var showDayRecap = false
     @State private var showHelp = false
     @State private var showAbout = false
@@ -83,6 +84,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showAIScheduling) { AISchedulingSettingsView() }
             .sheet(isPresented: $showEnergyCheckIn) { EnergyCheckInSettingsView() }
             .sheet(isPresented: $showAISettings) { AISettingsView() }
+            .sheet(isPresented: $showFocusTimerSettings) { FocusTimerSettingsView() }
             .sheet(isPresented: $showDayRecap) {
                 DayRecapView()
                     .environment(appState)
@@ -189,6 +191,8 @@ struct SettingsView: View {
                 settingsRow(icon: "cpu", title: "AI Settings", color: .fdPurple) { showAISettings = true }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "moon.stars", title: "Day Recap", subtitle: "AI summary", color: .fdPurple) { showDayRecap = true }
+                Divider().padding(.leading, 52)
+                settingsRow(icon: "timer", title: "Focus Timer", subtitle: "Pomodoro", color: .fdAccent) { showFocusTimerSettings = true }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
