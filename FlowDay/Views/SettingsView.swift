@@ -36,10 +36,13 @@ struct SettingsView: View {
     @State private var showWhatsNew = false
     @State private var syncStatus = SyncStatusService.shared
 
+    private var proAccessManager: ProAccessManager { .shared }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    proSection
                     accountSection
                     integrationsSection
                     personalizationSection
@@ -95,6 +98,71 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Pro Section
+
+    private var proSection: some View {
+        Button { showSubscription = true } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(
+                                colors: proAccessManager.isPro
+                                    ? [Color.fdAccent, Color.fdPurple]
+                                    : [Color.fdAccent.opacity(0.8), Color.fdAccent],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
+                    Image(systemName: proAccessManager.isPro ? "bolt.fill" : "sparkles")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(proAccessManager.isPro ? "FlowDay Pro" : "FlowDay Free")
+                        .font(.fdBodySemibold)
+                        .foregroundStyle(Color.fdText)
+                    Text(proAccessManager.isPro
+                         ? "All features unlocked"
+                         : "Upgrade for unlimited AI & more")
+                        .font(.fdCaption)
+                        .foregroundStyle(Color.fdTextSecondary)
+                }
+
+                Spacer()
+
+                if !proAccessManager.isPro {
+                    Text("Upgrade")
+                        .font(.fdCaptionBold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Color.fdAccent)
+                        .clipShape(Capsule())
+                } else {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundStyle(Color.fdAccent)
+                }
+            }
+            .padding(16)
+            .background(
+                LinearGradient(
+                    colors: [Color.fdAccent.opacity(0.08), Color.fdPurple.opacity(0.05)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.fdAccent.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Account Section
 
     private var accountSection: some View {
@@ -103,7 +171,7 @@ struct SettingsView: View {
             Divider().padding(.leading, 52)
             settingsRow(icon: "gearshape", title: "General", color: .fdTextSecondary) { showGeneral = true }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "creditcard", title: "Subscription", subtitle: "Free Plan", color: .fdGreen) { showSubscription = true }
+            settingsRow(icon: "creditcard", title: "Subscription", subtitle: proAccessManager.isPro ? "Pro" : "Free Plan", color: .fdGreen) { showSubscription = true }
             Divider().padding(.leading, 52)
             settingsRow(icon: "calendar", title: "Calendar", color: .fdBlue) { showCalendar = true }
         }

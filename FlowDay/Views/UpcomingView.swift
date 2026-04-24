@@ -21,6 +21,7 @@ struct UpcomingView: View {
     @State private var selectedTask: FDTask?
     @State private var showSmartAdd = false
     @State private var viewMode: UpcomingViewMode = .list
+    @State private var showWeekViewPaywall = false
 
     private enum UpcomingViewMode { case list, week }
 
@@ -47,8 +48,12 @@ struct UpcomingView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 14) {
                         Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                viewMode = viewMode == .list ? .week : .list
+                            if viewMode == .week {
+                                withAnimation(.easeInOut(duration: 0.2)) { viewMode = .list }
+                            } else if ProAccessManager.shared.isFeatureAvailable(.weekView) {
+                                withAnimation(.easeInOut(duration: 0.2)) { viewMode = .week }
+                            } else {
+                                showWeekViewPaywall = true
                             }
                         } label: {
                             Image(systemName: viewMode == .list ? "calendar" : "list.bullet")
@@ -69,6 +74,7 @@ struct UpcomingView: View {
             .sheet(isPresented: $showSmartAdd) {
                 SmartQuickAddView(taskService: taskService, onDismiss: { showSmartAdd = false })
             }
+            .paywall(isPresented: $showWeekViewPaywall, feature: .weekView)
         }
     }
 

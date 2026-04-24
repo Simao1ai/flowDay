@@ -26,6 +26,8 @@ struct ProjectDetailView: View {
     @State private var editingSectionName = ""
     @State private var collapsedSections: Set<String> = []
     @AppStorage("project_view_mode") private var viewMode: ProjectViewMode = .list
+    @State private var showBoardPaywall = false
+    @State private var showSectionsPaywall = false
 
     enum ProjectViewMode: String { case list, board }
 
@@ -218,7 +220,11 @@ struct ProjectDetailView: View {
             }
             Button {
                 Haptics.pick()
-                viewMode = .board
+                if ProAccessManager.shared.isFeatureAvailable(.kanbanBoard) {
+                    viewMode = .board
+                } else {
+                    showBoardPaywall = true
+                }
             } label: {
                 Label("Board", systemImage: "rectangle.split.3x1")
             }
@@ -230,6 +236,7 @@ struct ProjectDetailView: View {
                 .background(Color.fdSurfaceHover)
                 .clipShape(Circle())
         }
+        .paywall(isPresented: $showBoardPaywall, feature: .kanbanBoard)
     }
 
     // MARK: - Section Block
@@ -384,14 +391,29 @@ struct ProjectDetailView: View {
 
     private var addSectionRow: some View {
         Button {
-            newSectionName = ""
-            showAddSection = true
+            if ProAccessManager.shared.isFeatureAvailable(.projectSections) {
+                newSectionName = ""
+                showAddSection = true
+            } else {
+                showSectionsPaywall = true
+            }
         } label: {
             HStack(spacing: 8) {
-                Image(systemName: "plus.rectangle.on.rectangle")
+                Image(systemName: ProAccessManager.shared.isFeatureAvailable(.projectSections)
+                      ? "plus.rectangle.on.rectangle" : "lock.fill")
                     .font(.system(size: 13, weight: .semibold))
                 Text("Add section")
                     .font(.fdCaptionBold)
+                if !ProAccessManager.shared.isFeatureAvailable(.projectSections) {
+                    Spacer()
+                    Text("Pro")
+                        .font(.fdMicroBold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.fdAccent)
+                        .clipShape(Capsule())
+                }
             }
             .foregroundStyle(Color.fdAccent)
             .frame(maxWidth: .infinity)
@@ -400,6 +422,7 @@ struct ProjectDetailView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+        .paywall(isPresented: $showSectionsPaywall, feature: .projectSections)
     }
 
     // MARK: - Completed

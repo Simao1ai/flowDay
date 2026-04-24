@@ -29,6 +29,7 @@ struct BrowseView: View {
     @State private var selectedProject: FDProject?
     @State private var showManageProjects = false
     @State private var selectedFilter: SmartFilter?
+    @State private var showSmartFiltersPaywall = false
 
     var body: some View {
         NavigationStack {
@@ -61,6 +62,7 @@ struct BrowseView: View {
             .sheet(item: $selectedFilter) { filter in
                 SmartFilterView(filter: filter, taskService: taskService)
             }
+            .paywall(isPresented: $showSmartFiltersPaywall, feature: .smartFilters)
         }
     }
 
@@ -86,7 +88,11 @@ struct BrowseView: View {
     private func smartFilterCard(_ filter: SmartFilter) -> some View {
         Button {
             Haptics.tap()
-            selectedFilter = filter
+            if ProAccessManager.shared.isFeatureAvailable(.smartFilters) {
+                selectedFilter = filter
+            } else {
+                showSmartFiltersPaywall = true
+            }
         } label: {
             HStack(spacing: 10) {
                 ZStack {

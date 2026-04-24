@@ -26,6 +26,8 @@ struct TaskDetailSheet: View {
     @State private var showStartDatePicker = false
     @State private var showTimePicker = false
     @State private var showAttachmentPicker = false
+    @State private var showAttachmentPaywall = false
+    @State private var showCopyLinkPaywall = false
     @State private var showCopiedToast = false
 
     var body: some View {
@@ -74,7 +76,11 @@ struct TaskDetailSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showAttachmentPicker = true
+                        if ProAccessManager.shared.isFeatureAvailable(.attachments) {
+                            showAttachmentPicker = true
+                        } else {
+                            showAttachmentPaywall = true
+                        }
                     } label: {
                         Image(systemName: "paperclip")
                             .foregroundStyle(Color.fdTextSecondary)
@@ -83,10 +89,14 @@ struct TaskDetailSheet: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button {
-                            UIPasteboard.general.string = "flowday://task/\(task.id.uuidString)"
-                            withAnimation(.spring(response: 0.3)) { showCopiedToast = true }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                withAnimation(.spring(response: 0.3)) { showCopiedToast = false }
+                            if ProAccessManager.shared.isFeatureAvailable(.copyLink) {
+                                UIPasteboard.general.string = "flowday://task/\(task.id.uuidString)"
+                                withAnimation(.spring(response: 0.3)) { showCopiedToast = true }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation(.spring(response: 0.3)) { showCopiedToast = false }
+                                }
+                            } else {
+                                showCopyLinkPaywall = true
                             }
                         } label: {
                             Label("Copy Link", systemImage: "link")
@@ -106,6 +116,8 @@ struct TaskDetailSheet: View {
             .sheet(isPresented: $showAttachmentPicker) {
                 AttachmentPickerView(task: task)
             }
+            .paywall(isPresented: $showAttachmentPaywall, feature: .attachments)
+            .paywall(isPresented: $showCopyLinkPaywall, feature: .copyLink)
         }
     }
 

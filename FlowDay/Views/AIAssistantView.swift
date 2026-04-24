@@ -49,7 +49,7 @@ struct AIAssistantView: View {
         .sheet(isPresented: $showCollaborate) {
             CollaborateView(projectName: "My Project")
         }
-        .paywall(isPresented: $showPaywall, feature: .aiChat)
+        .paywall(isPresented: $showPaywall, feature: .unlimitedAI)
         .onAppear {
             aiService.modelContext = modelContext
         }
@@ -67,12 +67,21 @@ struct AIAssistantView: View {
 
             Spacer()
 
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .foregroundColor(.fdAccent)
-                Text("Flow AI")
-                    .font(.fdTitle3)
-                    .foregroundColor(.fdText)
+            VStack(spacing: 2) {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .foregroundColor(.fdAccent)
+                    Text("Flow AI")
+                        .font(.fdTitle3)
+                        .foregroundColor(.fdText)
+                }
+                if !ProAccessManager.shared.isPro {
+                    let remaining = ProAccessManager.shared.remainingAICalls
+                    let limit = ProAccessManager.shared.dailyAICallLimit
+                    Text("\(remaining)/\(limit) free calls today")
+                        .font(.fdMicro)
+                        .foregroundStyle(remaining == 0 ? Color.fdRed : Color.fdTextMuted)
+                }
             }
 
             Spacer()

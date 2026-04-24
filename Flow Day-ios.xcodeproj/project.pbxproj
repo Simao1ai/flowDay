@@ -37,6 +37,7 @@
 		42F0D0A2A616D9A430408BB7 /* EmailConnectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36ED8864514B69F2FC36225A /* EmailConnectionsView.swift */; };
 		43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */; };
 		4997BF59F8C695A78ACED349 /* FlowDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB30FD57446B6F1BCE2BE4BB /* FlowDayTests.swift */; };
+		538C5F57F4A3A8068CCCB46B /* ProAccessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B856188409BFA241F23CDA3 /* ProAccessManager.swift */; };
 		5397FE5EA30D22E42A175D39 /* EmailScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */; };
 		55E7D73868AD33463CB6D7D1 /* FDHabitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8611F4CC15EA89EBA4F28F36 /* FDHabitLog.swift */; };
 		56B93DF50149F295605031D1 /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD333AD25605BD8B8E54EAE6 /* InboxView.swift */; };
@@ -54,6 +55,7 @@
 		76A4B056A37CE64B3DD7D7A5 /* FocusTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7A03BABCF188C18119B6FA /* FocusTimerView.swift */; };
 		77CF5690E856BBCFCBDA8A85 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9F04052000CEA28E02EB2CAC /* PrivacyInfo.xcprivacy */; };
 		79FA2522FD76BC844D65AAC6 /* FDColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E268BBA2B4BDFA577D911DBB /* FDColors.swift */; };
+		7A04F19F91FBE9BAD26379B7 /* ProUpgradePrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EFCD53711A82368162214A8 /* ProUpgradePrompt.swift */; };
 		7C2FC401CC85E6CA06335EE6 /* QuickAddSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76B20EC3B5FEA13FA22D91 /* QuickAddSettingsView.swift */; };
 		831AB4F1B890584094E8A758 /* WeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B551E2F084F85C057E976F /* WeekView.swift */; };
 		8388609E4F05ABDF645EA6F4 /* FDTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B413A1C2809CB385CDFEBE /* FDTypography.swift */; };
@@ -140,6 +142,7 @@
 		1E2CE0AA7AF472F473D76225 /* TemplatesView+Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Types.swift"; sourceTree = "<group>"; };
 		1F839D1FDC42EFCFED9013A9 /* DayRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayRecapView.swift; sourceTree = "<group>"; };
 		27D7FF7796A58A11BBB253D9 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		2B856188409BFA241F23CDA3 /* ProAccessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProAccessManager.swift; sourceTree = "<group>"; };
 		2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineItem.swift; sourceTree = "<group>"; };
 		2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailTasksView.swift; sourceTree = "<group>"; };
 		33782DE01ADE80B93783E8ED /* UpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingView.swift; sourceTree = "<group>"; };
@@ -183,6 +186,7 @@
 		8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailScanService.swift; sourceTree = "<group>"; };
 		8DE1FCBFBFDA7702CC921153 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		8E70BFA1A8B865E3817E217F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		8EFCD53711A82368162214A8 /* ProUpgradePrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProUpgradePrompt.swift; sourceTree = "<group>"; };
 		923A368C2D6865D5D9449BF4 /* AIAssistantService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantService.swift; sourceTree = "<group>"; };
 		94B68BCECA4C17744B50DCB1 /* Config.example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.example.swift; sourceTree = "<group>"; };
 		94E3E991F40F3A09249D59FB /* ThemeSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSettingsView.swift; sourceTree = "<group>"; };
@@ -363,6 +367,7 @@
 				D535692B2B5074D08CD5421F /* KeychainHelper.swift */,
 				A275A13EF05C7458890ABB45 /* LLMService.swift */,
 				E3D336E445FCD67246A5AE09 /* NaturalLanguageParser.swift */,
+				2B856188409BFA241F23CDA3 /* ProAccessManager.swift */,
 				F144B101103A1D82E41FAE6E /* RambleService.swift */,
 				A0921538F27AD6AEDA566ADD /* SelectionState.swift */,
 				34DDA05B7846331F0E38F4D1 /* SpeechRecognizer.swift */,
@@ -408,6 +413,7 @@
 				DBE8B8EFA0F72466BCE8AED4 /* AttachmentPickerView.swift */,
 				FE614E953BC8D9011AC5E078 /* BatchActionBar.swift */,
 				FA5E321CAB6CB38B8ED505F9 /* EmptyStateView.swift */,
+				8EFCD53711A82368162214A8 /* ProUpgradePrompt.swift */,
 				7832C62A5E122B17F62F6B20 /* SyncStatusBadge.swift */,
 			);
 			path = Shared;
@@ -657,6 +663,8 @@
 				D9360CF866C9D4E6370BB5B6 /* PaywallView.swift in Sources */,
 				C392C07DD5084676A716D8BB /* PremiumTemplate.swift in Sources */,
 				262CA5D83F2C1A1AE5357B3F /* PremiumTemplateLibrary.swift in Sources */,
+				538C5F57F4A3A8068CCCB46B /* ProAccessManager.swift in Sources */,
+				7A04F19F91FBE9BAD26379B7 /* ProUpgradePrompt.swift in Sources */,
 				AB6F62B7FB7CEA0B6ADB8B91 /* ProductivitySettingsView.swift in Sources */,
 				060B65A87A107DFC89D85F19 /* ProjectDetailView.swift in Sources */,
 				84024720413642C05C8169B1 /* ProjectSidebarView.swift in Sources */,

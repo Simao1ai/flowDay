@@ -116,21 +116,29 @@ struct PaywallView: View {
             return "Get unlimited access to everything FlowDay has to offer."
         }
         switch feature {
-        case .aiChat:
-            let limit = feature.freeLimit ?? 0
-            return "You've used all \(limit) of your daily AI messages. Upgrade for unlimited conversations."
-        case .aiPlanning:
-            let limit = feature.freeLimit ?? 0
-            return "You've used all \(limit) of your daily AI plans. Upgrade for unlimited planning."
-        case .unlimitedProjects:
-            let limit = feature.freeLimit ?? 0
-            return "You've hit the \(limit)-project limit. Upgrade to create as many as you need."
-        case .customThemes:
-            return "Custom themes are a Pro feature. Upgrade to personalize your FlowDay."
-        case .prioritySupport:
-            return "Priority support is available to Pro members."
-        case .advancedAnalytics:
-            return "Advanced analytics are a Pro feature. See deeper insights into your productivity."
+        case .unlimitedAI:
+            let limit = ProAccessManager.shared.dailyAICallLimit
+            return "You've used all \(limit) free AI calls today. Upgrade for unlimited conversations."
+        case .emailToTask:
+            return "Email to Task is a Pro feature. Let AI scan your inbox and turn emails into tasks."
+        case .ramble:
+            return "Voice Ramble is a Pro feature. Dictate multiple tasks hands-free."
+        case .focusTimerLinked:
+            return "Linking focus sessions to tasks is a Pro feature."
+        case .premiumTemplates:
+            return "Premium templates are for Pro members. Access curated project starter kits."
+        case .attachments:
+            return "File attachments are a Pro feature. Add photos and documents to your tasks."
+        case .kanbanBoard:
+            return "Kanban Board is a Pro feature. See your tasks in a visual, drag-and-drop board."
+        case .weekView:
+            return "Week View is a Pro feature. Plan and review your entire week at a glance."
+        case .smartFilters:
+            return "Smart Filters are a Pro feature. Create custom views to slice through your tasks."
+        case .projectSections:
+            return "Project Sections are a Pro feature. Organize tasks into phases or columns."
+        case .copyLink:
+            return "Copy Link is a Pro feature. Share individual tasks with collaborators."
         }
     }
 
@@ -143,12 +151,14 @@ struct PaywallView: View {
                 .padding(.bottom, 16)
 
             VStack(spacing: 14) {
-                featureRow(icon: "folder.fill", title: "Unlimited Projects", subtitle: "No cap on active projects")
-                featureRow(icon: "brain.head.profile", title: "Unlimited AI Planning", subtitle: "Smart task breakdowns, any time")
-                featureRow(icon: "bubble.left.and.bubble.right.fill", title: "Unlimited AI Chat", subtitle: "Your personal productivity assistant")
-                featureRow(icon: "paintpalette.fill", title: "Custom Themes", subtitle: "Make FlowDay yours")
-                featureRow(icon: "chart.bar.fill", title: "Advanced Analytics", subtitle: "Deep productivity insights")
-                featureRow(icon: "bolt.heart.fill", title: "Priority Support", subtitle: "Fast help when you need it")
+                featureRow(icon: "sparkles", title: "Unlimited AI", subtitle: "Chat, plan, and create tasks without limits")
+                featureRow(icon: "envelope.badge", title: "Email to Task", subtitle: "Auto-scan inbox and capture action items")
+                featureRow(icon: "mic.fill", title: "Voice Ramble", subtitle: "Dictate multiple tasks hands-free")
+                featureRow(icon: "paperclip", title: "Attachments", subtitle: "Add files and photos to any task")
+                featureRow(icon: "rectangle.split.3x1", title: "Kanban Board", subtitle: "Visual board view for projects")
+                featureRow(icon: "square.stack.3d.up", title: "Project Sections", subtitle: "Organize into phases or columns")
+                featureRow(icon: "line.3.horizontal.decrease.circle", title: "Smart Filters", subtitle: "Custom task views and filters")
+                featureRow(icon: "calendar.badge.clock", title: "Week View", subtitle: "Plan your full week at a glance")
             }
             .padding(.horizontal, 24)
         }
@@ -394,12 +404,12 @@ struct PaywallModifier: ViewModifier {
 
 extension View {
     /// Present the paywall as a sheet.
-    /// Usage: `.paywall(isPresented: $showPaywall, feature: .aiChat)`
+    /// Usage: `.paywall(isPresented: $showPaywall, feature: .unlimitedAI)`
     func paywall(isPresented: Binding<Bool>, feature: ProFeature? = nil) -> some View {
         modifier(PaywallModifier(isPresented: isPresented, feature: feature))
     }
 }
 
 #Preview {
-    PaywallView(triggeredBy: .aiChat)
+    PaywallView(triggeredBy: .unlimitedAI)
 }

@@ -43,10 +43,12 @@ struct TodayView: View {
     @State private var showSettings = false
     @State private var showAIPlan = false
     @State private var showRamble = false
+    @State private var showRamblePaywall = false
     @State private var showDayRecap = false
     @State private var showFocusTimer = false
     @State private var focusTimerPrelinkedTask: UUID? = nil
     @State private var showEmailTasks = false
+    @State private var showEmailTasksPaywall = false
     @State private var emailSuggestions: [EmailTaskSuggestion] = []
     @State private var hasScannedEmails = false
     @State private var isScanningEmails = false
@@ -187,6 +189,8 @@ struct TodayView: View {
                 RambleView(taskService: resolvedTaskService)
                     .environment(appState)
             }
+            .paywall(isPresented: $showRamblePaywall, feature: .ramble)
+            .paywall(isPresented: $showEmailTasksPaywall, feature: .emailToTask)
             .sheet(isPresented: $showDayRecap) {
                 DayRecapView()
                     .environment(appState)
@@ -294,7 +298,13 @@ struct TodayView: View {
     // MARK: - Email Tasks Card
 
     private var emailTasksCard: some View {
-        Button { showEmailTasks = true } label: {
+        Button {
+            if ProAccessManager.shared.isFeatureAvailable(.emailToTask) {
+                showEmailTasks = true
+            } else {
+                showEmailTasksPaywall = true
+            }
+        } label: {
             HStack(spacing: 14) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
@@ -622,7 +632,11 @@ struct TodayView: View {
 
                 Button {
                     Haptics.tap()
-                    showRamble = true
+                    if ProAccessManager.shared.isFeatureAvailable(.ramble) {
+                        showRamble = true
+                    } else {
+                        showRamblePaywall = true
+                    }
                 } label: {
                     Image(systemName: "mic")
                         .font(.system(size: 16, weight: .semibold))

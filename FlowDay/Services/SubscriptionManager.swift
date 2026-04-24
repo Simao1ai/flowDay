@@ -16,27 +16,6 @@ enum SubscriptionStatus: String {
     case proTrial
 }
 
-enum ProFeature: String, CaseIterable {
-    case unlimitedProjects
-    case aiPlanning
-    case aiChat
-    case customThemes
-    case prioritySupport
-    case advancedAnalytics
-
-    /// Free tier daily limit (nil = unlimited at free tier)
-    var freeLimit: Int? {
-        switch self {
-        case .unlimitedProjects: return 5
-        case .aiPlanning: return 3
-        case .aiChat: return 10
-        case .customThemes: return nil
-        case .prioritySupport: return nil
-        case .advancedAnalytics: return nil
-        }
-    }
-}
-
 // MARK: - SubscriptionManager
 
 @Observable @MainActor
@@ -55,16 +34,11 @@ final class SubscriptionManager {
     var isLoading: Bool = false
     var errorMessage: String?
 
-    // Usage tracking
-    private var dailyUsage: [String: Int] = [:]
-    private var lastUsageResetDate: Date?
-
     // nonisolated(unsafe) allows deinit (which is always nonisolated) to cancel
     // the background transaction-listener task without a main-actor hop.
     nonisolated(unsafe) private var transactionListener: Task<Void, Error>?
 
     private init() {
-        loadDailyUsage()
         transactionListener = listenForTransactions()
 
         Task {
@@ -75,61 +49,6 @@ final class SubscriptionManager {
 
     deinit {
         transactionListener?.cancel()
-    }
-
-    // MARK: - Feature Access
-
-    /// Check if user can access a given pro feature
-    func canAccess(_ feature: ProFeature) -> Bool {
-        if status == .pro || status == .proTrial {
-            return true
-        }
-
-        // Free tier — some features are fully gated
-        switch feature {
-        case .customThemes, .prioritySupport, .advancedAnalytics:
-            return false
-        case .unlimitedProjects, .aiPlanning, .aiChat:
-            return true // accessible with limits
-        }
-    }
-
-    /// Check if user has remaining daily usage for a feature
-    func hasRemainingUsage(_ feature: ProFeature) -> Bool {
-        if status == .pro || status == .proTrial {
-            return true
-        }
-
-        guard let limit = feature.freeLimit else {
-            return false
-        }
-
-        resetDailyUsageIfNeeded()
-        let currentUsage = dailyUsage[feature.rawValue] ?? 0
-        return currentUsage < limit
-    }
-
-    /// Increment usage counter for a feature
-    func incrementUsage(_ feature: ProFeature) {
-        resetDailyUsageIfNeeded()
-        let current = dailyUsage[feature.rawValue] ?? 0
-        dailyUsage[feature.rawValue] = current + 1
-        saveDailyUsage()
-    }
-
-    /// Get remaining uses for a feature
-    func remainingUses(_ feature: ProFeature) -> Int {
-        if status == .pro || status == .proTrial {
-            return Int.max
-        }
-
-        guard let limit = feature.freeLimit else {
-            return 0
-        }
-
-        resetDailyUsageIfNeeded()
-        let currentUsage = dailyUsage[feature.rawValue] ?? 0
-        return max(0, limit - currentUsage)
     }
 
     // MARK: - StoreKit 2 Methods
@@ -236,37 +155,6 @@ final class SubscriptionManager {
         }
     }
 
-    // MARK: - Daily Usage Tracking
-
-    private func resetDailyUsageIfNeeded() {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: .now)
-
-        if let lastReset = lastUsageResetDate {
-            if !calendar.isDate(lastReset, inSameDayAs: today) {
-                dailyUsage = [:]
-                lastUsageResetDate = today
-                saveDailyUsage()
-            }
-        } else {
-            lastUsageResetDate = today
-        }
-    }
-
-    private func saveDailyUsage() {
-        UserDefaults.standard.set(dailyUsage, forKey: "fd_daily_usage")
-        if let date = lastUsageResetDate {
-            UserDefaults.standard.set(date.timeIntervalSince1970, forKey: "fd_usage_reset_date")
-        }
-    }
-
-    private func loadDailyUsage() {
-        dailyUsage = (UserDefaults.standard.dictionary(forKey: "fd_daily_usage") as? [String: Int]) ?? [:]
-        let timestamp = UserDefaults.standard.double(forKey: "fd_usage_reset_date")
-        if timestamp > 0 {
-            lastUsageResetDate = Date(timeIntervalSince1970: timestamp)
-        }
-    }
 }
 
 // MARK: - Errors
