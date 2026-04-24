@@ -22,7 +22,10 @@ struct AIAssistantView: View {
     @State private var showShareOptions = false
     @State private var showCollaborate = false
     @State private var showPaywall = false
+    @State private var showProUpgrade = false
     @FocusState private var isFocused: Bool
+
+    private var proAccess: ProAccessManager { .shared }
 
     var body: some View {
         ZStack {
@@ -31,12 +34,16 @@ struct AIAssistantView: View {
 
             VStack(spacing: 0) {
                 navBar
+                if !proAccess.isPro && !aiService.showUpgradePrompt {
+                    callsRemainingBanner
+                }
                 if aiService.showUpgradePrompt { upgradePrompt }
                 messagesList
                 if aiService.messages.count == 1 { quickSuggestions }
                 inputBar
             }
         }
+        .sheet(isPresented: $showProUpgrade) { ProUpgradeView(highlightedFeature: .unlimitedAI) }
         .sheet(isPresented: $showVoiceInput) {
             VoiceInputView { text in
                 aiService.sendMessage(text)
@@ -94,10 +101,35 @@ struct AIAssistantView: View {
         .border(Color.fdBorder, width: 1)
     }
 
+    // MARK: - Calls Remaining Banner
+
+    private var callsRemainingBanner: some View {
+        let remaining = proAccess.aiCallsRemaining
+        return HStack(spacing: 8) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.fdAccent)
+            Text(remaining == 0
+                 ? "No free AI calls left today"
+                 : "\(remaining)/\(proAccess.freeAILimit) free AI calls remaining today")
+                .font(.fdMicro)
+                .foregroundStyle(Color.fdTextSecondary)
+            Spacer()
+            Button("Go Pro") { showProUpgrade = true }
+                .font(.fdMicro)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.fdAccent)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.fdAccentLight)
+        .border(Color.fdBorder, width: 1)
+    }
+
     // MARK: - Upgrade Prompt
 
     private var upgradePrompt: some View {
-        Button(action: { showPaywall = true }) {
+        Button(action: { showProUpgrade = true }) {
             HStack(spacing: 12) {
                 Image(systemName: "bolt.fill")
                     .foregroundStyle(Color.fdAccent)

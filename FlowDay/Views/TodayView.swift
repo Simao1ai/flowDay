@@ -18,6 +18,8 @@ struct TodayView: View {
     @Environment(FocusTimerService.self) private var timerService
     @Environment(\.modelContext) private var modelContext
 
+    private var proAccess: ProAccessManager { .shared }
+
     /// Falls back to a locally-created TaskService when RootView hasn't
     /// set one yet (i.e. before onAppear fires).
     private var resolvedTaskService: TaskService {
@@ -47,6 +49,8 @@ struct TodayView: View {
     @State private var showFocusTimer = false
     @State private var focusTimerPrelinkedTask: UUID? = nil
     @State private var showEmailTasks = false
+    @State private var showProUpgrade = false
+    @State private var proUpgradeFeature: ProFeature = .unlimitedAI
     @State private var emailSuggestions: [EmailTaskSuggestion] = []
     @State private var hasScannedEmails = false
     @State private var isScanningEmails = false
@@ -84,8 +88,8 @@ struct TodayView: View {
                             // AI Banner
                             aiBannerSection
 
-                            // Email Tasks card — shown when AI found actionable emails
-                            if !emailSuggestions.isEmpty {
+                            // Email Tasks card — Pro feature
+                            if !emailSuggestions.isEmpty && proAccess.isFeatureAvailable(.emailToTask) {
                                 emailTasksCard
                             }
 
@@ -195,6 +199,19 @@ struct TodayView: View {
                 FocusTimerView(prelinkedTaskID: focusTimerPrelinkedTask)
                     .environment(timerService)
             }
+            .sheet(isPresented: $showProUpgrade) {
+                ProUpgradeView(highlightedFeature: proUpgradeFeature)
+            }
+        }
+    }
+
+    private func requirePro(_ feature: ProFeature, then action: () -> Void) {
+        if proAccess.isFeatureAvailable(feature) {
+            action()
+        } else {
+            proUpgradeFeature = feature
+            showProUpgrade = true
+            Haptics.warning()
         }
     }
 
@@ -339,6 +356,7 @@ struct TodayView: View {
 
     private func triggerEmailScan() {
         guard !hasScannedEmails,
+              proAccess.isFeatureAvailable(.emailToTask),
               !emailAccountService.connectedAccounts.isEmpty else { return }
         hasScannedEmails = true
         isScanningEmails = true
@@ -549,10 +567,15 @@ struct TodayView: View {
         .clipped()
         .contextMenu {
             Button {
-                focusTimerPrelinkedTask = task.id
-                showFocusTimer = true
+                requirePro(.focusTimerLinked) {
+                    focusTimerPrelinkedTask = task.id
+                    showFocusTimer = true
+                }
             } label: {
-                Label("Start Focus", systemImage: "timer")
+                Label(proAccess.isFeatureAvailable(.focusTimerLinked)
+                      ? "Start Focus"
+                      : "Start Focus · Pro",
+                      systemImage: "timer")
             }
             Button {
                 Haptics.tock()
@@ -621,12 +644,24 @@ struct TodayView: View {
                     }
 
                 Button {
-                    Haptics.tap()
-                    showRamble = true
+                    requirePro(.ramble) {
+                        Haptics.tap()
+                        showRamble = true
+                    }
                 } label: {
-                    Image(systemName: "mic")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.fdAccent)
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "mic")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Color.fdAccent)
+                        if !proAccess.isFeatureAvailable(.ramble) {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 8))
+                                .foregroundStyle(.white)
+                                .padding(2)
+                                .background(Color.fdAccent, in: Circle())
+                                .offset(x: 5, y: -5)
+                        }
+                    }
                 }
                 .accessibilityLabel("Ramble — dictate multiple tasks")
             }

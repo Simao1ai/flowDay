@@ -14,6 +14,8 @@ struct SettingsView: View {
 
     @Environment(EmailAccountService.self) private var emailAccountService
 
+    private var proAccess: ProAccessManager { .shared }
+    @State private var showProUpgrade = false
     @State private var showAccount = false
     @State private var showGeneral = false
     @State private var showSubscription = false
@@ -40,6 +42,7 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+                    proSection
                     accountSection
                     integrationsSection
                     personalizationSection
@@ -92,6 +95,91 @@ struct SettingsView: View {
             .sheet(isPresented: $showHelp) { HelpFeedbackView() }
             .sheet(isPresented: $showAbout) { AboutView() }
             .sheet(isPresented: $showWhatsNew) { WhatsNewView() }
+            .sheet(isPresented: $showProUpgrade) { ProUpgradeView() }
+        }
+    }
+
+    // MARK: - Pro Section
+
+    private var proSection: some View {
+        if proAccess.isPro {
+            return AnyView(
+                HStack(spacing: 14) {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(
+                            LinearGradient(colors: [Color.fdAccent, Color(hex: "FF8C42")],
+                                           startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("FlowDay Pro")
+                            .font(.fdBodySemibold)
+                            .foregroundStyle(Color.fdText)
+                        Text("All features unlocked · Thank you!")
+                            .font(.fdMicro)
+                            .foregroundStyle(Color.fdTextSecondary)
+                    }
+                    Spacer()
+                    Text("ACTIVE")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Color.fdGreen)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.fdGreen.opacity(0.12))
+                        .clipShape(Capsule())
+                }
+                .padding(16)
+                .background(Color.fdSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.fdAccent.opacity(0.3), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+            )
+        } else {
+            return AnyView(
+                Button { showProUpgrade = true } label: {
+                    HStack(spacing: 14) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(
+                                    LinearGradient(colors: [Color.fdAccent, Color(hex: "FF8C42")],
+                                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                                .frame(width: 42, height: 42)
+                            Image(systemName: "crown.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.white)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Upgrade to FlowDay Pro")
+                                .font(.fdBodySemibold)
+                                .foregroundStyle(Color.fdText)
+                            Text("Unlimited AI · Email Tasks · Kanban · Week View & more")
+                                .font(.fdMicro)
+                                .foregroundStyle(Color.fdTextSecondary)
+                                .lineLimit(1)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.fdTextMuted)
+                    }
+                    .padding(16)
+                    .background(Color.fdAccentLight)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.fdAccent.opacity(0.25), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+                }
+                .buttonStyle(.plain)
+            )
         }
     }
 

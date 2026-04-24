@@ -15,6 +15,8 @@ struct ProjectDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    private var proAccess: ProAccessManager { .shared }
+    @State private var showProUpgrade = false
     @State private var showAddTask = false
     @State private var newTaskTitle = ""
     @State private var newTaskSection: String? = nil
@@ -134,6 +136,9 @@ struct ProjectDetailView: View {
             .sheet(item: $selectedTask) { task in
                 TaskDetailSheet(task: task, taskService: taskService)
             }
+            .sheet(isPresented: $showProUpgrade) {
+                ProUpgradeView(highlightedFeature: .kanbanBoard)
+            }
             .alert("New Section", isPresented: $showAddSection) {
                 TextField("Name", text: $newSectionName)
                 Button("Add") {
@@ -217,10 +222,18 @@ struct ProjectDetailView: View {
                 Label("List", systemImage: "list.bullet")
             }
             Button {
-                Haptics.pick()
-                viewMode = .board
+                if proAccess.isFeatureAvailable(.kanbanBoard) {
+                    Haptics.pick()
+                    viewMode = .board
+                } else {
+                    showProUpgrade = true
+                    Haptics.warning()
+                }
             } label: {
-                Label("Board", systemImage: "rectangle.split.3x1")
+                Label(proAccess.isFeatureAvailable(.kanbanBoard)
+                      ? "Board"
+                      : "Board · Pro",
+                      systemImage: "rectangle.split.3x1")
             }
         } label: {
             Image(systemName: viewMode == .board ? "rectangle.split.3x1" : "list.bullet")

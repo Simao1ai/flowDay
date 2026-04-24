@@ -17,6 +17,7 @@ enum SubscriptionStatus: String {
 }
 
 enum ProFeature: String, CaseIterable {
+    // Legacy (kept for backward compatibility)
     case unlimitedProjects
     case aiPlanning
     case aiChat
@@ -24,15 +25,26 @@ enum ProFeature: String, CaseIterable {
     case prioritySupport
     case advancedAnalytics
 
-    /// Free tier daily limit (nil = unlimited at free tier)
+    // New Pro-only features
+    case unlimitedAI
+    case emailToTask
+    case ramble
+    case focusTimerLinked
+    case premiumTemplates
+    case attachments
+    case kanbanBoard
+    case weekView
+    case smartFilters
+    case projectSections
+    case copyLink
+
+    /// Free tier daily limit for legacy usage tracking; new features are fully gated
     var freeLimit: Int? {
         switch self {
         case .unlimitedProjects: return 5
-        case .aiPlanning: return 3
-        case .aiChat: return 10
-        case .customThemes: return nil
-        case .prioritySupport: return nil
-        case .advancedAnalytics: return nil
+        case .aiPlanning:        return 3
+        case .aiChat:            return 10
+        default:                 return nil
         }
     }
 }
@@ -85,12 +97,15 @@ final class SubscriptionManager {
             return true
         }
 
-        // Free tier — some features are fully gated
+        // Free tier — new features are fully Pro-only
         switch feature {
-        case .customThemes, .prioritySupport, .advancedAnalytics:
+        case .unlimitedAI, .emailToTask, .ramble, .focusTimerLinked,
+             .premiumTemplates, .attachments, .kanbanBoard, .weekView,
+             .smartFilters, .projectSections, .copyLink,
+             .customThemes, .prioritySupport, .advancedAnalytics:
             return false
         case .unlimitedProjects, .aiPlanning, .aiChat:
-            return true // accessible with limits
+            return true // accessible with daily limits
         }
     }
 

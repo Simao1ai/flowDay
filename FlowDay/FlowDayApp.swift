@@ -75,6 +75,7 @@ struct AuthenticatedRootView: View {
     let authManager: AuthManager
     @State private var calendarAccountManager = CalendarAccountManager()
     @State private var emailAccountService = EmailAccountService()
+    @State private var proAccessManager = ProAccessManager.shared
 
     var body: some View {
         RootView()
@@ -82,6 +83,7 @@ struct AuthenticatedRootView: View {
             .environment(authManager)
             .environment(calendarAccountManager)
             .environment(emailAccountService)
+            .environment(proAccessManager)
     }
 }
 

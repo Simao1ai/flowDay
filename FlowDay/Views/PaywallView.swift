@@ -116,8 +116,8 @@ struct PaywallView: View {
             return "Get unlimited access to everything FlowDay has to offer."
         }
         switch feature {
-        case .aiChat:
-            let limit = feature.freeLimit ?? 0
+        case .aiChat, .unlimitedAI:
+            let limit = feature.freeLimit ?? ProAccessManager.shared.freeAILimit
             return "You've used all \(limit) of your daily AI messages. Upgrade for unlimited conversations."
         case .aiPlanning:
             let limit = feature.freeLimit ?? 0
@@ -131,6 +131,26 @@ struct PaywallView: View {
             return "Priority support is available to Pro members."
         case .advancedAnalytics:
             return "Advanced analytics are a Pro feature. See deeper insights into your productivity."
+        case .emailToTask:
+            return "Email to Task scanning is a Pro feature. Let AI surface your inbox actions."
+        case .ramble:
+            return "Ramble voice capture is a Pro feature. Dictate multiple tasks at once."
+        case .focusTimerLinked:
+            return "Linking Focus sessions to tasks is a Pro feature."
+        case .premiumTemplates:
+            return "Premium templates are a Pro feature. Access curated productivity templates."
+        case .attachments:
+            return "File attachments are a Pro feature. Add files and photos to any task."
+        case .kanbanBoard:
+            return "Kanban board view is a Pro feature. Visualize your project as columns."
+        case .weekView:
+            return "Week view is a Pro feature. See all your tasks in a 7-day grid."
+        case .smartFilters:
+            return "Smart Filters are a Pro feature. Filter by priority, date, overdue, and more."
+        case .projectSections:
+            return "Project sections are a Pro feature. Organize tasks into custom columns."
+        case .copyLink:
+            return "Copy link is a Pro feature. Share tasks with a deep link."
         }
     }
 

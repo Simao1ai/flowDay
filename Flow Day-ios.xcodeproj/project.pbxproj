@@ -37,6 +37,7 @@
 		42F0D0A2A616D9A430408BB7 /* EmailConnectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36ED8864514B69F2FC36225A /* EmailConnectionsView.swift */; };
 		43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */; };
 		4997BF59F8C695A78ACED349 /* FlowDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB30FD57446B6F1BCE2BE4BB /* FlowDayTests.swift */; };
+		538C5F57F4A3A8068CCCB46B /* ProAccessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B856188409BFA241F23CDA3 /* ProAccessManager.swift */; };
 		5397FE5EA30D22E42A175D39 /* EmailScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */; };
 		55E7D73868AD33463CB6D7D1 /* FDHabitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8611F4CC15EA89EBA4F28F36 /* FDHabitLog.swift */; };
 		56B93DF50149F295605031D1 /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD333AD25605BD8B8E54EAE6 /* InboxView.swift */; };
@@ -80,6 +81,7 @@
 		AB6F62B7FB7CEA0B6ADB8B91 /* ProductivitySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9522F70D249E2B244CCDC4 /* ProductivitySettingsView.swift */; };
 		AC19468A11BDAA74DC5B2EA7 /* SyncStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CE708D08462883A361AD3AC /* SyncStatusService.swift */; };
 		AF3C52C2A2CD65BA33796DA2 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBF2554508C741F03B647A8 /* TemplatesView.swift */; };
+		B5E9B8C87DEC188C216CA449 /* ProUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */; };
 		B71AEBA82CA4BE69C63DF577 /* HelpFeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7772398B98B06B035C5D4FD3 /* HelpFeedbackView.swift */; };
 		B74C0F8DA464DCADB2CE28B1 /* VoiceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8EEF10FA367C549C514A5D /* VoiceInputView.swift */; };
 		BD911FFE12869FB49165F337 /* ShareOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4452CF0119BA12259C5E2 /* ShareOptionsView.swift */; };
@@ -140,6 +142,7 @@
 		1E2CE0AA7AF472F473D76225 /* TemplatesView+Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Types.swift"; sourceTree = "<group>"; };
 		1F839D1FDC42EFCFED9013A9 /* DayRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayRecapView.swift; sourceTree = "<group>"; };
 		27D7FF7796A58A11BBB253D9 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		2B856188409BFA241F23CDA3 /* ProAccessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProAccessManager.swift; sourceTree = "<group>"; };
 		2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineItem.swift; sourceTree = "<group>"; };
 		2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailTasksView.swift; sourceTree = "<group>"; };
 		33782DE01ADE80B93783E8ED /* UpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingView.swift; sourceTree = "<group>"; };
@@ -156,6 +159,7 @@
 		4BC146D7B931F3555D251786 /* FlowDay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FlowDay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D1A11409E6C4ED5BFF8AE38 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		4D44C1066F0967D360746BC9 /* SmartFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFilterView.swift; sourceTree = "<group>"; };
+		4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProUpgradeView.swift; sourceTree = "<group>"; };
 		4F83874065E316092DFEF13C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		555FE98C0BCCC90E9BB5D555 /* FDFocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDFocusSession.swift; sourceTree = "<group>"; };
 		5993F5F951E36759680EC49F /* FlowDayIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayIntents.swift; sourceTree = "<group>"; };
@@ -297,6 +301,7 @@
 				A274440580CC7FC4EA146EDC /* PaywallView.swift */,
 				396E07FC129FC4BBA47962C5 /* ProjectDetailView.swift */,
 				113C51F5BE4538F1EAD49D2A /* ProjectSidebarView.swift */,
+				4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */,
 				114338B1B6074CF41630BE61 /* RootView.swift */,
 				9A21CAEC560658F5F9A4ACBD /* SearchView.swift */,
 				8BA8F738830068A9E08CC017 /* SettingsView.swift */,
@@ -363,6 +368,7 @@
 				D535692B2B5074D08CD5421F /* KeychainHelper.swift */,
 				A275A13EF05C7458890ABB45 /* LLMService.swift */,
 				E3D336E445FCD67246A5AE09 /* NaturalLanguageParser.swift */,
+				2B856188409BFA241F23CDA3 /* ProAccessManager.swift */,
 				F144B101103A1D82E41FAE6E /* RambleService.swift */,
 				A0921538F27AD6AEDA566ADD /* SelectionState.swift */,
 				34DDA05B7846331F0E38F4D1 /* SpeechRecognizer.swift */,
@@ -657,6 +663,8 @@
 				D9360CF866C9D4E6370BB5B6 /* PaywallView.swift in Sources */,
 				C392C07DD5084676A716D8BB /* PremiumTemplate.swift in Sources */,
 				262CA5D83F2C1A1AE5357B3F /* PremiumTemplateLibrary.swift in Sources */,
+				538C5F57F4A3A8068CCCB46B /* ProAccessManager.swift in Sources */,
+				B5E9B8C87DEC188C216CA449 /* ProUpgradeView.swift in Sources */,
 				AB6F62B7FB7CEA0B6ADB8B91 /* ProductivitySettingsView.swift in Sources */,
 				060B65A87A107DFC89D85F19 /* ProjectDetailView.swift in Sources */,
 				84024720413642C05C8169B1 /* ProjectSidebarView.swift in Sources */,

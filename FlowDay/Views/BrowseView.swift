@@ -12,6 +12,9 @@ struct BrowseView: View {
     let taskService: TaskService?
 
     @Environment(\.modelContext) private var modelContext
+
+    private var proAccess: ProAccessManager { .shared }
+    @State private var showProUpgrade = false
     @Query
     private var projectsRaw: [FDProject]
 
@@ -61,6 +64,9 @@ struct BrowseView: View {
             .sheet(item: $selectedFilter) { filter in
                 SmartFilterView(filter: filter, taskService: taskService)
             }
+            .sheet(isPresented: $showProUpgrade) {
+                ProUpgradeView(highlightedFeature: .smartFilters)
+            }
         }
     }
 
@@ -68,19 +74,61 @@ struct BrowseView: View {
 
     private var smartFiltersSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Smart Filters")
-                .font(.fdTitle3)
-                .foregroundStyle(Color.fdText)
-
-            LazyVGrid(
-                columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)],
-                spacing: 10
-            ) {
-                ForEach(SmartFilter.allCases) { filter in
-                    smartFilterCard(filter)
+            HStack {
+                Text("Smart Filters")
+                    .font(.fdTitle3)
+                    .foregroundStyle(Color.fdText)
+                if !proAccess.isFeatureAvailable(.smartFilters) {
+                    Spacer()
+                    proTag
                 }
             }
+
+            if proAccess.isFeatureAvailable(.smartFilters) {
+                LazyVGrid(
+                    columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)],
+                    spacing: 10
+                ) {
+                    ForEach(SmartFilter.allCases) { filter in
+                        smartFilterCard(filter)
+                    }
+                }
+            } else {
+                Button { showProUpgrade = true } label: {
+                    HStack(spacing: 14) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.system(size: 22))
+                            .foregroundStyle(Color.fdAccent)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Smart Filters — Pro")
+                                .font(.fdCaptionBold)
+                                .foregroundStyle(Color.fdText)
+                            Text("Filter by overdue, high priority, no date, and more")
+                                .font(.fdMicro)
+                                .foregroundStyle(Color.fdTextMuted)
+                        }
+                        Spacer()
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.fdTextMuted)
+                    }
+                    .padding(16)
+                    .background(Color.fdSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            }
         }
+    }
+
+    private var proTag: some View {
+        Text("PRO")
+            .font(.system(size: 9, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(Color.fdAccent)
+            .clipShape(Capsule())
     }
 
     private func smartFilterCard(_ filter: SmartFilter) -> some View {

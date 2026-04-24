@@ -8,6 +8,9 @@ struct UpcomingView: View {
     let taskService: TaskService?
     @Environment(\.modelContext) private var modelContext
 
+    private var proAccess: ProAccessManager { .shared }
+    @State private var showProUpgrade = false
+
     // Plain @Query — no predicates (crash on iOS 26.x). Filtered in computed props.
     @Query
     private var upcomingTasksRaw: [FDTask]
@@ -47,13 +50,30 @@ struct UpcomingView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 14) {
                         Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                viewMode = viewMode == .list ? .week : .list
+                            if viewMode == .list {
+                                if proAccess.isFeatureAvailable(.weekView) {
+                                    withAnimation(.easeInOut(duration: 0.2)) { viewMode = .week }
+                                } else {
+                                    showProUpgrade = true
+                                    Haptics.warning()
+                                }
+                            } else {
+                                withAnimation(.easeInOut(duration: 0.2)) { viewMode = .list }
                             }
                         } label: {
-                            Image(systemName: viewMode == .list ? "calendar" : "list.bullet")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Color.fdAccent)
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: viewMode == .list ? "calendar" : "list.bullet")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(Color.fdAccent)
+                                if viewMode == .list && !proAccess.isFeatureAvailable(.weekView) {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 8))
+                                        .foregroundStyle(.white)
+                                        .padding(2)
+                                        .background(Color.fdAccent, in: Circle())
+                                        .offset(x: 5, y: -5)
+                                }
+                            }
                         }
                         Button { showSmartAdd = true } label: {
                             Image(systemName: "plus")
@@ -68,6 +88,9 @@ struct UpcomingView: View {
             }
             .sheet(isPresented: $showSmartAdd) {
                 SmartQuickAddView(taskService: taskService, onDismiss: { showSmartAdd = false })
+            }
+            .sheet(isPresented: $showProUpgrade) {
+                ProUpgradeView(highlightedFeature: .weekView)
             }
         }
     }

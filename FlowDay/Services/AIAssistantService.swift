@@ -133,10 +133,10 @@ final class AIAssistantService {
     private func generateAIResponse(for userMessage: String) async {
         defer { isTyping = false }
 
-        guard SubscriptionManager.shared.hasRemainingUsage(.aiChat) else {
+        guard ProAccessManager.shared.canUseAI else {
             showUpgradePrompt = true
             await appendMessage(AIMessage(
-                content: "You've reached your daily AI chat limit. Upgrade to Pro for unlimited access!",
+                content: "You've used all \(ProAccessManager.shared.freeAILimit) free AI calls for today. Upgrade to Pro for unlimited access!",
                 isUser: false
             ))
             return
@@ -161,7 +161,7 @@ final class AIAssistantService {
 
         if let response {
             await appendMessage(response)
-            SubscriptionManager.shared.incrementUsage(.aiChat)
+            ProAccessManager.shared.recordAICall()
         }
     }
 
