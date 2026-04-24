@@ -98,6 +98,7 @@
 		DEA4D73FBBBF502D6FF0A727 /* RambleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F144B101103A1D82E41FAE6E /* RambleService.swift */; };
 		DFF1C3F0A1E3F83E7BC097C4 /* DisplaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23E470EA3E8742C052A11AC /* DisplaySettingsView.swift */; };
 		E134EA27DC3D03BE983104D6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1033D2A7D35A2D38D03F7B8 /* AboutView.swift */; };
+		E18DB3354A20C5CAEBA28DF0 /* FocusTimerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D858DE45618BA76263E52860 /* FocusTimerSettingsView.swift */; };
 		E1CB01764316CC8D96A0EEF8 /* AIAssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 747E466F789997C7FB15921E /* AIAssistantView.swift */; };
 		E6B10A1836376603852143D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F83874065E316092DFEF13C /* Assets.xcassets */; };
 		E75E735682871D68CB604C6E /* FDProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826008D550CA1C6F77B46879 /* FDProject.swift */; };
@@ -214,6 +215,7 @@
 		D5B551E2F084F85C057E976F /* WeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekView.swift; sourceTree = "<group>"; };
 		D6B413A1C2809CB385CDFEBE /* FDTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDTypography.swift; sourceTree = "<group>"; };
 		D7EEC40BECD97B2C7602AED8 /* FlowDayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayApp.swift; sourceTree = "<group>"; };
+		D858DE45618BA76263E52860 /* FocusTimerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerSettingsView.swift; sourceTree = "<group>"; };
 		D872AEC15262B07A765A6C35 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		D8F008DEB941D1A8118ACEF5 /* BrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseView.swift; sourceTree = "<group>"; };
 		D99EFB9954757FC822EBBBA8 /* EnergyCheckInSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCheckInSettingsView.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 				2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */,
 				CD0B0C59D5F1C0B19F5A4214 /* EnergyCheckInView.swift */,
 				6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */,
+				D858DE45618BA76263E52860 /* FocusTimerSettingsView.swift */,
 				7F7A03BABCF188C18119B6FA /* FocusTimerView.swift */,
 				349871E5E735E7E6956A3E44 /* HabitsView.swift */,
 				FD333AD25605BD8B8E54EAE6 /* InboxView.swift */,
@@ -637,6 +640,7 @@
 				8E9C03A34EEEB5679B480355 /* FlowDayApp.swift in Sources */,
 				EE3637C609A501309DC57F6A /* FlowDayIntents.swift in Sources */,
 				89E728175D8F0BBEB020D274 /* FocusTimerService.swift in Sources */,
+				E18DB3354A20C5CAEBA28DF0 /* FocusTimerSettingsView.swift in Sources */,
 				76A4B056A37CE64B3DD7D7A5 /* FocusTimerView.swift in Sources */,
 				43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */,
 				D976BE14C8E31C843BBCDAA6 /* HabitsView.swift in Sources */,
