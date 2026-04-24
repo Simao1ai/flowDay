@@ -15,6 +15,7 @@ struct TodayView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(EmailAccountService.self) private var emailAccountService
+    @Environment(FocusTimerService.self) private var focusTimerService
     @Environment(\.modelContext) private var modelContext
 
     /// Falls back to a locally-created TaskService when RootView hasn't
@@ -43,6 +44,7 @@ struct TodayView: View {
     @State private var showAIPlan = false
     @State private var showRamble = false
     @State private var showDayRecap = false
+    @State private var showFocusTimer = false
     @State private var showEmailTasks = false
     @State private var emailSuggestions: [EmailTaskSuggestion] = []
     @State private var hasScannedEmails = false
@@ -144,6 +146,21 @@ struct TodayView: View {
                                 .foregroundStyle(Color.fdTextSecondary)
                         }
                         Button {
+                            showFocusTimer = true
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "timer")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(focusTimerService.isActive ? Color.fdAccent : Color.fdTextSecondary)
+                                if focusTimerService.isRunning {
+                                    Circle()
+                                        .fill(Color.fdGreen)
+                                        .frame(width: 7, height: 7)
+                                        .offset(x: 4, y: -4)
+                                }
+                            }
+                        }
+                        Button {
                             showSettings = true
                         } label: {
                             Image(systemName: "gearshape")
@@ -172,6 +189,10 @@ struct TodayView: View {
             .sheet(isPresented: $showDayRecap) {
                 DayRecapView()
                     .environment(appState)
+            }
+            .sheet(isPresented: $showFocusTimer) {
+                FocusTimerView()
+                    .environment(focusTimerService)
             }
         }
     }

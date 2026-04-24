@@ -12,6 +12,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var taskService: TaskService?
+    @State private var focusTimerService = FocusTimerService()
     @State private var calendarService = CalendarService()
     @State private var showEnergyCheckIn = true
     @State private var showSettings = false
@@ -22,6 +23,7 @@ struct RootView: View {
         ZStack {
             TabView(selection: $state.selectedTab) {
                 TodayView(taskService: taskService, calendarService: calendarService)
+                        .environment(focusTimerService)
                     .tabItem {
                         Label("Today", systemImage: "sun.max")
                     }
@@ -83,6 +85,7 @@ struct RootView: View {
         }
         .onAppear {
             taskService = TaskService(modelContext: modelContext)
+            focusTimerService.modelContext = modelContext
 
             // Request calendar access and fetch events
             Task {

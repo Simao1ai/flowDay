@@ -36,6 +36,7 @@
 		423E710D9543FB0577DF2DED /* SmartQuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EBB74AE9F37870084C76C13 /* SmartQuickAddView.swift */; };
 		42F0D0A2A616D9A430408BB7 /* EmailConnectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36ED8864514B69F2FC36225A /* EmailConnectionsView.swift */; };
 		43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */; };
+		45FED64F56ACE614DA5A5340 /* FocusTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F7C0900665E4C3AA59396C /* FocusTimerView.swift */; };
 		4997BF59F8C695A78ACED349 /* FlowDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB30FD57446B6F1BCE2BE4BB /* FlowDayTests.swift */; };
 		5397FE5EA30D22E42A175D39 /* EmailScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */; };
 		55E7D73868AD33463CB6D7D1 /* FDHabitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8611F4CC15EA89EBA4F28F36 /* FDHabitLog.swift */; };
@@ -63,6 +64,7 @@
 		87C9D221485C21DEF316AA5B /* AISettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28565CEC2E21D38E34445F9 /* AISettingsView.swift */; };
 		894907FCFD008CA7334869AF /* CalendarSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D64692D089723E18917C605 /* CalendarSettingsView.swift */; };
 		895ED5B567D0B4D507AA9A45 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E70BFA1A8B865E3817E217F /* APIClient.swift */; };
+		89E728175D8F0BBEB020D274 /* FocusTimerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */; };
 		8DAB35EBE7482B12327E084C /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5E321CAB6CB38B8ED505F9 /* EmptyStateView.swift */; };
 		8E72B1599532DFC11C3D986B /* SmartFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1546F8784C5B2543C30C3F3C /* SmartFilter.swift */; };
 		8E9C03A34EEEB5679B480355 /* FlowDayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7EEC40BECD97B2C7602AED8 /* FlowDayApp.swift */; };
@@ -156,6 +158,8 @@
 		4F83874065E316092DFEF13C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		555FE98C0BCCC90E9BB5D555 /* FDFocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDFocusSession.swift; sourceTree = "<group>"; };
 		5993F5F951E36759680EC49F /* FlowDayIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayIntents.swift; sourceTree = "<group>"; };
+		64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerService.swift; sourceTree = "<group>"; };
+		66F7C0900665E4C3AA59396C /* FocusTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerView.swift; sourceTree = "<group>"; };
 		6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersLabelsView.swift; sourceTree = "<group>"; };
 		747E466F789997C7FB15921E /* AIAssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantView.swift; sourceTree = "<group>"; };
 		74D3C79A7354614DE729FF0C /* PremiumTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumTemplate.swift; sourceTree = "<group>"; };
@@ -301,6 +305,7 @@
 				D5B551E2F084F85C057E976F /* WeekView.swift */,
 				2A22A17FFD90E1567FF0E1D8 /* AI */,
 				46B46C274AD66AB71DACE07B /* Board */,
+				C02547223935C3EE48BC503D /* Focus */,
 				AE1647238E42AE3EC146BF85 /* Ramble */,
 				EEA9DDEDBA1B2CD888134D2A /* Settings */,
 				A1CA550C815FAEA5E31EDAB7 /* Shared */,
@@ -351,6 +356,7 @@
 				3B4C41E5427F8CB890E0467E /* EmailFetchService.swift */,
 				8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */,
 				5993F5F951E36759680EC49F /* FlowDayIntents.swift */,
+				64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */,
 				D535692B2B5074D08CD5421F /* KeychainHelper.swift */,
 				A275A13EF05C7458890ABB45 /* LLMService.swift */,
 				E3D336E445FCD67246A5AE09 /* NaturalLanguageParser.swift */,
@@ -437,6 +443,14 @@
 				2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		C02547223935C3EE48BC503D /* Focus */ = {
+			isa = PBXGroup;
+			children = (
+				66F7C0900665E4C3AA59396C /* FocusTimerView.swift */,
+			);
+			path = Focus;
 			sourceTree = "<group>";
 		};
 		E9EF2DE6AB3FA1B9545F6045 /* Utilities */ = {
@@ -630,6 +644,8 @@
 				1B0093CA5E3F9B0112B58CE4 /* FiltersLabelsView.swift in Sources */,
 				8E9C03A34EEEB5679B480355 /* FlowDayApp.swift in Sources */,
 				EE3637C609A501309DC57F6A /* FlowDayIntents.swift in Sources */,
+				89E728175D8F0BBEB020D274 /* FocusTimerService.swift in Sources */,
+				45FED64F56ACE614DA5A5340 /* FocusTimerView.swift in Sources */,
 				43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */,
 				D976BE14C8E31C843BBCDAA6 /* HabitsView.swift in Sources */,
 				DA652600C9D87D07F9FE3953 /* Haptics.swift in Sources */,
