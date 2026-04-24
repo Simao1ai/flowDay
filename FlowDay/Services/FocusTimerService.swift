@@ -1,185 +1,254 @@
 // FocusTimerService.swift
-// FlowDay — Pomodoro-style focus timer engine
+// FlowDay — Pomodoro focus timer state machine
 
 import Foundation
-import SwiftData
+import UIKit
 import UserNotifications
 
+// MARK: - Phase
+
+enum TimerPhase: Equatable {
+    case idle
+    case working
+    case shortBreak
+    case longBreak
+    case paused(resumingTo: TimerPhaseType)
+}
+
+enum TimerPhaseType: Equatable {
+    case working
+    case shortBreak
+    case longBreak
+}
+
+// MARK: - Service
+
 @Observable
-@MainActor
 final class FocusTimerService {
 
-    // MARK: - State
+    // State
+    var phase: TimerPhase = .idle
+    var secondsRemaining: Int = 0
+    var currentPhaseTotalSeconds: Int = 0
+    var completedInCycle: Int = 0   // 0–4; resets after long break
+    var linkedTaskID: UUID? = nil
 
-    var phase: SessionType = .focus
-    var timeRemaining: Int = SessionType.focus.defaultMinutes * 60
-    var isRunning: Bool = false
-    var isActive: Bool = false  // true while a session exists (running or paused)
-    var linkedTask: FDTask? = nil
-    var focusSessionsToday: Int = 0
+    // Session tracking (observed by FocusTimerView to persist sessions)
+    var completedSessionCount: Int = 0
 
-    var modelContext: ModelContext? {
-        didSet { if modelContext != nil { loadTodaySessions() } }
+    private var timer: Timer? = nil
+    private var backgroundEntryTime: Date? = nil
+    private var notificationID: String? = nil
+
+    // MARK: - Computed durations (reads UserDefaults each time)
+
+    var workSeconds: Int       { UserDefaults.standard.integer(forKey: "focus_work_minutes").nonZero(or: 25) * 60 }
+    var shortBreakSeconds: Int { UserDefaults.standard.integer(forKey: "focus_short_break_minutes").nonZero(or: 5) * 60 }
+    var longBreakSeconds: Int  { UserDefaults.standard.integer(forKey: "focus_long_break_minutes").nonZero(or: 15) * 60 }
+
+    // Convenience booleans for TodayView header indicator
+    var isActive: Bool  { phase != .idle }
+    var isRunning: Bool {
+        switch phase {
+        case .working, .shortBreak, .longBreak: return true
+        default: return false
+        }
     }
-
-    private var currentSession: FDFocusSession?
-    private var timer: Timer?
 
     // MARK: - Init
 
     init() {
-        Task { await requestNotificationPermission() }
-    }
-
-    // MARK: - Computed
-
-    var totalSeconds: Int { phase.defaultMinutes * 60 }
-
-    var progress: Double {
-        guard totalSeconds > 0 else { return 0 }
-        return max(0, min(1, Double(totalSeconds - timeRemaining) / Double(totalSeconds)))
-    }
-
-    var formattedTime: String {
-        String(format: "%02d:%02d", timeRemaining / 60, timeRemaining % 60)
+        NotificationCenter.default.addObserver(self,
+            selector: #selector(didResignActive),
+            name: UIApplication.willResignActiveNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(self,
+            selector: #selector(didBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil)
     }
 
     // MARK: - Controls
 
-    func start(task: FDTask? = nil) {
-        linkedTask = task
-        if let ctx = modelContext {
-            let session = FDFocusSession(
-                durationMinutes: phase.defaultMinutes,
-                type: phase,
-                taskID: task?.id
-            )
-            ctx.insert(session)
-            try? ctx.save()
-            currentSession = session
+    func start(linkedTask: UUID? = nil) {
+        linkedTaskID = linkedTask
+        beginWorkPhase()
+    }
+
+    func pauseResume() {
+        switch phase {
+        case .working:                      pauseTimer(resumingTo: .working)
+        case .shortBreak:                   pauseTimer(resumingTo: .shortBreak)
+        case .longBreak:                    pauseTimer(resumingTo: .longBreak)
+        case .paused(let r):                resumePhase(r)
+        case .idle:                         break
         }
-        isRunning = true
-        isActive = true
-        scheduleNotification(seconds: timeRemaining)
-        startTimer()
     }
 
-    func pause() {
-        isRunning = false
-        stopTimer()
-        UNUserNotificationCenter.current()
-            .removePendingNotificationRequests(withIdentifiers: ["fd-focus"])
-    }
-
-    func resume() {
-        isRunning = true
-        scheduleNotification(seconds: timeRemaining)
-        startTimer()
+    func skipBreak() {
+        guard case .shortBreak = phase else {
+            if case .longBreak = phase { cancelTimer(); beginWorkPhase() }
+            return
+        }
+        cancelTimer()
+        beginWorkPhase()
     }
 
     func stop() {
-        currentSession?.abandon()
-        try? modelContext?.save()
-        clearState()
+        cancelTimer()
+        cancelPendingNotification()
+        phase = .idle
+        secondsRemaining = 0
+        currentPhaseTotalSeconds = 0
+        linkedTaskID = nil
     }
 
-    func skipToNext() {
-        completeCurrentSession()
-        advancePhase()
+    // MARK: - Private Phase Transitions
+
+    private func beginWorkPhase() {
+        let total = workSeconds
+        currentPhaseTotalSeconds = total
+        secondsRemaining = total
+        phase = .working
+        startTicking()
+        Haptics.tock()
     }
 
-    // MARK: - Private
+    private func beginShortBreak() {
+        let total = shortBreakSeconds
+        currentPhaseTotalSeconds = total
+        secondsRemaining = total
+        phase = .shortBreak
+        startTicking()
+        Haptics.success()
+    }
 
-    private func startTimer() {
-        stopTimer()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in self?.tick() }
+    private func beginLongBreak() {
+        let total = longBreakSeconds
+        currentPhaseTotalSeconds = total
+        secondsRemaining = total
+        phase = .longBreak
+        startTicking()
+        Haptics.success()
+    }
+
+    private func pauseTimer(resumingTo type: TimerPhaseType) {
+        cancelTimer()
+        cancelPendingNotification()
+        phase = .paused(resumingTo: type)
+        Haptics.pick()
+    }
+
+    private func resumePhase(_ type: TimerPhaseType) {
+        switch type {
+        case .working:    phase = .working
+        case .shortBreak: phase = .shortBreak
+        case .longBreak:  phase = .longBreak
         }
+        startTicking()
+        Haptics.tap()
     }
 
-    private func stopTimer() {
+    // MARK: - Timer
+
+    private func startTicking() {
+        cancelTimer()
+        let t = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.tick()
+        }
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
+    }
+
+    private func cancelTimer() {
         timer?.invalidate()
         timer = nil
     }
 
     private func tick() {
-        guard isRunning else { return }
-        if timeRemaining > 1 {
-            timeRemaining -= 1
-        } else {
-            timeRemaining = 0
+        guard secondsRemaining > 0 else { phaseCompleted(); return }
+        secondsRemaining -= 1
+    }
+
+    // MARK: - Phase Completion
+
+    private func phaseCompleted() {
+        cancelTimer()
+        switch phase {
+        case .working:
+            completedSessionCount += 1
+            completedInCycle = min(completedInCycle + 1, 4)
             Haptics.success()
-            completeCurrentSession()
-            advancePhase()
+            if completedInCycle >= 4 {
+                completedInCycle = 0
+                beginLongBreak()
+            } else {
+                beginShortBreak()
+            }
+        case .shortBreak, .longBreak:
+            Haptics.tock()
+            beginWorkPhase()
+        case .idle, .paused:
+            break
         }
     }
 
-    private func completeCurrentSession() {
-        currentSession?.complete()
-        if phase == .focus { focusSessionsToday += 1 }
-        try? modelContext?.save()
-        currentSession = nil
+    // MARK: - Background Handling
+
+    @objc private func didResignActive() {
+        guard isRunning else { return }
+        backgroundEntryTime = .now
+        let phaseName: String
+        switch phase {
+        case .working:    phaseName = "Focus session"
+        case .shortBreak: phaseName = "Short break"
+        case .longBreak:  phaseName = "Long break"
+        default:          return
+        }
+        scheduleNotification(secondsFromNow: secondsRemaining, phaseName: phaseName)
+        cancelTimer()
     }
 
-    private func advancePhase() {
-        stopTimer()
-        UNUserNotificationCenter.current()
-            .removePendingNotificationRequests(withIdentifiers: ["fd-focus"])
-
-        let next: SessionType
-        if phase == .focus {
-            next = (focusSessionsToday % 4 == 0) ? .longBreak : .shortBreak
+    @objc private func didBecomeActive() {
+        cancelPendingNotification()
+        guard let entry = backgroundEntryTime else { return }
+        backgroundEntryTime = nil
+        let elapsed = Int(Date.now.timeIntervalSince(entry))
+        secondsRemaining = max(0, secondsRemaining - elapsed)
+        if secondsRemaining == 0 {
+            phaseCompleted()
         } else {
-            next = .focus
+            startTicking()
         }
-        phase = next
-        timeRemaining = next.defaultMinutes * 60
-        isRunning = false
-        isActive = false
     }
 
-    private func clearState() {
-        stopTimer()
-        UNUserNotificationCenter.current()
-            .removePendingNotificationRequests(withIdentifiers: ["fd-focus"])
-        timeRemaining = phase.defaultMinutes * 60
-        isRunning = false
-        isActive = false
-        currentSession = nil
-        linkedTask = nil
-    }
+    // MARK: - Notifications
 
-    func loadTodaySessions() {
-        guard let ctx = modelContext else { return }
-        let all = (try? ctx.fetch(FetchDescriptor<FDFocusSession>())) ?? []
-        let cal = Calendar.current
-        focusSessionsToday = all.filter {
-            $0.type == .focus && $0.wasCompleted && cal.isDateInToday($0.startedAt)
-        }.count
-    }
-
-    private func scheduleNotification(seconds: Int) {
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: ["fd-focus"])
+    private func scheduleNotification(secondsFromNow: Int, phaseName: String) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        let id = UUID().uuidString
+        notificationID = id
         let content = UNMutableNotificationContent()
-        content.title = "\(phase.rawValue) complete!"
-        content.body = phase == .focus
-            ? "Time for a break — great work!"
-            : "Break's over. Ready to focus?"
+        content.title = "\(phaseName) complete!"
+        content.body = "Time to switch. Tap to open FlowDay."
         content.sound = .default
-        let trigger = UNTimeIntervalNotificationTrigger(
-            timeInterval: max(1, Double(seconds)),
-            repeats: false
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(max(1, secondsFromNow)), repeats: false)
+        UNUserNotificationCenter.current().add(
+            UNNotificationRequest(identifier: id, content: content, trigger: trigger),
+            withCompletionHandler: nil
         )
-        center.add(UNNotificationRequest(
-            identifier: "fd-focus",
-            content: content,
-            trigger: trigger
-        ))
     }
 
-    private func requestNotificationPermission() async {
-        _ = try? await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound])
+    private func cancelPendingNotification() {
+        if let id = notificationID {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+            notificationID = nil
+        }
     }
+}
+
+// MARK: - Helpers
+
+private extension Int {
+    func nonZero(or fallback: Int) -> Int { self == 0 ? fallback : self }
 }

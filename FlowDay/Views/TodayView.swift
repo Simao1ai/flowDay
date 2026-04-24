@@ -15,7 +15,7 @@ struct TodayView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(EmailAccountService.self) private var emailAccountService
-    @Environment(FocusTimerService.self) private var focusTimerService
+    @Environment(FocusTimerService.self) private var timerService
     @Environment(\.modelContext) private var modelContext
 
     /// Falls back to a locally-created TaskService when RootView hasn't
@@ -45,6 +45,7 @@ struct TodayView: View {
     @State private var showRamble = false
     @State private var showDayRecap = false
     @State private var showFocusTimer = false
+    @State private var focusTimerPrelinkedTask: UUID? = nil
     @State private var showEmailTasks = false
     @State private var emailSuggestions: [EmailTaskSuggestion] = []
     @State private var hasScannedEmails = false
@@ -139,26 +140,26 @@ struct TodayView: View {
                         }
                         SyncStatusBadge()
                         Button {
-                            showDayRecap = true
-                        } label: {
-                            Image(systemName: "moon.stars")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.fdTextSecondary)
-                        }
-                        Button {
                             showFocusTimer = true
                         } label: {
                             ZStack(alignment: .topTrailing) {
                                 Image(systemName: "timer")
                                     .font(.system(size: 16))
-                                    .foregroundStyle(focusTimerService.isActive ? Color.fdAccent : Color.fdTextSecondary)
-                                if focusTimerService.isRunning {
+                                    .foregroundStyle(timerService.phase == .idle ? Color.fdTextSecondary : Color.fdAccent)
+                                if timerService.phase != .idle {
                                     Circle()
-                                        .fill(Color.fdGreen)
+                                        .fill(Color.fdAccent)
                                         .frame(width: 7, height: 7)
-                                        .offset(x: 4, y: -4)
+                                        .offset(x: 3, y: -3)
                                 }
                             }
+                        }
+                        Button {
+                            showDayRecap = true
+                        } label: {
+                            Image(systemName: "moon.stars")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.fdTextSecondary)
                         }
                         Button {
                             showSettings = true
@@ -191,8 +192,8 @@ struct TodayView: View {
                     .environment(appState)
             }
             .sheet(isPresented: $showFocusTimer) {
-                FocusTimerView()
-                    .environment(focusTimerService)
+                FocusTimerView(prelinkedTaskID: focusTimerPrelinkedTask)
+                    .environment(timerService)
             }
         }
     }
@@ -546,6 +547,22 @@ struct TodayView: View {
             )
         }
         .clipped()
+        .contextMenu {
+            Button {
+                focusTimerPrelinkedTask = task.id
+                showFocusTimer = true
+            } label: {
+                Label("Start Focus", systemImage: "timer")
+            }
+            Button {
+                Haptics.tock()
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) {
+                    selection.enter(initial: task.id)
+                }
+            } label: {
+                Label("Select", systemImage: "checkmark.circle")
+            }
+        }
     }
 
     private var emptyTimelineView: some View {

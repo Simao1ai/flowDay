@@ -85,7 +85,6 @@ struct RootView: View {
         }
         .onAppear {
             taskService = TaskService(modelContext: modelContext)
-            focusTimerService.modelContext = modelContext
 
             // Request calendar access and fetch events
             Task {
