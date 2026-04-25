@@ -37,6 +37,8 @@ enum ProFeature: String, CaseIterable {
     case smartFilters
     case projectSections
     case copyLink
+    case autoSchedule
+    case weeklyReport
 
     /// Free tier daily limit for legacy usage tracking; new features are fully gated
     var freeLimit: Int? {
@@ -102,6 +104,7 @@ final class SubscriptionManager {
         case .unlimitedAI, .emailToTask, .ramble, .focusTimerLinked,
              .premiumTemplates, .attachments, .kanbanBoard, .weekView,
              .smartFilters, .projectSections, .copyLink,
+             .autoSchedule, .weeklyReport,
              .customThemes, .prioritySupport, .advancedAnalytics:
             return false
         case .unlimitedProjects, .aiPlanning, .aiChat:

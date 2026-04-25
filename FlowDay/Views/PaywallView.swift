@@ -151,6 +151,10 @@ struct PaywallView: View {
             return "Project sections are a Pro feature. Organize tasks into custom columns."
         case .copyLink:
             return "Copy link is a Pro feature. Share tasks with a deep link."
+        case .autoSchedule:
+            return "AI Auto-Schedule is a Pro feature. Let AI plan your entire week automatically."
+        case .weeklyReport:
+            return "Weekly Report is a Pro feature. Get an AI-powered productivity summary every week."
         }
     }
 

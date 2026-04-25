@@ -41,10 +41,17 @@ struct TodayView: View {
         allHabits.filter { $0.isActive }
     }
 
+    @Query
+    private var allFocusSessions: [FDFocusSession]
+
     @State private var showQuickAdd = false
     @State private var showSettings = false
     @State private var showAIPlan = false
+    @State private var showAutoSchedule = false
+    @State private var showWeeklyReport = false
     @State private var showRamble = false
+
+    private var scoreService: FocusScoreService { .shared }
     @State private var showDayRecap = false
     @State private var showFocusTimer = false
     @State private var focusTimerPrelinkedTask: UUID? = nil
@@ -126,7 +133,23 @@ struct TodayView: View {
                 }
             }
             .navigationBarHidden(true)
-            .onAppear { triggerEmailScan() }
+            .onAppear {
+                triggerEmailScan()
+                scoreService.calculateDailyScore(
+                    tasks: allTasks,
+                    focusSessions: allFocusSessions,
+                    habits: allHabits,
+                    energy: appState.todayEnergy
+                )
+            }
+            .onChange(of: completedToday) { _, _ in
+                scoreService.calculateDailyScore(
+                    tasks: allTasks,
+                    focusSessions: allFocusSessions,
+                    habits: allHabits,
+                    energy: appState.todayEnergy
+                )
+            }
             .safeAreaInset(edge: .top) {
                 HStack {
                     VStack(alignment: .leading, spacing: 1) {
@@ -187,6 +210,17 @@ struct TodayView: View {
             .sheet(isPresented: $showAIPlan) {
                 AIPlanView(taskService: resolvedTaskService, energyLevel: appState.todayEnergy)
             }
+            .sheet(isPresented: $showAutoSchedule) {
+                AutoScheduleView(
+                    taskService: resolvedTaskService,
+                    calendarService: calendarService,
+                    energyLevel: appState.todayEnergy
+                )
+            }
+            .sheet(isPresented: $showWeeklyReport) {
+                WeeklyReportView()
+                    .environment(appState)
+            }
             .fullScreenCover(isPresented: $showRamble) {
                 RambleView(taskService: resolvedTaskService)
                     .environment(appState)
@@ -237,6 +271,7 @@ struct TodayView: View {
                 icon: "calendar",
                 color: .fdBlue
             )
+            FocusScoreView(scoreService: scoreService, showWeeklyReport: $showWeeklyReport)
         }
     }
 
@@ -272,7 +307,7 @@ struct TodayView: View {
             Spacer()
 
             Button {
-                showAIPlan = true
+                showAutoSchedule = true
             } label: {
                 Text("Plan")
                     .font(.fdCaptionBold)
