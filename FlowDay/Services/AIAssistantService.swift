@@ -695,10 +695,10 @@ final class AIAssistantService {
                 content: "What priority should **\(task.title)** be? Choose P1 (urgent), P2 (high), P3 (medium), or P4 (low).",
                 isUser: false,
                 suggestions: [
-                    AISuggestion(text: "P1 Urgent", icon: "flag.fill", action: .setPriority(id: task.id, priority: 1)),
-                    AISuggestion(text: "P2 High", icon: "flag.fill", action: .setPriority(id: task.id, priority: 2)),
-                    AISuggestion(text: "P3 Medium", icon: "flag.fill", action: .setPriority(id: task.id, priority: 3)),
-                    AISuggestion(text: "P4 Low", icon: "flag", action: .setPriority(id: task.id, priority: 4))
+                    AISuggestion(text: "P1 Urgent", icon: "flag.fill", action: .changePriority(id: task.id, priority: 1)),
+                    AISuggestion(text: "P2 High", icon: "flag.fill", action: .changePriority(id: task.id, priority: 2)),
+                    AISuggestion(text: "P3 Medium", icon: "flag.fill", action: .changePriority(id: task.id, priority: 3)),
+                    AISuggestion(text: "P4 Low", icon: "flag", action: .changePriority(id: task.id, priority: 4))
                 ]
             )
         }
