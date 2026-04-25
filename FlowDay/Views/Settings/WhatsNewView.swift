@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WhatsNewView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("lastSeenAppVersion") private var lastSeenVersion: String = ""
+    @AppStorage("lastSeenWhatsNewVersion") private var lastSeenVersion: String = ""
 
     /// The current app version from the bundle
     static var currentVersion: String {
@@ -18,7 +18,7 @@ struct WhatsNewView: View {
 
     /// Whether the user hasn't seen the current version yet
     static var hasUnseenUpdate: Bool {
-        let last = UserDefaults.standard.string(forKey: "lastSeenAppVersion") ?? ""
+        let last = UserDefaults.standard.string(forKey: "lastSeenWhatsNewVersion") ?? ""
         return last != currentVersion
     }
 

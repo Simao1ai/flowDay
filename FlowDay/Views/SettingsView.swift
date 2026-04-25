@@ -15,21 +15,12 @@ struct SettingsView: View {
     @Environment(EmailAccountService.self) private var emailAccountService
 
     private var proAccess: ProAccessManager { .shared }
-    @State private var activeSheet: SettingsSheet?
+    @State private var showProUpgrade = false
     @State private var syncStatus = SyncStatusService.shared
     @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion: String = ""
 
     private var hasUnseenWhatsNew: Bool {
         lastSeenWhatsNewVersion != WhatsNewView.currentVersion
-    }
-
-    enum SettingsSheet: String, Identifiable {
-        case proUpgrade, account, general, subscription, calendar
-        case emailConnections, theme, appIcon, navigation, quickAdd
-        case productivity, achievements, reminders, notifications
-        case aiScheduling, energyCheckIn, aiSettings, focusTimer
-        case dayRecap, weeklyReport, help, about, whatsNew
-        var id: String { rawValue }
     }
 
     var body: some View {
@@ -63,40 +54,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .sheet(item: $activeSheet) { sheet in
-                sheetContent(for: sheet)
-            }
-        }
-    }
-
-    // MARK: - Sheet Router
-
-    @ViewBuilder
-    private func sheetContent(for sheet: SettingsSheet) -> some View {
-        switch sheet {
-        case .proUpgrade:       ProUpgradeView()
-        case .account:          AccountSettingsView()
-        case .general:          GeneralSettingsView()
-        case .subscription:     SubscriptionSettingsView()
-        case .calendar:         CalendarSettingsView()
-        case .emailConnections: EmailConnectionsView().environment(emailAccountService)
-        case .theme:            ThemeSettingsView()
-        case .appIcon:          AppIconSettingsView()
-        case .navigation:       NavigationSettingsView()
-        case .quickAdd:         QuickAddSettingsView()
-        case .productivity:     ProductivitySettingsView()
-        case .achievements:     ProductivityScoreView()
-        case .reminders:        RemindersSettingsView()
-        case .notifications:    NotificationsSettingsView()
-        case .aiScheduling:     AISchedulingSettingsView()
-        case .energyCheckIn:    EnergyCheckInSettingsView()
-        case .aiSettings:       AISettingsView()
-        case .focusTimer:       FocusTimerSettingsView()
-        case .dayRecap:         DayRecapView().environment(appState)
-        case .weeklyReport:     WeeklyReportView().environment(appState)
-        case .help:             HelpFeedbackView()
-        case .about:            AboutView()
-        case .whatsNew:         WhatsNewView()
+            .sheet(isPresented: $showProUpgrade) { ProUpgradeView() }
         }
     }
 
@@ -140,7 +98,7 @@ struct SettingsView: View {
             )
         } else {
             return AnyView(
-                Button { activeSheet = .proUpgrade } label: {
+                Button { showProUpgrade = true } label: {
                     HStack(spacing: 14) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
@@ -188,13 +146,13 @@ struct SettingsView: View {
 
     private var accountSection: some View {
         VStack(spacing: 0) {
-            settingsRow(icon: "person.circle", title: "Account", color: .fdAccent) { activeSheet = .account }
+            navRow(icon: "person.circle", title: "Account", color: .fdAccent) { AccountSettingsView() }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "gearshape", title: "General", color: .fdTextSecondary) { activeSheet = .general }
+            navRow(icon: "gearshape", title: "General", color: .fdTextSecondary) { GeneralSettingsView() }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "creditcard", title: "Subscription", subtitle: "Free Plan", color: .fdGreen) { activeSheet = .subscription }
+            navRow(icon: "creditcard", title: "Subscription", subtitle: "Free Plan", color: .fdGreen) { SubscriptionSettingsView() }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "calendar", title: "Calendar", color: .fdBlue) { activeSheet = .calendar }
+            navRow(icon: "calendar", title: "Calendar", color: .fdBlue) { CalendarSettingsView() }
         }
         .background(Color.fdSurface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -217,7 +175,7 @@ struct SettingsView: View {
                     title: "Email Connections",
                     subtitle: emailConnectedSubtitle,
                     color: Color(hex: "EA4335")
-                ) { activeSheet = .emailConnections }
+                ) { EmailConnectionsView() }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -242,13 +200,13 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(icon: "paintpalette", title: "Theme", subtitle: "Warm Notion", color: .fdAccent) { activeSheet = .theme }
+                navRow(icon: "paintpalette", title: "Theme", subtitle: "Warm Notion", color: .fdAccent) { ThemeSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "app.badge", title: "App Icon", subtitle: "FlowDay", color: .fdPurple) { activeSheet = .appIcon }
+                navRow(icon: "app.badge", title: "App Icon", subtitle: "FlowDay", color: .fdPurple) { AppIconSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "list.bullet.indent", title: "Navigation", color: .fdBlue) { activeSheet = .navigation }
+                navRow(icon: "list.bullet.indent", title: "Navigation", color: .fdBlue) { NavigationSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "plus.circle", title: "Quick Add", color: .fdGreen) { activeSheet = .quickAdd }
+                navRow(icon: "plus.circle", title: "Quick Add", color: .fdGreen) { QuickAddSettingsView() }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -267,25 +225,25 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(icon: "chart.line.uptrend.xyaxis", title: "Productivity", color: .fdAccent) { activeSheet = .productivity }
+                navRow(icon: "chart.line.uptrend.xyaxis", title: "Productivity", color: .fdAccent) { ProductivitySettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "star.circle.fill", title: "Achievements", subtitle: "Level \(GamificationService.shared.level)", color: .fdYellow) { activeSheet = .achievements }
+                navRow(icon: "star.circle.fill", title: "Achievements", subtitle: "Level \(GamificationService.shared.level)", color: .fdYellow) { ProductivityScoreView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "bell", title: "Reminders", color: .fdYellow) { activeSheet = .reminders }
+                navRow(icon: "bell", title: "Reminders", color: .fdYellow) { RemindersSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "bell.badge", title: "Notifications", color: .fdRed) { activeSheet = .notifications }
+                navRow(icon: "bell.badge", title: "Notifications", color: .fdRed) { NotificationsSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "sparkles", title: "AI Scheduling", subtitle: "On", color: .fdAccent) { activeSheet = .aiScheduling }
+                navRow(icon: "sparkles", title: "AI Scheduling", subtitle: "On", color: .fdAccent) { AISchedulingSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "bolt.fill", title: "Energy Check-in", subtitle: "Daily", color: .fdYellow) { activeSheet = .energyCheckIn }
+                navRow(icon: "bolt.fill", title: "Energy Check-in", subtitle: "Daily", color: .fdYellow) { EnergyCheckInSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "cpu", title: "AI Settings", color: .fdPurple) { activeSheet = .aiSettings }
+                navRow(icon: "cpu", title: "AI Settings", color: .fdPurple) { AISettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "moon.stars", title: "Day Recap", subtitle: "AI summary", color: .fdPurple) { activeSheet = .dayRecap }
+                navRow(icon: "moon.stars", title: "Day Recap", subtitle: "AI summary", color: .fdPurple) { DayRecapView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "timer", title: "Focus Timer", subtitle: "Pomodoro", color: .fdAccent) { activeSheet = .focusTimer }
+                navRow(icon: "timer", title: "Focus Timer", subtitle: "Pomodoro", color: .fdAccent) { FocusTimerSettingsView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "chart.bar.fill", title: "Weekly Report", subtitle: "AI summary", color: .fdPurple) { activeSheet = .weeklyReport }
+                navRow(icon: "chart.bar.fill", title: "Weekly Report", subtitle: "AI summary", color: .fdPurple) { WeeklyReportView() }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -304,13 +262,13 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(icon: "gift", title: "What's New", color: .fdAccent) { activeSheet = .whatsNew }
+                whatsNewRow
                 Divider().padding(.leading, 52)
                 syncStatusRow
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "questionmark.circle", title: "Help & Feedback", color: .fdBlue) { activeSheet = .help }
+                navRow(icon: "questionmark.circle", title: "Help & Feedback", color: .fdBlue) { HelpFeedbackView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "info.circle", title: "About", color: .fdTextSecondary) { activeSheet = .about }
+                navRow(icon: "info.circle", title: "About", color: .fdTextSecondary) { AboutView() }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "star", title: "Rate FlowDay", color: .fdYellow) { /* Opens App Store review */ }
                 Divider().padding(.leading, 52)
