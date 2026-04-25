@@ -110,8 +110,12 @@ struct HabitsView: View {
 
     private func habitRow(_ habit: FDHabit) -> some View {
         Button {
+            let wasCompleted = habit.isCompletedToday
             let _ = habit.toggleToday()
             try? modelContext.save()
+            if !wasCompleted {
+                GamificationService.shared.record(.habitCompleted)
+            }
         } label: {
             habitRowContent(habit)
         }

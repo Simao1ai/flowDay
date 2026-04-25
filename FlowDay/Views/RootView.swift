@@ -14,6 +14,7 @@ struct RootView: View {
     @State private var taskService: TaskService?
     @State private var focusTimerService = FocusTimerService()
     @State private var calendarService = CalendarService()
+    @State private var gamification = GamificationService.shared
     @State private var showEnergyCheckIn = true
     @State private var showSettings = false
 
@@ -83,8 +84,10 @@ struct RootView: View {
             SettingsView()
                 .environment(authManager)
         }
+        .environment(gamification)
         .onAppear {
             taskService = TaskService(modelContext: modelContext)
+            gamification.checkAndUpdateStreak()
 
             // Request calendar access and fetch events
             Task {

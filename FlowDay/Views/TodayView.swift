@@ -41,6 +41,9 @@ struct TodayView: View {
         allHabits.filter { $0.isActive }
     }
 
+    @Environment(GamificationService.self) private var gamification
+    private var briefService: DailyBriefService { .shared }
+
     @State private var showQuickAdd = false
     @State private var showSettings = false
     @State private var showAIPlan = false
@@ -54,7 +57,9 @@ struct TodayView: View {
     @State private var emailSuggestions: [EmailTaskSuggestion] = []
     @State private var hasScannedEmails = false
     @State private var isScanningEmails = false
+    @State private var showProductivityScore = false
     @State private var expandedTaskID: UUID?
+    @AppStorage("brief_dismissed_date") private var briefDismissedDate: Double = 0
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
     @State private var selection = SelectionState()
@@ -81,6 +86,11 @@ struct TodayView: View {
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 20) {
+
+                            // Daily Brief card
+                            if showDailyBrief {
+                                dailyBriefCard
+                            }
 
                             // Header stats
                             headerSection
@@ -124,6 +134,19 @@ struct TodayView: View {
                 } else {
                     quickAddBar
                 }
+
+                // XP toast — floats above quick-add
+                if let toast = gamification.pendingToast {
+                    VStack {
+                        Spacer()
+                        XPToastBanner(item: toast) {
+                            gamification.dismissToast()
+                        }
+                        .padding(.bottom, 90)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .animation(.spring(duration: 0.4), value: gamification.pendingToast?.id)
+                }
             }
             .navigationBarHidden(true)
             .onAppear { triggerEmailScan() }
@@ -141,6 +164,17 @@ struct TodayView: View {
                     HStack(spacing: 10) {
                         if let energy = appState.todayEnergy {
                             energyBadge(energy)
+                        }
+                        Button {
+                            showProductivityScore = true
+                        } label: {
+                            Text("Lv.\(gamification.level)")
+                                .font(.fdMicroBold)
+                                .foregroundStyle(Color.fdAccent)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color.fdAccent.opacity(0.12))
+                                .clipShape(Capsule())
                         }
                         SyncStatusBadge()
                         Button {
@@ -195,16 +229,31 @@ struct TodayView: View {
                 DayRecapView()
                     .environment(appState)
             }
+<<<<<<< HEAD
             .sheet(isPresented: $showFocusTimer) {
                 FocusTimerView(prelinkedTaskID: focusTimerPrelinkedTask)
                     .environment(timerService)
             }
             .sheet(isPresented: $showProUpgrade) {
                 ProUpgradeView(highlightedFeature: proUpgradeFeature)
+=======
+            .sheet(isPresented: $showProductivityScore) {
+                ProductivityScoreView()
+            }
+            .onAppear {
+                Task {
+                    await briefService.generateIfNeeded(
+                        tasks: allTasks,
+                        habits: Array(allHabits),
+                        streak: gamification.currentStreak
+                    )
+                }
+>>>>>>> 1a389ee (Wave 5a: Smart Daily Brief + Gamification System)
             }
         }
     }
 
+<<<<<<< HEAD
     private func requirePro(_ feature: ProFeature, then action: () -> Void) {
         if proAccess.isFeatureAvailable(feature) {
             action()
@@ -212,6 +261,26 @@ struct TodayView: View {
             proUpgradeFeature = feature
             showProUpgrade = true
             Haptics.warning()
+=======
+    // MARK: - Daily Brief
+
+    private var showDailyBrief: Bool {
+        let lastDismissed = Date(timeIntervalSince1970: briefDismissedDate)
+        let dismissedToday = Calendar.current.isDateInToday(lastDismissed)
+        return !dismissedToday && (briefService.brief != nil || briefService.isLoading)
+    }
+
+    @ViewBuilder
+    private var dailyBriefCard: some View {
+        if briefService.isLoading {
+            DailyBriefSkeletonView()
+        } else if let brief = briefService.brief {
+            DailyBriefView(brief: brief) {
+                withAnimation(.easeOut(duration: 0.25)) {
+                    briefDismissedDate = Date.now.timeIntervalSince1970
+                }
+            }
+>>>>>>> 1a389ee (Wave 5a: Smart Daily Brief + Gamification System)
         }
     }
 

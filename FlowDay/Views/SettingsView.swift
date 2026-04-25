@@ -26,6 +26,7 @@ struct SettingsView: View {
     @State private var showNavigation = false
     @State private var showQuickAdd = false
     @State private var showProductivity = false
+    @State private var showAchievements = false
     @State private var showReminders = false
     @State private var showNotifications = false
     @State private var showAIScheduling = false
@@ -82,6 +83,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showNavigation) { NavigationSettingsView() }
             .sheet(isPresented: $showQuickAdd) { QuickAddSettingsView() }
             .sheet(isPresented: $showProductivity) { ProductivitySettingsView() }
+            .sheet(isPresented: $showAchievements) { ProductivityScoreView() }
             .sheet(isPresented: $showReminders) { RemindersSettingsView() }
             .sheet(isPresented: $showNotifications) { NotificationsSettingsView() }
             .sheet(isPresented: $showAIScheduling) { AISchedulingSettingsView() }
@@ -267,6 +269,8 @@ struct SettingsView: View {
 
             VStack(spacing: 0) {
                 settingsRow(icon: "chart.line.uptrend.xyaxis", title: "Productivity", color: .fdAccent) { showProductivity = true }
+                Divider().padding(.leading, 52)
+                settingsRow(icon: "star.circle.fill", title: "Achievements", subtitle: "Level \(GamificationService.shared.level)", color: .fdYellow) { showAchievements = true }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "bell", title: "Reminders", color: .fdYellow) { showReminders = true }
                 Divider().padding(.leading, 52)

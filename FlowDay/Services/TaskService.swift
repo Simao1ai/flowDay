@@ -150,6 +150,9 @@ final class TaskService {
             Task {
                 await SupabaseService.shared.syncTask(task)
                 await SupabaseService.shared.recordCompletion(task: task, energyLevel: energyLevel)
+                await MainActor.run {
+                    GamificationService.shared.record(.taskCompleted(priority: task.priority.rawValue))
+                }
             }
             // If recurring, create the next occurrence
             if task.recurrenceRule != nil {
