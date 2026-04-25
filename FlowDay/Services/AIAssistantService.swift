@@ -148,6 +148,7 @@ final class AIAssistantService {
         }
     }
 
+
     // MARK: - Response Generation
 
     private func generateAIResponse(for userMessage: String) async {
@@ -171,16 +172,10 @@ final class AIAssistantService {
             response = await handleBreakdownGoal(userMessage)
         } else if lower.contains("create") || lower.contains("add task") || lower.contains("new task") || lower.contains("remind me") {
             response = await handleCreateTask(userMessage: userMessage)
-        } else if lower.contains("complete") || lower.contains("done") || lower.contains("finish") || lower.contains("mark") && lower.contains("done") {
-            response = await handleCompleteTask(userMessage: userMessage)
-        } else if lower.contains("move") || lower.contains("reschedule") || lower.contains("push") || lower.contains("postpone") {
-            response = await handleRescheduleTask(userMessage: userMessage)
-        } else if lower.contains("delete") || lower.contains("remove") || lower.contains("cancel") {
-            response = await handleDeleteTask(userMessage: userMessage)
-        } else if lower.contains("priority") || lower.contains("urgent") || lower.contains("important") || (lower.contains("make") && lower.contains("p1")) || (lower.contains("make") && lower.contains("p2")) || (lower.contains("make") && lower.contains("p3")) {
-            response = await handleChangePriority(userMessage: userMessage)
         } else if lower.contains("how am i") || lower.contains("productivity") || lower.contains("progress") || lower.contains("stats") {
             response = handleProductivityCheck()
+        } else if isNLTaskActionPhrase(lower) {
+            response = await handleNLTaskAction(userMessage: userMessage)
         } else {
             response = await handleGeneralChat(userMessage: userMessage)
         }
@@ -189,6 +184,13 @@ final class AIAssistantService {
             await appendMessage(response)
             ProAccessManager.shared.recordAICall()
         }
+    }
+
+    /// Heuristic: does this message look like a task management command?
+    private func isNLTaskActionPhrase(_ lower: String) -> Bool {
+        let actionWords = ["move", "reschedule", "shift", "push", "mark", "complete", "done", "finish",
+                           "delete", "remove", "cancel", "priority", "urgent", "assign", "add to project"]
+        return actionWords.contains { lower.contains($0) }
     }
 
     @MainActor
@@ -357,6 +359,7 @@ final class AIAssistantService {
             if let task = all.first(where: { $0.id == id }) {
                 task.complete()
                 try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
                 messages.append(AIMessage(
                     content: "Marked \"\(task.title)\" as complete! Nice work 💪",
                     isUser: false,
@@ -366,9 +369,196 @@ final class AIAssistantService {
                     ]
                 ))
             }
-        } catch {
-            // Silently fail and don't update UI
+        } catch {}
+    }
+
+    // MARK: - Natural Language Task Actions
+
+    private func handleNLTaskAction(userMessage: String) async -> AIMessage {
+        let tasks = fetchTodayTasks()
+        guard !tasks.isEmpty else {
+            return AIMessage(
+                content: "You don't have any active tasks right now. Want to create one?",
+                isUser: false,
+                suggestions: [AISuggestion(text: "Create a task", icon: "plus.circle", action: .createTask(title: ""))]
+            )
         }
+
+        let taskList = tasks.prefix(20).map {
+            "- \($0.title) [id:\($0.id.uuidString.prefix(8))]"
+        }.joined(separator: "\n")
+
+        let parsePrompt = """
+        The user wants to perform a task management action. Parse their request and respond with ONLY valid JSON — no other text, no explanation.
+
+        User request: "\(userMessage)"
+
+        Available tasks:
+        \(taskList)
+
+        JSON schema:
+        {
+          "intent": "reschedule|complete|delete|change_priority|add_to_project|none",
+          "taskId": "<first 8 chars of matching task id, or null>",
+          "taskTitle": "<matched task title or null>",
+          "newDate": "<YYYY-MM-DD or null>",
+          "newTime": "<HH:mm or null>",
+          "newPriority": <1|2|3|4 or null>,
+          "projectName": "<project name or null>",
+          "confirmation": "<friendly confirmation message for the user>"
+        }
+
+        Today is \(ISO8601DateFormatter().string(from: .now).prefix(10)).
+        """
+
+        let llmMessages: [LLMMessage] = [
+            LLMMessage(role: .user, content: parsePrompt)
+        ]
+
+        do {
+            let raw = try await ClaudeClient.shared.chat(
+                feature: .flowAI,
+                messages: llmMessages,
+                temperature: 0.1,
+                maxTokens: 300
+            )
+
+            // Extract JSON from response (Claude may wrap it in markdown fences)
+            let jsonString = extractJSON(from: raw)
+
+            guard let data = jsonString.data(using: .utf8),
+                  let intent = try? JSONDecoder().decode(NLTaskIntent.self, from: data) else {
+                return await handleGeneralChat(userMessage: userMessage)
+            }
+
+            if intent.intent == "none" {
+                return await handleGeneralChat(userMessage: userMessage)
+            }
+
+            return await executeNLIntent(intent, allTasks: tasks)
+        } catch {
+            return await handleGeneralChat(userMessage: userMessage)
+        }
+    }
+
+    private func extractJSON(from text: String) -> String {
+        if let start = text.range(of: "{"), let end = text.range(of: "}", options: .backwards) {
+            return String(text[start.lowerBound...end.upperBound])
+        }
+        return text
+    }
+
+    private func executeNLIntent(_ intent: NLTaskIntent, allTasks: [FDTask]) async -> AIMessage {
+        guard let context = modelContext else {
+            return AIMessage(content: "Couldn't access your tasks right now.", isUser: false)
+        }
+
+        // Find matching task by partial id or title
+        var targetTask: FDTask?
+        if let taskId = intent.taskId {
+            targetTask = allTasks.first { $0.id.uuidString.prefix(8) == taskId }
+        }
+        if targetTask == nil, let title = intent.taskTitle {
+            targetTask = allTasks.first {
+                $0.title.lowercased().contains(title.lowercased()) ||
+                title.lowercased().contains($0.title.lowercased())
+            }
+        }
+
+        guard let task = targetTask else {
+            let taskList = allTasks.prefix(5).map { "• \($0.title)" }.joined(separator: "\n")
+            return AIMessage(
+                content: "I couldn't find that task. Which one did you mean?\n\n\(taskList)",
+                isUser: false
+            )
+        }
+
+        switch intent.intent {
+        case "complete":
+            task.complete()
+            try? context.save()
+            Task { await SupabaseService.shared.syncTask(task) }
+
+        case "delete":
+            task.softDelete()
+            try? context.save()
+            Task { await SupabaseService.shared.syncTask(task) }
+
+        case "reschedule":
+            if let dateStr = intent.newDate {
+                var newDate = parseDate(dateStr)
+                if let timeStr = intent.newTime, let base = newDate {
+                    newDate = applyTime(timeStr, to: base)
+                }
+                if let date = newDate {
+                    task.dueDate = date
+                    task.scheduledTime = intent.newTime != nil ? newDate : task.scheduledTime
+                    task.modifiedAt = .now
+                    try? context.save()
+                    Task { await SupabaseService.shared.syncTask(task) }
+                }
+            }
+
+        case "change_priority":
+            if let p = intent.newPriority, let priority = TaskPriority(rawValue: p) {
+                task.priority = priority
+                task.modifiedAt = .now
+                try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
+            }
+
+        case "add_to_project":
+            if let projectName = intent.projectName {
+                let projects = fetchProjects()
+                if let project = projects.first(where: { $0.name.lowercased() == projectName.lowercased() }) {
+                    task.project = project
+                    task.modifiedAt = .now
+                    try? context.save()
+                    Task { await SupabaseService.shared.syncTask(task) }
+                }
+            }
+
+        default:
+            break
+        }
+
+        return AIMessage(
+            content: intent.confirmation,
+            isUser: false,
+            suggestions: [
+                AISuggestion(text: "What's next?", icon: "arrow.right", action: .planDay),
+                AISuggestion(text: "How am I doing?", icon: "chart.bar", action: .showProductivity)
+            ]
+        )
+    }
+
+    private func parseDate(_ dateStr: String) -> Date? {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withFullDate]
+        if let date = iso.date(from: dateStr) { return date }
+
+        // Try relative day names
+        let lower = dateStr.lowercased()
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        let weekday = cal.component(.weekday, from: today)
+
+        let dayMap = ["monday": 2, "tuesday": 3, "wednesday": 4, "thursday": 5,
+                      "friday": 6, "saturday": 7, "sunday": 1]
+        if let targetWeekday = dayMap.first(where: { lower.contains($0.key) })?.value {
+            var daysAhead = targetWeekday - weekday
+            if daysAhead <= 0 { daysAhead += 7 }
+            return cal.date(byAdding: .day, value: daysAhead, to: today)
+        }
+        if lower.contains("tomorrow") { return cal.date(byAdding: .day, value: 1, to: today) }
+        if lower.contains("today") { return today }
+        return nil
+    }
+
+    private func applyTime(_ timeStr: String, to date: Date) -> Date? {
+        let parts = timeStr.split(separator: ":").compactMap { Int($0) }
+        guard parts.count == 2 else { return nil }
+        return Calendar.current.date(bySettingHour: parts[0], minute: parts[1], second: 0, of: date)
     }
 
     // MARK: - Reschedule Task (Natural Language)
@@ -792,10 +982,49 @@ final class AIAssistantService {
             confirmPendingTask()
         case .completeTask(let id):
             completeTask(id: id)
+        case .rescheduleTask(let id, let date):
+            let intent = NLTaskIntent(intent: "reschedule", taskId: id.uuidString.prefix(8).description,
+                                      taskTitle: nil, newDate: ISO8601DateFormatter().string(from: date).prefix(10).description,
+                                      newTime: nil, newPriority: nil, projectName: nil,
+                                      confirmation: "Rescheduled!")
+            Task {
+                let tasks = fetchTodayTasks()
+                let msg = await executeNLIntent(intent, allTasks: tasks)
+                await appendMessage(msg)
+            }
         case .deleteTask(let id):
-            deleteTask(id: id)
-        case .setPriority(let id, let priority):
-            setPriority(id: id, priority: priority)
+            let intent = NLTaskIntent(intent: "delete", taskId: id.uuidString.prefix(8).description,
+                                      taskTitle: nil, newDate: nil, newTime: nil, newPriority: nil,
+                                      projectName: nil, confirmation: "Task deleted.")
+            Task {
+                let tasks = fetchTodayTasks()
+                let msg = await executeNLIntent(intent, allTasks: tasks)
+                await appendMessage(msg)
+            }
+        case .changePriority(let id, let priority):
+            let intent = NLTaskIntent(intent: "change_priority", taskId: id.uuidString.prefix(8).description,
+                                      taskTitle: nil, newDate: nil, newTime: nil, newPriority: priority,
+                                      projectName: nil, confirmation: "Priority updated!")
+            Task {
+                let tasks = fetchTodayTasks()
+                let msg = await executeNLIntent(intent, allTasks: tasks)
+                await appendMessage(msg)
+            }
+        case .addToProject(let id, let projectName):
+            let intent = NLTaskIntent(intent: "add_to_project", taskId: id.uuidString.prefix(8).description,
+                                      taskTitle: nil, newDate: nil, newTime: nil, newPriority: nil,
+                                      projectName: projectName, confirmation: "Added to \(projectName)!")
+            Task {
+                let tasks = fetchTodayTasks()
+                let msg = await executeNLIntent(intent, allTasks: tasks)
+                await appendMessage(msg)
+            }
+        case .executeNLAction(let intent):
+            Task {
+                let tasks = fetchTodayTasks()
+                let msg = await executeNLIntent(intent, allTasks: tasks)
+                await appendMessage(msg)
+            }
         case .createTask(let title):
             sendMessage(title.isEmpty ? "Create a task" : "Create a task: \(title)")
         case .planDay:

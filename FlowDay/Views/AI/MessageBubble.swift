@@ -13,23 +13,42 @@ struct MessageBubble: View {
 
     var body: some View {
         VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
-            HStack {
-                if message.isUser { Spacer() }
+            HStack(alignment: .bottom, spacing: 8) {
+                if message.isUser { Spacer(minLength: 48) }
+
+                if !message.isUser {
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(colors: [Color.fdAccent, Color.fdPurple],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .frame(width: 28, height: 28)
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                }
 
                 VStack(alignment: message.isUser ? .trailing : .leading, spacing: 8) {
-                    Text(message.content)
-                        .font(.fdBody)
-                        .foregroundColor(message.isUser ? .white : .fdText)
+                    if message.isUser {
+                        Text(message.content)
+                            .font(.fdBody)
+                            .foregroundColor(.white)
+                    } else {
+                        markdownText(message.content)
+                            .font(.fdBody)
+                            .foregroundColor(.fdText)
+                    }
 
                     if let suggestions = message.suggestions, !suggestions.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 6) {
                             ForEach(suggestions) { suggestion in
                                 Button(action: { onSuggestTap(suggestion) }) {
-                                    HStack(spacing: 8) {
+                                    HStack(spacing: 6) {
                                         Image(systemName: suggestion.icon)
-                                            .font(.caption)
+                                            .font(.system(size: 11, weight: .semibold))
                                         Text(suggestion.text)
                                             .font(.fdCaption)
+                                            .fontWeight(.medium)
                                     }
                                     .foregroundColor(message.isUser ? .white : .fdAccent)
                                     .padding(.horizontal, 12)
@@ -39,65 +58,97 @@ struct MessageBubble: View {
                                         Color.white.opacity(0.2) :
                                         Color.fdAccentLight
                                     )
-                                    .cornerRadius(16)
+                                    .clipShape(Capsule())
                                 }
                             }
                         }
                     }
                 }
-                .padding(12)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
                 .background(message.isUser ? Color.fdAccent : Color.fdSurface)
                 .clipShape(
                     UnevenRoundedRectangle(
-                        topLeadingRadius: message.isUser ? 16 : 4,
-                        bottomLeadingRadius: 16,
-                        bottomTrailingRadius: 16,
-                        topTrailingRadius: message.isUser ? 4 : 16
+                        topLeadingRadius: message.isUser ? 18 : 4,
+                        bottomLeadingRadius: 18,
+                        bottomTrailingRadius: 18,
+                        topTrailingRadius: message.isUser ? 4 : 18
                     )
                 )
+                .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
 
-                if !message.isUser { Spacer() }
+                if !message.isUser { Spacer(minLength: 48) }
             }
 
             Text(message.timestamp.formatted(date: .omitted, time: .shortened))
                 .font(.fdMicro)
                 .foregroundColor(.fdTextMuted)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, message.isUser ? 4 : 40)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 2)
+    }
+
+    @ViewBuilder
+    private func markdownText(_ content: String) -> some View {
+        if let attributed = try? AttributedString(
+            markdown: content,
+            options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+        ) {
+            Text(attributed)
+        } else {
+            Text(content)
+        }
     }
 }
 
 struct TypingIndicator: View {
-    @State private var isAnimating = false
+    @State private var phase: Int = 0
 
     var body: some View {
-        HStack(spacing: 4) {
-            ForEach(0..<3, id: \.self) { index in
+        HStack(alignment: .bottom, spacing: 8) {
+            ZStack {
                 Circle()
-                    .fill(Color.fdTextMuted)
-                    .frame(width: 8, height: 8)
-                    .scaleEffect(isAnimating ? 1.2 : 1.0)
-                    .animation(
-                        Animation.easeInOut(duration: 0.6)
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.1),
-                        value: isAnimating
-                    )
+                    .fill(LinearGradient(colors: [Color.fdAccent, Color.fdPurple],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 28, height: 28)
+                Image(systemName: "sparkles")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white)
             }
-        }
-        .padding(12)
-        .background(Color.fdSurface)
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: 4,
-                bottomLeadingRadius: 16,
-                bottomTrailingRadius: 16,
-                topTrailingRadius: 16
+
+            HStack(spacing: 5) {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(Color.fdTextSecondary)
+                        .frame(width: 7, height: 7)
+                        .offset(y: phase == index ? -5 : 0)
+                        .animation(
+                            .easeInOut(duration: 0.4)
+                                .repeatForever(autoreverses: true)
+                                .delay(Double(index) * 0.15),
+                            value: phase
+                        )
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(Color.fdSurface)
+            .clipShape(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: 4,
+                    bottomLeadingRadius: 18,
+                    bottomTrailingRadius: 18,
+                    topTrailingRadius: 18
+                )
             )
-        )
-        .padding(.horizontal)
-        .onAppear { isAnimating = true }
+            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+
+            Spacer(minLength: 48)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 2)
+        .onAppear { phase = 0 }
     }
 }
 
@@ -113,10 +164,11 @@ struct QuickSuggestionChip: View {
             Text(text)
                 .font(.fdCaption)
                 .foregroundColor(.fdText)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
                 .background(Color.fdSurfaceHover)
-                .cornerRadius(16)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Color.fdBorder, lineWidth: 0.5))
                 .lineLimit(1)
         }
     }

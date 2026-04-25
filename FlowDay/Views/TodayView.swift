@@ -14,6 +14,7 @@ struct TodayView: View {
     let calendarService: CalendarService
 
     @Environment(AppState.self) private var appState
+    @Environment(AuthManager.self) private var authManager
     @Environment(EmailAccountService.self) private var emailAccountService
     @Environment(FocusTimerService.self) private var timerService
     @Environment(\.modelContext) private var modelContext
@@ -71,6 +72,7 @@ struct TodayView: View {
     @FocusState private var quickAddFocused: Bool
     @State private var selection = SelectionState()
     @State private var planButtonShimmer = false
+    private var meetingPrep: MeetingPrepService { .shared }
     @State private var taskSwipeOffsets: [UUID: CGFloat] = [:]
 
     private var todayTasks: [FDTask] {
@@ -104,6 +106,11 @@ struct TodayView: View {
 
                             // AI Banner
                             aiBannerSection
+
+                            // Meeting Prep card — Pro feature
+                            if let card = meetingPrep.prepCard, proAccess.isPro {
+                                meetingPrepCard(card)
+                            }
 
                             // Email Tasks card — Pro feature
                             if !emailSuggestions.isEmpty && proAccess.isFeatureAvailable(.emailToTask) {
@@ -164,6 +171,14 @@ struct TodayView: View {
                     habits: allHabits,
                     energy: appState.todayEnergy
                 )
+                Task {
+                    await meetingPrep.checkAndGeneratePrep(events: calendarService.todayEvents)
+                }
+            }
+            .onChange(of: calendarService.todayEvents.count) {
+                Task {
+                    await meetingPrep.checkAndGeneratePrep(events: calendarService.todayEvents)
+                }
             }
             .onChange(of: completedToday) { _, _ in
                 scoreService.calculateDailyScore(
@@ -237,6 +252,9 @@ struct TodayView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+                    .environment(appState)
+                    .environment(authManager)
+                    .environment(emailAccountService)
             }
             .sheet(isPresented: $showEmailTasks) {
                 EmailTasksView(suggestions: $emailSuggestions)
@@ -408,6 +426,96 @@ struct TodayView: View {
                 planButtonShimmer = true
             }
         }
+    }
+
+    // MARK: - Meeting Prep Card
+
+    private func meetingPrepCard(_ card: MeetingPrepCard) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(LinearGradient(colors: [Color.fdBlue, Color.fdPurple],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Meeting Prep")
+                        .font(.fdCaptionBold)
+                        .foregroundStyle(Color.fdTextSecondary)
+                    Text(card.eventTitle)
+                        .font(.fdBodySemibold)
+                        .foregroundStyle(Color.fdText)
+                        .lineLimit(1)
+                }
+                Spacer()
+                Text(card.startTime.formatted(date: .omitted, time: .shortened))
+                    .font(.fdMicro)
+                    .foregroundStyle(Color.fdTextMuted)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.fdBlue.opacity(0.1))
+                    .clipShape(Capsule())
+            }
+
+            if !card.contextNote.isEmpty {
+                Text(card.contextNote)
+                    .font(.fdCaption)
+                    .foregroundStyle(Color.fdTextSecondary)
+            }
+
+            if !card.talkingPoints.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Talking points")
+                        .font(.fdMicroBold)
+                        .foregroundStyle(Color.fdTextMuted)
+                        .textCase(.uppercase)
+                    ForEach(card.talkingPoints.prefix(3), id: \.self) { point in
+                        HStack(alignment: .top, spacing: 6) {
+                            Circle()
+                                .fill(Color.fdBlue)
+                                .frame(width: 5, height: 5)
+                                .padding(.top, 6)
+                            Text(point)
+                                .font(.fdCaption)
+                                .foregroundStyle(Color.fdText)
+                        }
+                    }
+                }
+            }
+
+            if !card.questions.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Questions to ask")
+                        .font(.fdMicroBold)
+                        .foregroundStyle(Color.fdTextMuted)
+                        .textCase(.uppercase)
+                    ForEach(card.questions.prefix(2), id: \.self) { q in
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "questionmark")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(Color.fdPurple)
+                                .frame(width: 12)
+                                .padding(.top, 3)
+                            Text(q)
+                                .font(.fdCaption)
+                                .foregroundStyle(Color.fdText)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .background(Color.fdSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.fdBlue.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.04), radius: 6, y: 2)
     }
 
     // MARK: - Email Tasks Card

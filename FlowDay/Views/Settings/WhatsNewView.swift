@@ -156,41 +156,44 @@ extension WhatsNewView {
         .init(
             version: "1.3.0", date: "Apr 2026", isLatest: true,
             entries: [
-                .init(icon: "text.bubble", tint: .fdAccent,
+                .init(icon: "text.bubble.fill", tint: .fdAccent,
                       title: "Natural Language Commands",
-                      detail: "Tell Flow AI to reschedule, complete, delete, or reprioritize tasks using plain English."),
-                .init(icon: "sparkles", tint: .fdPurple,
-                      title: "Modernized Flow AI Chat",
-                      detail: "Redesigned chat with frosted input bar, animated typing indicator, and markdown rendering."),
-                .init(icon: "chart.line.uptrend.xyaxis", tint: .fdGreen,
-                      title: "Focus Score",
-                      detail: "A daily 0-100 score combining tasks, focus time, habits, and energy alignment. Track your 30-day trend."),
+                      detail: "Tell Flow AI \"Move my dentist to Tuesday\" or \"Mark grocery shopping as done\" — it understands and executes."),
                 .init(icon: "calendar.badge.clock", tint: .fdBlue,
-                      title: "AI Auto-Schedule",
-                      detail: "One tap to have AI build your optimal weekly schedule around energy levels and calendar events.")
+                      title: "AI Meeting Prep",
+                      detail: "30 minutes before a meeting, FlowDay auto-generates talking points, questions, and context. Pro feature."),
+                .init(icon: "bubble.left.and.bubble.right.fill", tint: .fdPurple,
+                      title: "Flow AI Redesign",
+                      detail: "Frosted glass input bar, markdown rendering in responses, and a smoother chat experience overall.")
             ]
         ),
         .init(
             version: "1.2.0", date: "Apr 2026", isLatest: false,
             entries: [
-                .init(icon: "sun.max.fill", tint: .fdYellow,
-                      title: "Daily Brief",
-                      detail: "A morning AI briefing card at the top of Today — your priorities, energy tip, and schedule at a glance."),
-                .init(icon: "star.circle.fill", tint: .fdAccent,
-                      title: "Gamification & XP",
-                      detail: "Earn XP for tasks, habits, and focus sessions. Level up, maintain streaks, and unlock 9 achievement badges."),
-                .init(icon: "waveform", tint: .fdAccent,
-                      title: "Ramble — dictate multiple tasks at once",
-                      detail: "Speak a stream of tasks; FlowDay parses each one with dates, projects, priority, duration, and labels."),
-                .init(icon: "checkmark.icloud.fill", tint: .fdGreen,
-                      title: "Sync transparency",
-                      detail: "An explicit timestamp in Settings tells you exactly when your data last reached the cloud.")
+                .init(icon: "sparkles.rectangle.stack", tint: .fdAccent,
+                      title: "AI Auto-Schedule",
+                      detail: "Tap \"Auto-Schedule\" on any day and the AI fills your timeline around your calendar and energy level."),
+                .init(icon: "chart.xyaxis.line", tint: .fdGreen,
+                      title: "Focus Score",
+                      detail: "A daily 0–100 score that weighs tasks completed, deep work sessions, and streak consistency."),
+                .init(icon: "chart.bar.doc.horizontal", tint: .fdBlue,
+                      title: "Weekly AI Report",
+                      detail: "Every Sunday, get an AI-written recap of your week with trends and suggestions for next week."),
+                .init(icon: "waveform", tint: .fdYellow,
+                      title: "Ramble — dictate multiple tasks",
+                      detail: "Speak a stream of tasks; FlowDay parses each one with dates, projects, priority, and labels. Free.")
             ]
         ),
         .init(
             version: "1.1.0", date: "Apr 2026", isLatest: false,
             entries: [
-                .init(icon: "rectangle.split.3x1", tint: .fdAccent,
+                .init(icon: "brain.head.profile", tint: .fdAccent,
+                      title: "Smart Daily Brief",
+                      detail: "Wake up to an AI-written summary of your day: priorities, energy tip, and one focus task."),
+                .init(icon: "star.circle.fill", tint: .fdYellow,
+                      title: "Gamification & XP",
+                      detail: "Earn XP for completing tasks, maintaining streaks, and deep-work sessions. Level up over time."),
+                .init(icon: "rectangle.split.3x1", tint: .fdPurple,
                       title: "Kanban board view",
                       detail: "Toggle any project between list and board. Drag tasks across section columns."),
                 .init(icon: "line.3.horizontal.decrease.circle", tint: .fdBlue,
