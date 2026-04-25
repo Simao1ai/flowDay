@@ -12,8 +12,7 @@ struct AISchedulingSettingsView: View {
     @AppStorage("ai_auto_suggest") private var autoSuggest = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.group {
                         FDSettingsUI.toggleRow(title: "AI scheduling enabled", isOn: $enabled, subtitle: nil)
@@ -44,9 +43,9 @@ struct AISchedulingSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("AI Scheduling")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 }

@@ -24,8 +24,7 @@ struct WeeklyReportView: View {
     @State private var showShareSheet = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     headerSection
                     if let report {
@@ -44,6 +43,7 @@ struct WeeklyReportView: View {
             .background(Color.fdBackground)
             .navigationTitle("Weekly Report")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: {
@@ -76,7 +76,6 @@ struct WeeklyReportView: View {
                 report = r
                 await scoreService.generateRecommendation(report: r, tasks: tasks)
             }
-        }
     }
 
     // MARK: - Header

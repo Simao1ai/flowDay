@@ -14,8 +14,7 @@ struct FocusTimerSettingsView: View {
     @AppStorage("focus_long_break_minutes") private var longBreakMinutes: Int = 15
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     durationsSection
                     infoSection
@@ -27,6 +26,7 @@ struct FocusTimerSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Focus Timer")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: {
@@ -39,7 +39,6 @@ struct FocusTimerSettingsView: View {
                     }
                 }
             }
-        }
     }
 
     // MARK: - Sections

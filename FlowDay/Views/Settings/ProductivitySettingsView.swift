@@ -13,8 +13,7 @@ struct ProductivitySettingsView: View {
     @State private var daysOff: Set<Int> = [0, 6]
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.group {
                         FDSettingsUI.toggleRow(title: "Track Productivity Score", isOn: $trackProductivity, subtitle: nil)
@@ -98,9 +97,9 @@ struct ProductivitySettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Productivity")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 }

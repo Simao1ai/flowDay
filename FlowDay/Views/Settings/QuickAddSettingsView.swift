@@ -8,8 +8,7 @@ struct QuickAddSettingsView: View {
     @State private var showActionLabels = true
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.group {
                         FDSettingsUI.toggleRow(title: "Show action labels", isOn: $showActionLabels, subtitle: nil)
@@ -89,10 +88,10 @@ struct QuickAddSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Quick Add")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 
     private func actionChip(_ label: String) -> some View {

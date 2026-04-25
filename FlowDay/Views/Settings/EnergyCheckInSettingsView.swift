@@ -10,8 +10,7 @@ struct EnergyCheckInSettingsView: View {
     @AppStorage("energy_checkin_time") private var checkInTime = "Morning"
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.group {
                         FDSettingsUI.toggleRow(title: "Energy check-in enabled", isOn: $enabled, subtitle: nil)
@@ -36,9 +35,9 @@ struct EnergyCheckInSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Energy Check-in")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 }

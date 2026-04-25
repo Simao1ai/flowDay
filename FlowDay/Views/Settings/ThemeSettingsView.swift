@@ -10,8 +10,7 @@ struct ThemeSettingsView: View {
     @AppStorage("theme_auto_dark_mode") private var autoDarkMode = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.group {
                         FDSettingsUI.toggleRow(title: "Sync Theme", isOn: $syncTheme, subtitle: "Sync your theme across devices")
@@ -49,10 +48,10 @@ struct ThemeSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Theme")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 
     private func themeListItem(name: String, accentColor: Color, isSelected: Bool) -> some View {

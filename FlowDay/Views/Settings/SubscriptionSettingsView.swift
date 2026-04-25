@@ -14,9 +14,8 @@ struct SubscriptionSettingsView: View {
     private var subscriptionManager: SubscriptionManager { .shared }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
+        ScrollView {
+            VStack(spacing: 24) {
                     HStack {
                         Spacer()
                         Button(action: { dismiss() }) {
@@ -91,7 +90,6 @@ struct SubscriptionSettingsView: View {
             } message: {
                 Text(errorText)
             }
-        }
     }
 
     private var pricingCards: some View {

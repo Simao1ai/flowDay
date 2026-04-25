@@ -166,6 +166,7 @@ final class AIAssistantService {
         let lower = userMessage.lowercased()
         var response: AIMessage?
 
+        // Structured intents (handled locally with SwiftData)
         if lower.contains("plan") && (lower.contains("day") || lower.contains("schedule") || lower.contains("today")) {
             response = await handlePlanDay()
         } else if lower.contains("break") && (lower.contains("down") || lower.contains("goal") || lower.contains("steps")) {
@@ -174,8 +175,10 @@ final class AIAssistantService {
             response = await handleCreateTask(userMessage: userMessage)
         } else if lower.contains("how am i") || lower.contains("productivity") || lower.contains("progress") || lower.contains("stats") {
             response = handleProductivityCheck()
-        } else if isNLTaskActionPhrase(lower) {
-            response = await handleNLTaskAction(userMessage: userMessage)
+
+        // Natural language task management — route to AI with action-aware system prompt
+        } else if isTaskManagementIntent(lower) {
+            response = await handleNLTaskCommand(userMessage: userMessage)
         } else {
             response = await handleGeneralChat(userMessage: userMessage)
         }
@@ -186,11 +189,18 @@ final class AIAssistantService {
         }
     }
 
-    /// Heuristic: does this message look like a task management command?
-    private func isNLTaskActionPhrase(_ lower: String) -> Bool {
-        let actionWords = ["move", "reschedule", "shift", "push", "mark", "complete", "done", "finish",
-                           "delete", "remove", "cancel", "priority", "urgent", "assign", "add to project"]
-        return actionWords.contains { lower.contains($0) }
+    // MARK: - Intent Detection
+
+    private func isTaskManagementIntent(_ lower: String) -> Bool {
+        let rescheduleKeywords = ["move", "reschedule", "push", "change the date", "change date"]
+        let deleteKeywords = ["delete", "remove", "get rid of"]
+        let priorityKeywords = ["set priority", "make it priority", "change priority", "priority 1", "priority 2", "p1", "p2", "p3"]
+        let queryKeywords = ["what did i work on", "what have i done", "show me", "find", "list", "how many tasks", "count"]
+
+        return rescheduleKeywords.contains(where: lower.contains)
+            || deleteKeywords.contains(where: lower.contains)
+            || priorityKeywords.contains(where: lower.contains)
+            || queryKeywords.contains(where: lower.contains)
     }
 
     @MainActor
@@ -958,6 +968,210 @@ final class AIAssistantService {
                 ]
             )
         }
+    }
+
+    // MARK: - Natural Language Task Commands (Wave 5c)
+
+    /// Sends the user's NL command to Claude with a task-aware system prompt
+    /// that instructs it to embed a JSON action block when modifying tasks.
+    private func handleNLTaskCommand(userMessage: String) async -> AIMessage {
+        let context = buildUserContext()
+        let history = recentConversationHistory()
+
+        let nlSystemContext = """
+        \(context)
+
+        TASK MODIFICATION PROTOCOL:
+        When the user asks you to modify, reschedule, delete, prioritize, or query tasks, respond conversationally AND include a JSON action block at the very end of your response (after your reply text) in this exact format — no markdown fences, just the raw JSON on its own line:
+
+        {"action":"reschedule","taskQuery":"dentist","newDate":"2026-04-29"}
+        {"action":"delete","taskQuery":"grocery list"}
+        {"action":"setPriority","taskQuery":"meeting prep","priority":1}
+        {"action":"query","filter":"completed","date":"2026-04-23"}
+        {"action":"query","filter":"project","projectName":"Johnson"}
+        {"action":"query","filter":"count","period":"week"}
+
+        Supported actions: reschedule, delete, setPriority, query
+        For dates, use ISO 8601 format (YYYY-MM-DD).
+        For priority: 1=urgent, 2=high, 3=medium, 4=none.
+        The taskQuery is a short search string to match the task title (case-insensitive).
+        ONLY include the JSON if you are performing an action. For pure queries just answer.
+        """
+
+        var msgs: [LLMMessage] = [
+            LLMMessage(role: .user, content: nlSystemContext),
+            LLMMessage(role: .assistant, content: "Got it. I'll help manage your tasks and include action JSON when modifying them.")
+        ]
+        msgs.append(contentsOf: history)
+        msgs.append(LLMMessage(role: .user, content: userMessage))
+
+        do {
+            let rawResponse = try await ClaudeClient.shared.chat(
+                feature: .flowAI,
+                messages: msgs,
+                temperature: 0.3,
+                maxTokens: 500
+            )
+
+            // Parse and execute any embedded action block
+            let (displayText, actionResult) = await parseAndExecuteAction(from: rawResponse)
+            let finalText = actionResult != nil ? "\(displayText)\n\n✅ \(actionResult!)" : displayText
+
+            return AIMessage(content: finalText, isUser: false)
+        } catch {
+            return AIMessage(
+                content: "I couldn't process that request right now (\(error.localizedDescription)). Try rephrasing.",
+                isUser: false
+            )
+        }
+    }
+
+    // MARK: - Action Parsing & Execution
+
+    private struct TaskAction: Decodable {
+        let action: String
+        let taskQuery: String?
+        let newDate: String?
+        let priority: Int?
+        let filter: String?
+        let date: String?
+        let projectName: String?
+        let period: String?
+    }
+
+    /// Splits the AI response into display text and optional action result string.
+    private func parseAndExecuteAction(from response: String) async -> (String, String?) {
+        // Find a JSON object line at the end of the response
+        let lines = response.components(separatedBy: "\n")
+        guard let jsonLine = lines.last(where: { $0.hasPrefix("{") && $0.hasSuffix("}") }),
+              let data = jsonLine.data(using: .utf8),
+              let action = try? JSONDecoder().decode(TaskAction.self, from: data) else {
+            return (response, nil)
+        }
+
+        // Strip the JSON line from the display text
+        let displayText = lines
+            .filter { !($0.hasPrefix("{") && $0.hasSuffix("}")) }
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let result = await executeAction(action)
+        return (displayText, result)
+    }
+
+    private func executeAction(_ action: TaskAction) async -> String? {
+        guard let context = modelContext else { return nil }
+
+        switch action.action {
+        case "reschedule":
+            guard let query = action.taskQuery, let dateStr = action.newDate else { return nil }
+            let fmt = ISO8601DateFormatter()
+            fmt.formatOptions = [.withFullDate]
+            guard let newDate = fmt.date(from: dateStr) else { return "Couldn't parse date \(dateStr)" }
+
+            do {
+                let all = try context.fetch(FetchDescriptor<FDTask>())
+                guard let task = all.first(where: {
+                    !$0.isDeleted && $0.title.lowercased().contains(query.lowercased())
+                }) else { return "Couldn't find a task matching \"\(query)\"" }
+                task.dueDate = newDate
+                task.modifiedAt = .now
+                try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
+                let formatted = DateFormatter.localizedString(from: newDate, dateStyle: .medium, timeStyle: .none)
+                return "Rescheduled \"\(task.title)\" to \(formatted)"
+            } catch { return nil }
+
+        case "delete":
+            guard let query = action.taskQuery else { return nil }
+            do {
+                let all = try context.fetch(FetchDescriptor<FDTask>())
+                guard let task = all.first(where: {
+                    !$0.isDeleted && $0.title.lowercased().contains(query.lowercased())
+                }) else { return "Couldn't find a task matching \"\(query)\"" }
+                task.softDelete()
+                try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
+                return "Deleted \"\(task.title)\""
+            } catch { return nil }
+
+        case "setPriority":
+            guard let query = action.taskQuery, let priorityRaw = action.priority,
+                  let priority = TaskPriority(rawValue: priorityRaw) else { return nil }
+            do {
+                let all = try context.fetch(FetchDescriptor<FDTask>())
+                guard let task = all.first(where: {
+                    !$0.isDeleted && $0.title.lowercased().contains(query.lowercased())
+                }) else { return "Couldn't find a task matching \"\(query)\"" }
+                task.priority = priority
+                task.modifiedAt = .now
+                try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
+                return "Set \"\(task.title)\" to \(priority.label)"
+            } catch { return nil }
+
+        case "query":
+            return await executeQueryAction(action)
+
+        default:
+            return nil
+        }
+    }
+
+    private func executeQueryAction(_ action: TaskAction) async -> String? {
+        guard let context = modelContext else { return nil }
+
+        let filter = action.filter ?? ""
+        do {
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+
+            switch filter {
+            case "completed":
+                let targetDate: Date
+                if let dateStr = action.date {
+                    let fmt = ISO8601DateFormatter()
+                    fmt.formatOptions = [.withFullDate]
+                    targetDate = fmt.date(from: dateStr) ?? Calendar.current.startOfDay(for: .now)
+                } else {
+                    targetDate = Calendar.current.startOfDay(for: .now)
+                }
+                let dayEnd = Calendar.current.date(byAdding: .day, value: 1, to: targetDate) ?? targetDate
+                let completed = all.filter {
+                    $0.isCompleted && !$0.isDeleted &&
+                    ($0.completedAt ?? .distantPast) >= targetDate &&
+                    ($0.completedAt ?? .distantPast) < dayEnd
+                }
+                if completed.isEmpty { return "No completed tasks found for that date" }
+                let list = completed.prefix(10).map { "• \($0.title)" }.joined(separator: "\n")
+                return "Found \(completed.count) completed task(s):\n\(list)"
+
+            case "project":
+                guard let proj = action.projectName else { return nil }
+                let matches = all.filter {
+                    !$0.isDeleted && ($0.project?.name.lowercased().contains(proj.lowercased()) == true)
+                }
+                if matches.isEmpty { return "No tasks found for project \"\(proj)\"" }
+                let list = matches.prefix(10).map { "• \($0.title) [\($0.priority.label)]" }.joined(separator: "\n")
+                return "Found \(matches.count) task(s) in \"\(proj)\":\n\(list)"
+
+            case "count":
+                let period = action.period ?? "week"
+                let startDate: Date
+                if period == "week" {
+                    startDate = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
+                } else {
+                    startDate = Calendar.current.startOfDay(for: .now)
+                }
+                let count = all.filter {
+                    $0.isCompleted && !$0.isDeleted &&
+                    ($0.completedAt ?? .distantPast) >= startDate
+                }.count
+                return "You completed \(count) task(s) this \(period)"
+
+            default:
+                return nil
+            }
+        } catch { return nil }
     }
 
     // MARK: - Conversation History

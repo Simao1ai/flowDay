@@ -7,8 +7,7 @@ struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     VStack(spacing: 4) {
                         Text("FlowDay 1.0.0")
@@ -54,9 +53,9 @@ struct AboutView: View {
             .background(Color.fdBackground)
             .navigationTitle("About")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 }

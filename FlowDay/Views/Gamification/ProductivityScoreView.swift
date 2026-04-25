@@ -9,8 +9,7 @@ struct ProductivityScoreView: View {
     private var gam: GamificationService { GamificationService.shared }
 
     var body: some View {
-        NavigationStack {
-            ScrollView(showsIndicators: false) {
+        ScrollView(showsIndicators: false) {
                 VStack(spacing: 28) {
                     levelCard
                     streakCard
@@ -22,6 +21,7 @@ struct ProductivityScoreView: View {
             .background(Color.fdBackground)
             .navigationTitle("Productivity Score")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { dismiss() } label: {
@@ -32,7 +32,6 @@ struct ProductivityScoreView: View {
                     }
                 }
             }
-        }
     }
 
     // MARK: - Level Card

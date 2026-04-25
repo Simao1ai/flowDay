@@ -28,8 +28,7 @@ struct DayRecapView: View {
     private var doneHabitsToday: [FDHabit] { habits.filter(\.isCompletedToday) }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     headerSection
                     statsSection
@@ -42,6 +41,7 @@ struct DayRecapView: View {
             .background(Color.fdBackground)
             .navigationTitle("Day Recap")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { dismiss() } label: {
@@ -59,7 +59,6 @@ struct DayRecapView: View {
                     energy: appState.todayEnergy
                 )
             }
-        }
     }
 
     // MARK: - Header

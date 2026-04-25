@@ -10,8 +10,7 @@ struct CalendarSettingsView: View {
     @State private var providerToDisconnect: CalendarProvider? = nil
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     if !accountManager.connectedAccounts.isEmpty {
                         connectedSection
@@ -59,6 +58,7 @@ struct CalendarSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Calendar Accounts")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
@@ -75,7 +75,6 @@ struct CalendarSettingsView: View {
                     Text("Are you sure you want to disconnect \(provider.displayName)? Events from this account will no longer appear in FlowDay.")
                 }
             }
-        }
     }
 
     private var connectedSection: some View {

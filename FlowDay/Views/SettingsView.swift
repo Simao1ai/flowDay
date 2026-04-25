@@ -17,6 +17,11 @@ struct SettingsView: View {
     private var proAccess: ProAccessManager { .shared }
     @State private var activeSheet: SettingsSheet?
     @State private var syncStatus = SyncStatusService.shared
+    @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion: String = ""
+
+    private var hasUnseenWhatsNew: Bool {
+        lastSeenWhatsNewVersion != WhatsNewView.currentVersion
+    }
 
     enum SettingsSheet: String, Identifiable {
         case proUpgrade, account, general, subscription, calendar
@@ -207,7 +212,7 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(
+                navRow(
                     icon: "envelope",
                     title: "Email Connections",
                     subtitle: emailConnectedSubtitle,
@@ -319,6 +324,41 @@ struct SettingsView: View {
 
     /// Always-visible sync transparency row — explicit timestamp, not just
     /// a glyph in the toolbar.
+    private var whatsNewRow: some View {
+        NavigationLink(destination: WhatsNewView()) {
+            HStack(spacing: 12) {
+                Image(systemName: "gift")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.fdAccent)
+                    .frame(width: 28)
+
+                Text("What's New")
+                    .font(.fdBody)
+                    .foregroundStyle(Color.fdText)
+
+                if hasUnseenWhatsNew {
+                    Text("NEW")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(Color.fdAccent)
+                        .clipShape(Capsule())
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.fdTextMuted)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     private var syncStatusRow: some View {
         HStack(spacing: 12) {
             Image(systemName: syncIcon)
@@ -389,33 +429,46 @@ struct SettingsView: View {
 
     // MARK: - Row Helpers
 
+    private func navRow<D: View>(icon: String, title: String, subtitle: String? = nil, color: Color, @ViewBuilder destination: () -> D) -> some View {
+        NavigationLink(destination: destination()) {
+            rowLabel(icon: icon, title: title, subtitle: subtitle, color: color)
+        }
+        .buttonStyle(.plain)
+    }
+
     private func settingsRow(icon: String, title: String, subtitle: String? = nil, color: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 15))
-                    .foregroundStyle(color)
-                    .frame(width: 28)
+            rowLabel(icon: icon, title: title, subtitle: subtitle, color: color)
+        }
+        .buttonStyle(.plain)
+    }
 
-                Text(title)
-                    .font(.fdBody)
-                    .foregroundStyle(Color.fdText)
+    private func rowLabel(icon: String, title: String, subtitle: String? = nil, color: Color) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 15))
+                .foregroundStyle(color)
+                .frame(width: 28)
 
-                Spacer()
+            Text(title)
+                .font(.fdBody)
+                .foregroundStyle(Color.fdText)
 
-                if let subtitle = subtitle {
-                    Text(subtitle)
-                        .font(.fdCaption)
-                        .foregroundStyle(Color.fdTextMuted)
-                }
+            Spacer()
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .font(.fdCaption)
                     .foregroundStyle(Color.fdTextMuted)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.fdTextMuted)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
     }
 
     private func infoRow(title: String, value: String) -> some View {
@@ -444,34 +497,27 @@ struct AccountSettingsView: View {
     @State private var passwordSaved = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    avatarSection
-                    fieldsSection
-                    securitySection
-                    dangerSection
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 40)
+        ScrollView {
+            VStack(spacing: 24) {
+                avatarSection
+                fieldsSection
+                securitySection
+                dangerSection
             }
-            .background(Color.fdBackground)
-            .navigationTitle("Account")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.fdText)
-                            .frame(width: 36, height: 36)
-                            .background(Color.fdSurfaceHover)
-                            .clipShape(Circle())
-                    }
-                }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 40)
+        }
+        .background(Color.fdBackground)
+        .navigationTitle("Account")
+        .navigationBarTitleDisplayMode(.large)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                FDSettingsUI.backButton { dismiss() }
             }
-            .sheet(isPresented: $showPasswordSheet) {
+        }
+        .sheet(isPresented: $showPasswordSheet) {
                 NavigationStack {
                     Form {
                         Section("Create Password") {
@@ -510,7 +556,6 @@ struct AccountSettingsView: View {
                         }
                     }
                 }
-            }
         }
     }
 
@@ -646,36 +691,28 @@ struct NavigationSettingsView: View {
     ]
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    tabBarSection
-                    descriptionText
-                    menuSection
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 40)
+        ScrollView {
+            VStack(spacing: 24) {
+                tabBarSection
+                descriptionText
+                menuSection
             }
-            .background(Color.fdBackground)
-            .navigationTitle("Navigation")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.fdText)
-                            .frame(width: 36, height: 36)
-                            .background(Color.fdSurfaceHover)
-                            .clipShape(Circle())
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Edit") { }
-                        .font(.fdBodyMedium)
-                        .foregroundStyle(Color.fdAccent)
-                }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 40)
+        }
+        .background(Color.fdBackground)
+        .navigationTitle("Navigation")
+        .navigationBarTitleDisplayMode(.large)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                FDSettingsUI.backButton { dismiss() }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Edit") { }
+                    .font(.fdBodyMedium)
+                    .foregroundStyle(Color.fdAccent)
             }
         }
     }

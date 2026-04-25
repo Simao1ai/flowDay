@@ -17,6 +17,8 @@ struct RootView: View {
     @State private var gamification = GamificationService.shared
     @State private var showEnergyCheckIn = true
     @State private var showSettings = false
+    @State private var showWhatsNew = false
+    @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion: String = ""
 
     var body: some View {
         @Bindable var state = appState
@@ -84,10 +86,18 @@ struct RootView: View {
             SettingsView()
                 .environment(authManager)
         }
+        .sheet(isPresented: $showWhatsNew) {
+            NavigationStack { WhatsNewView() }
+        }
         .environment(gamification)
         .onAppear {
             taskService = TaskService(modelContext: modelContext)
             gamification.checkAndUpdateStreak()
+            if lastSeenWhatsNewVersion != WhatsNewView.currentVersion {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    showWhatsNew = true
+                }
+            }
 
             // Request calendar access and fetch events
             Task {

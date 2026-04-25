@@ -16,14 +16,14 @@ struct AIAssistantView: View {
     @State private var showShareOptions = false
     @State private var showCollaborate = false
     @State private var showProUpgrade = false
+    @State private var sendButtonScale: CGFloat = 1.0
     @FocusState private var isFocused: Bool
 
     private var proAccess: ProAccessManager { .shared }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Color.fdBackground
-                .ignoresSafeArea()
+        ZStack {
+            Color.fdBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 navBar
@@ -203,7 +203,7 @@ struct AIAssistantView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Messages
+    // MARK: - Messages List
 
     private var messagesList: some View {
         ScrollViewReader { proxy in
@@ -222,22 +222,28 @@ struct AIAssistantView: View {
                             .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                 }
-                .padding(.top, 12)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .onChange(of: aiService.messages.count) {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                    proxy.scrollTo(aiService.messages.last?.id, anchor: .bottom)
+                .padding(.vertical, 12)
+                .onChange(of: aiService.messages.count) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                        proxy.scrollTo(aiService.messages.last?.id, anchor: .bottom)
+                    }
                 }
-            }
-            .onChange(of: aiService.isTyping) {
-                if aiService.isTyping {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        proxy.scrollTo("typing", anchor: .bottom)
+                .onChange(of: aiService.isTyping) {
+                    if aiService.isTyping {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            proxy.scrollTo("typing", anchor: .bottom)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private func shouldShowTimestamp(before index: Int) -> Bool {
+        let messages = aiService.messages
+        guard index > 0 else { return false }
+        let gap = messages[index].timestamp.timeIntervalSince(messages[index - 1].timestamp)
+        return gap > 300  // 5 minutes
     }
 
     // MARK: - Quick Suggestions
@@ -276,6 +282,26 @@ struct AIAssistantView: View {
 
     private var inputBar: some View {
         HStack(spacing: 10) {
+            // Mic button
+            Button(action: {
+                Haptics.tap()
+                showVoiceInput = true
+            }) {
+                Image(systemName: "mic.fill")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color.fdTextMuted)
+                    .frame(width: 36, height: 36)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(isFocused ? Color.fdAccent.opacity(0.4) : Color.fdBorder, lineWidth: 1)
+            )
+
+            // Text field
             HStack(spacing: 8) {
                 TextField("Message Flow AI...", text: $inputText, axis: .vertical)
                     .font(.fdBody)

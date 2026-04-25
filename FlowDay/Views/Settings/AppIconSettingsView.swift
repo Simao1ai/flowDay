@@ -7,8 +7,7 @@ struct AppIconSettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     currentIconPreview
 
@@ -21,10 +20,10 @@ struct AppIconSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("App Icon")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 
     private var currentIconPreview: some View {

@@ -17,8 +17,7 @@ struct EmailConnectionsView: View {
     @State private var providerToDisconnect: EmailProvider? = nil
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 24) {
                     if !emailService.connectedAccounts.isEmpty {
                         connectedSection
@@ -45,6 +44,7 @@ struct EmailConnectionsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Email Connections")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     FDSettingsUI.backButton { dismiss() }
@@ -70,7 +70,6 @@ struct EmailConnectionsView: View {
                     Text("Disconnect \(provider.displayName)? FlowDay will no longer scan this inbox.")
                 }
             }
-        }
     }
 
     // MARK: - Connected Section

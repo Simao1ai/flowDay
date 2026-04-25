@@ -7,8 +7,7 @@ struct HelpFeedbackView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.sectionHeader("Help")
 
@@ -43,9 +42,9 @@ struct HelpFeedbackView: View {
             .background(Color.fdBackground)
             .navigationTitle("Help & Feedback")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 }

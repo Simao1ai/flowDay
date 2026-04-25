@@ -23,24 +23,13 @@ struct WhatsNewView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    hero
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                hero
 
-                    ForEach(Self.releases) { release in
-                        releaseSection(release)
-                    }
+                ForEach(Self.releases) { release in
+                    releaseSection(release)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 40)
-            }
-            .background(Color.fdBackground)
-            .navigationTitle("What's New")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
             .onDisappear {
                 lastSeenVersion = Self.currentVersion

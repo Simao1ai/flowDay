@@ -11,8 +11,7 @@ struct NotificationsSettingsView: View {
     @State private var summaryTime = "8:00 AM"
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 20) {
                     FDSettingsUI.group {
                         FDSettingsUI.toggleRow(title: "Task reminders", isOn: $taskReminders, subtitle: "Get notified when it's time for your tasks.")
@@ -33,9 +32,9 @@ struct NotificationsSettingsView: View {
             .background(Color.fdBackground)
             .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
             }
-        }
     }
 }
