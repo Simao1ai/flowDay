@@ -23,6 +23,7 @@
 		19F976F46A6611AFDC558690 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA8F738830068A9E08CC017 /* SettingsView.swift */; };
 		1B0093CA5E3F9B0112B58CE4 /* FiltersLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */; };
 		262CA5D83F2C1A1AE5357B3F /* PremiumTemplateLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78D68ABD24064E3390562C13 /* PremiumTemplateLibrary.swift */; };
+		299597C34C8BCD85923FF33D /* EmailToTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */; };
 		2BCC3540C1EB21EFC548A3A0 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B08F3B8A16DBF67A1CAEEF8E /* Supabase */; };
 		2F55C57EF3EC387011D12448 /* Config.example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B68BCECA4C17744B50DCB1 /* Config.example.swift */; };
 		2FE3898598E1C4AD0A9C141E /* EnergyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0B0C59D5F1C0B19F5A4214 /* EnergyCheckInView.swift */; };
@@ -36,6 +37,8 @@
 		42F0D0A2A616D9A430408BB7 /* EmailConnectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36ED8864514B69F2FC36225A /* EmailConnectionsView.swift */; };
 		43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */; };
 		4997BF59F8C695A78ACED349 /* FlowDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB30FD57446B6F1BCE2BE4BB /* FlowDayTests.swift */; };
+		538C5F57F4A3A8068CCCB46B /* ProAccessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B856188409BFA241F23CDA3 /* ProAccessManager.swift */; };
+		5397FE5EA30D22E42A175D39 /* EmailScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */; };
 		55E7D73868AD33463CB6D7D1 /* FDHabitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8611F4CC15EA89EBA4F28F36 /* FDHabitLog.swift */; };
 		56B93DF50149F295605031D1 /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD333AD25605BD8B8E54EAE6 /* InboxView.swift */; };
 		57AE1C086204F63F5F4FC0A9 /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F008DEB941D1A8118ACEF5 /* BrowseView.swift */; };
@@ -50,6 +53,7 @@
 		6A6243E0BC826F0389B0CC18 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872AEC15262B07A765A6C35 /* LoginView.swift */; };
 		6E20A64C649A828779D8B0BF /* TemplatesView+Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E2CE0AA7AF472F473D76225 /* TemplatesView+Types.swift */; };
 		71A7EB7440DB4E4A67E8D8BA /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D7FF7796A58A11BBB253D9 /* NotificationsSettingsView.swift */; };
+		76A4B056A37CE64B3DD7D7A5 /* FocusTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7A03BABCF188C18119B6FA /* FocusTimerView.swift */; };
 		77CF5690E856BBCFCBDA8A85 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9F04052000CEA28E02EB2CAC /* PrivacyInfo.xcprivacy */; };
 		79FA2522FD76BC844D65AAC6 /* FDColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E268BBA2B4BDFA577D911DBB /* FDColors.swift */; };
 		7C2FC401CC85E6CA06335EE6 /* QuickAddSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76B20EC3B5FEA13FA22D91 /* QuickAddSettingsView.swift */; };
@@ -62,6 +66,7 @@
 		87C9D221485C21DEF316AA5B /* AISettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28565CEC2E21D38E34445F9 /* AISettingsView.swift */; };
 		894907FCFD008CA7334869AF /* CalendarSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D64692D089723E18917C605 /* CalendarSettingsView.swift */; };
 		895ED5B567D0B4D507AA9A45 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E70BFA1A8B865E3817E217F /* APIClient.swift */; };
+		89E728175D8F0BBEB020D274 /* FocusTimerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */; };
 		8DAB35EBE7482B12327E084C /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5E321CAB6CB38B8ED505F9 /* EmptyStateView.swift */; };
 		8E72B1599532DFC11C3D986B /* SmartFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1546F8784C5B2543C30C3F3C /* SmartFilter.swift */; };
 		8E9C03A34EEEB5679B480355 /* FlowDayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7EEC40BECD97B2C7602AED8 /* FlowDayApp.swift */; };
@@ -79,6 +84,7 @@
 		AB6F62B7FB7CEA0B6ADB8B91 /* ProductivitySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9522F70D249E2B244CCDC4 /* ProductivitySettingsView.swift */; };
 		AC19468A11BDAA74DC5B2EA7 /* SyncStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CE708D08462883A361AD3AC /* SyncStatusService.swift */; };
 		AF3C52C2A2CD65BA33796DA2 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBF2554508C741F03B647A8 /* TemplatesView.swift */; };
+		B5E9B8C87DEC188C216CA449 /* ProUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */; };
 		B71AEBA82CA4BE69C63DF577 /* HelpFeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7772398B98B06B035C5D4FD3 /* HelpFeedbackView.swift */; };
 		B74C0F8DA464DCADB2CE28B1 /* VoiceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8EEF10FA367C549C514A5D /* VoiceInputView.swift */; };
 		BD911FFE12869FB49165F337 /* ShareOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4452CF0119BA12259C5E2 /* ShareOptionsView.swift */; };
@@ -98,6 +104,7 @@
 		DEA4D73FBBBF502D6FF0A727 /* RambleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F144B101103A1D82E41FAE6E /* RambleService.swift */; };
 		DFF1C3F0A1E3F83E7BC097C4 /* DisplaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23E470EA3E8742C052A11AC /* DisplaySettingsView.swift */; };
 		E134EA27DC3D03BE983104D6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1033D2A7D35A2D38D03F7B8 /* AboutView.swift */; };
+		E18DB3354A20C5CAEBA28DF0 /* FocusTimerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D858DE45618BA76263E52860 /* FocusTimerSettingsView.swift */; };
 		E1CB01764316CC8D96A0EEF8 /* AIAssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 747E466F789997C7FB15921E /* AIAssistantView.swift */; };
 		E6B10A1836376603852143D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F83874065E316092DFEF13C /* Assets.xcassets */; };
 		E75E735682871D68CB604C6E /* FDProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826008D550CA1C6F77B46879 /* FDProject.swift */; };
@@ -105,6 +112,7 @@
 		EDFEF25A4D59CFC78EA2B1E6 /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1A11409E6C4ED5BFF8AE38 /* SettingsComponents.swift */; };
 		EE3637C609A501309DC57F6A /* FlowDayIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5993F5F951E36759680EC49F /* FlowDayIntents.swift */; };
 		EE41F340FCEE1A8FA518A4FD /* TemplatesView+Apply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5EE94384539DC80984AE32 /* TemplatesView+Apply.swift */; };
+		EEB1DA92ACE4F93FCECF9994 /* EmailTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */; };
 		EF373939578A86F79B86D3D9 /* CalendarAccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A5A3B83425FB4E19A91853 /* CalendarAccountManager.swift */; };
 		EF8F4BA6A41618EABD4331C1 /* TaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC75416260F4F46D134B57E5 /* TaskService.swift */; };
 		F23683E20E9EF9A25E53092F /* FDEnergyLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810D6EF5D3309E6364835BA3 /* FDEnergyLog.swift */; };
@@ -138,7 +146,9 @@
 		1E2CE0AA7AF472F473D76225 /* TemplatesView+Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Types.swift"; sourceTree = "<group>"; };
 		1F839D1FDC42EFCFED9013A9 /* DayRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayRecapView.swift; sourceTree = "<group>"; };
 		27D7FF7796A58A11BBB253D9 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		2B856188409BFA241F23CDA3 /* ProAccessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProAccessManager.swift; sourceTree = "<group>"; };
 		2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineItem.swift; sourceTree = "<group>"; };
+		2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailTasksView.swift; sourceTree = "<group>"; };
 		33782DE01ADE80B93783E8ED /* UpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingView.swift; sourceTree = "<group>"; };
 		349871E5E735E7E6956A3E44 /* HabitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsView.swift; sourceTree = "<group>"; };
 		34DDA05B7846331F0E38F4D1 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
@@ -154,9 +164,11 @@
 		4BF8CCA66A4D19B3D5E3C664 /* GamificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamificationService.swift; sourceTree = "<group>"; };
 		4D1A11409E6C4ED5BFF8AE38 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		4D44C1066F0967D360746BC9 /* SmartFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFilterView.swift; sourceTree = "<group>"; };
+		4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProUpgradeView.swift; sourceTree = "<group>"; };
 		4F83874065E316092DFEF13C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		555FE98C0BCCC90E9BB5D555 /* FDFocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDFocusSession.swift; sourceTree = "<group>"; };
 		5993F5F951E36759680EC49F /* FlowDayIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayIntents.swift; sourceTree = "<group>"; };
+		64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerService.swift; sourceTree = "<group>"; };
 		6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersLabelsView.swift; sourceTree = "<group>"; };
 		747E466F789997C7FB15921E /* AIAssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantView.swift; sourceTree = "<group>"; };
 		74D3C79A7354614DE729FF0C /* PremiumTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumTemplate.swift; sourceTree = "<group>"; };
@@ -167,6 +179,7 @@
 		78D68ABD24064E3390562C13 /* PremiumTemplateLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumTemplateLibrary.swift; sourceTree = "<group>"; };
 		7D6BCA0E9C5F5A91653096BC /* AIPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPlanView.swift; sourceTree = "<group>"; };
 		7EC6BE9A83D10777772185D6 /* FDSubtask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDSubtask.swift; sourceTree = "<group>"; };
+		7F7A03BABCF188C18119B6FA /* FocusTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerView.swift; sourceTree = "<group>"; };
 		810D6EF5D3309E6364835BA3 /* FDEnergyLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDEnergyLog.swift; sourceTree = "<group>"; };
 		826008D550CA1C6F77B46879 /* FDProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDProject.swift; sourceTree = "<group>"; };
 		8295231C78A19E0C1B96F202 /* TemplatesView+AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+AI.swift"; sourceTree = "<group>"; };
@@ -176,6 +189,7 @@
 		8A9522F70D249E2B244CCDC4 /* ProductivitySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivitySettingsView.swift; sourceTree = "<group>"; };
 		8AC5D6781D03AA4663A8E234 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		8BA8F738830068A9E08CC017 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailScanService.swift; sourceTree = "<group>"; };
 		8DE1FCBFBFDA7702CC921153 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		8E70BFA1A8B865E3817E217F /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		923A368C2D6865D5D9449BF4 /* AIAssistantService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantService.swift; sourceTree = "<group>"; };
@@ -192,6 +206,7 @@
 		A1033D2A7D35A2D38D03F7B8 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		A274440580CC7FC4EA146EDC /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		A275A13EF05C7458890ABB45 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
+		A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailToTaskView.swift; sourceTree = "<group>"; };
 		A6C71E0B82691E599D0ECDC0 /* AIFeatureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIFeatureService.swift; sourceTree = "<group>"; };
 		AB64EC93FF8869FBB45D0E27 /* TemplatesView+Catalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Catalog.swift"; sourceTree = "<group>"; };
 		AE1783BA1CC1A644D02B11B5 /* TaskAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttachment.swift; sourceTree = "<group>"; };
@@ -210,6 +225,7 @@
 		D5B551E2F084F85C057E976F /* WeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekView.swift; sourceTree = "<group>"; };
 		D6B413A1C2809CB385CDFEBE /* FDTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDTypography.swift; sourceTree = "<group>"; };
 		D7EEC40BECD97B2C7602AED8 /* FlowDayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayApp.swift; sourceTree = "<group>"; };
+		D858DE45618BA76263E52860 /* FocusTimerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerSettingsView.swift; sourceTree = "<group>"; };
 		D872AEC15262B07A765A6C35 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		D8F008DEB941D1A8118ACEF5 /* BrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseView.swift; sourceTree = "<group>"; };
 		D99EFB9954757FC822EBBBA8 /* EnergyCheckInSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCheckInSettingsView.swift; sourceTree = "<group>"; };
@@ -282,8 +298,11 @@
 				FA6C826987AB784877C47F99 /* DailyBriefView.swift */,
 				1F839D1FDC42EFCFED9013A9 /* DayRecapView.swift */,
 				E23E470EA3E8742C052A11AC /* DisplaySettingsView.swift */,
+				2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */,
 				CD0B0C59D5F1C0B19F5A4214 /* EnergyCheckInView.swift */,
 				6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */,
+				D858DE45618BA76263E52860 /* FocusTimerSettingsView.swift */,
+				7F7A03BABCF188C18119B6FA /* FocusTimerView.swift */,
 				349871E5E735E7E6956A3E44 /* HabitsView.swift */,
 				FD333AD25605BD8B8E54EAE6 /* InboxView.swift */,
 				D872AEC15262B07A765A6C35 /* LoginView.swift */,
@@ -291,6 +310,7 @@
 				A274440580CC7FC4EA146EDC /* PaywallView.swift */,
 				396E07FC129FC4BBA47962C5 /* ProjectDetailView.swift */,
 				113C51F5BE4538F1EAD49D2A /* ProjectSidebarView.swift */,
+				4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */,
 				114338B1B6074CF41630BE61 /* RootView.swift */,
 				9A21CAEC560658F5F9A4ACBD /* SearchView.swift */,
 				8BA8F738830068A9E08CC017 /* SettingsView.swift */,
@@ -353,11 +373,14 @@
 				B905D2AF8A118E82134C797B /* DayRecapService.swift */,
 				9A966C8CFA83808082D58646 /* EmailAccountService.swift */,
 				3B4C41E5427F8CB890E0467E /* EmailFetchService.swift */,
+				8D6CB51966AD1F54A01F3ECE /* EmailScanService.swift */,
 				5993F5F951E36759680EC49F /* FlowDayIntents.swift */,
+				64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */,
 				4BF8CCA66A4D19B3D5E3C664 /* GamificationService.swift */,
 				D535692B2B5074D08CD5421F /* KeychainHelper.swift */,
 				A275A13EF05C7458890ABB45 /* LLMService.swift */,
 				E3D336E445FCD67246A5AE09 /* NaturalLanguageParser.swift */,
+				2B856188409BFA241F23CDA3 /* ProAccessManager.swift */,
 				F144B101103A1D82E41FAE6E /* RambleService.swift */,
 				A0921538F27AD6AEDA566ADD /* SelectionState.swift */,
 				34DDA05B7846331F0E38F4D1 /* SpeechRecognizer.swift */,
@@ -460,6 +483,7 @@
 				C7E29BC0CD5171D38B783F34 /* AppIconSettingsView.swift */,
 				1D64692D089723E18917C605 /* CalendarSettingsView.swift */,
 				36ED8864514B69F2FC36225A /* EmailConnectionsView.swift */,
+				A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */,
 				D99EFB9954757FC822EBBBA8 /* EnergyCheckInSettingsView.swift */,
 				77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */,
 				7772398B98B06B035C5D4FD3 /* HelpFeedbackView.swift */,
@@ -625,6 +649,9 @@
 				A1D4C46892DBA437372888FD /* EmailAccountService.swift in Sources */,
 				42F0D0A2A616D9A430408BB7 /* EmailConnectionsView.swift in Sources */,
 				6441BD345CFF78905EC19FE7 /* EmailFetchService.swift in Sources */,
+				5397FE5EA30D22E42A175D39 /* EmailScanService.swift in Sources */,
+				EEB1DA92ACE4F93FCECF9994 /* EmailTasksView.swift in Sources */,
+				299597C34C8BCD85923FF33D /* EmailToTaskView.swift in Sources */,
 				8DAB35EBE7482B12327E084C /* EmptyStateView.swift in Sources */,
 				6784C0D397775A5EA7A3B952 /* EnergyCheckInSettingsView.swift in Sources */,
 				2FE3898598E1C4AD0A9C141E /* EnergyCheckInView.swift in Sources */,
@@ -640,6 +667,9 @@
 				1B0093CA5E3F9B0112B58CE4 /* FiltersLabelsView.swift in Sources */,
 				8E9C03A34EEEB5679B480355 /* FlowDayApp.swift in Sources */,
 				EE3637C609A501309DC57F6A /* FlowDayIntents.swift in Sources */,
+				89E728175D8F0BBEB020D274 /* FocusTimerService.swift in Sources */,
+				E18DB3354A20C5CAEBA28DF0 /* FocusTimerSettingsView.swift in Sources */,
+				76A4B056A37CE64B3DD7D7A5 /* FocusTimerView.swift in Sources */,
 				A639B3853F21557866A46214 /* GamificationService.swift in Sources */,
 				43929F2FCEA12C38EE649637 /* GeneralSettingsView.swift in Sources */,
 				D976BE14C8E31C843BBCDAA6 /* HabitsView.swift in Sources */,
@@ -656,6 +686,8 @@
 				D9360CF866C9D4E6370BB5B6 /* PaywallView.swift in Sources */,
 				C392C07DD5084676A716D8BB /* PremiumTemplate.swift in Sources */,
 				262CA5D83F2C1A1AE5357B3F /* PremiumTemplateLibrary.swift in Sources */,
+				538C5F57F4A3A8068CCCB46B /* ProAccessManager.swift in Sources */,
+				B5E9B8C87DEC188C216CA449 /* ProUpgradeView.swift in Sources */,
 				59604D4F0D5657F796CB2AE1 /* ProductivityScoreView.swift in Sources */,
 				AB6F62B7FB7CEA0B6ADB8B91 /* ProductivitySettingsView.swift in Sources */,
 				060B65A87A107DFC89D85F19 /* ProjectDetailView.swift in Sources */,

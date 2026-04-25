@@ -229,14 +229,13 @@ struct TodayView: View {
                 DayRecapView()
                     .environment(appState)
             }
-<<<<<<< HEAD
             .sheet(isPresented: $showFocusTimer) {
                 FocusTimerView(prelinkedTaskID: focusTimerPrelinkedTask)
                     .environment(timerService)
             }
             .sheet(isPresented: $showProUpgrade) {
                 ProUpgradeView(highlightedFeature: proUpgradeFeature)
-=======
+            }
             .sheet(isPresented: $showProductivityScore) {
                 ProductivityScoreView()
             }
@@ -248,12 +247,10 @@ struct TodayView: View {
                         streak: gamification.currentStreak
                     )
                 }
->>>>>>> 1a389ee (Wave 5a: Smart Daily Brief + Gamification System)
             }
         }
     }
 
-<<<<<<< HEAD
     private func requirePro(_ feature: ProFeature, then action: () -> Void) {
         if proAccess.isFeatureAvailable(feature) {
             action()
@@ -261,7 +258,9 @@ struct TodayView: View {
             proUpgradeFeature = feature
             showProUpgrade = true
             Haptics.warning()
-=======
+        }
+    }
+
     // MARK: - Daily Brief
 
     private var showDailyBrief: Bool {
@@ -280,7 +279,6 @@ struct TodayView: View {
                     briefDismissedDate = Date.now.timeIntervalSince1970
                 }
             }
->>>>>>> 1a389ee (Wave 5a: Smart Daily Brief + Gamification System)
         }
     }
 
