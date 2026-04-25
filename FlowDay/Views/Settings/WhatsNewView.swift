@@ -9,6 +9,18 @@ import SwiftUI
 
 struct WhatsNewView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("lastSeenAppVersion") private var lastSeenVersion: String = ""
+
+    /// The current app version from the bundle
+    static var currentVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+
+    /// Whether the user hasn't seen the current version yet
+    static var hasUnseenUpdate: Bool {
+        let last = UserDefaults.standard.string(forKey: "lastSeenAppVersion") ?? ""
+        return last != currentVersion
+    }
 
     var body: some View {
         NavigationStack {
@@ -29,6 +41,9 @@ struct WhatsNewView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { FDSettingsUI.backButton { dismiss() } }
+            }
+            .onDisappear {
+                lastSeenVersion = Self.currentVersion
             }
         }
     }
@@ -139,17 +154,34 @@ extension WhatsNewView {
 
     static let releases: [Release] = [
         .init(
-            version: "1.2.0", date: "Apr 2026", isLatest: true,
+            version: "1.3.0", date: "Apr 2026", isLatest: true,
             entries: [
+                .init(icon: "text.bubble", tint: .fdAccent,
+                      title: "Natural Language Commands",
+                      detail: "Tell Flow AI to reschedule, complete, delete, or reprioritize tasks using plain English."),
+                .init(icon: "sparkles", tint: .fdPurple,
+                      title: "Modernized Flow AI Chat",
+                      detail: "Redesigned chat with frosted input bar, animated typing indicator, and markdown rendering."),
+                .init(icon: "chart.line.uptrend.xyaxis", tint: .fdGreen,
+                      title: "Focus Score",
+                      detail: "A daily 0-100 score combining tasks, focus time, habits, and energy alignment. Track your 30-day trend."),
+                .init(icon: "calendar.badge.clock", tint: .fdBlue,
+                      title: "AI Auto-Schedule",
+                      detail: "One tap to have AI build your optimal weekly schedule around energy levels and calendar events.")
+            ]
+        ),
+        .init(
+            version: "1.2.0", date: "Apr 2026", isLatest: false,
+            entries: [
+                .init(icon: "sun.max.fill", tint: .fdYellow,
+                      title: "Daily Brief",
+                      detail: "A morning AI briefing card at the top of Today — your priorities, energy tip, and schedule at a glance."),
+                .init(icon: "star.circle.fill", tint: .fdAccent,
+                      title: "Gamification & XP",
+                      detail: "Earn XP for tasks, habits, and focus sessions. Level up, maintain streaks, and unlock 9 achievement badges."),
                 .init(icon: "waveform", tint: .fdAccent,
                       title: "Ramble — dictate multiple tasks at once",
-                      detail: "Speak a stream of tasks; FlowDay parses each one with dates, projects, priority, duration, and labels. Free."),
-                .init(icon: "checklist", tint: .fdBlue,
-                      title: "Multi-select",
-                      detail: "Long-press any task to enter selection mode. Complete, reschedule, or delete in batches."),
-                .init(icon: "leaf.fill", tint: .fdGreen,
-                      title: "Energy-aware empty states",
-                      detail: "When your day is clear, FlowDay tailors the suggestion to your logged energy level."),
+                      detail: "Speak a stream of tasks; FlowDay parses each one with dates, projects, priority, duration, and labels."),
                 .init(icon: "checkmark.icloud.fill", tint: .fdGreen,
                       title: "Sync transparency",
                       detail: "An explicit timestamp in Settings tells you exactly when your data last reached the cloud.")
@@ -164,9 +196,9 @@ extension WhatsNewView {
                 .init(icon: "line.3.horizontal.decrease.circle", tint: .fdBlue,
                       title: "Smart filters",
                       detail: "Today, Overdue, This Week, No Date, Priority 1, and more — surfaced from Browse."),
-                .init(icon: "ipad", tint: .fdPurple,
-                      title: "iPad & landscape support",
-                      detail: "FlowDay now rotates and runs in Slide Over / Split View on iPad."),
+                .init(icon: "timer", tint: .fdAccent,
+                      title: "Focus Timer",
+                      detail: "Built-in Pomodoro timer with customizable work/break intervals, background support, and session tracking."),
                 .init(icon: "mic.fill", tint: .fdYellow,
                       title: "Siri Shortcuts",
                       detail: "Say \"Add a task to FlowDay\" or \"How many FlowDay tasks do I have left\" from anywhere.")

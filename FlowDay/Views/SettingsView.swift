@@ -15,30 +15,17 @@ struct SettingsView: View {
     @Environment(EmailAccountService.self) private var emailAccountService
 
     private var proAccess: ProAccessManager { .shared }
-    @State private var showProUpgrade = false
-    @State private var showAccount = false
-    @State private var showGeneral = false
-    @State private var showSubscription = false
-    @State private var showCalendar = false
-    @State private var showEmailConnections = false
-    @State private var showTheme = false
-    @State private var showAppIcon = false
-    @State private var showNavigation = false
-    @State private var showQuickAdd = false
-    @State private var showProductivity = false
-    @State private var showAchievements = false
-    @State private var showReminders = false
-    @State private var showNotifications = false
-    @State private var showAIScheduling = false
-    @State private var showEnergyCheckIn = false
-    @State private var showAISettings = false
-    @State private var showFocusTimerSettings = false
-    @State private var showDayRecap = false
-    @State private var showWeeklyReport = false
-    @State private var showHelp = false
-    @State private var showAbout = false
-    @State private var showWhatsNew = false
+    @State private var activeSheet: SettingsSheet?
     @State private var syncStatus = SyncStatusService.shared
+
+    enum SettingsSheet: String, Identifiable {
+        case proUpgrade, account, general, subscription, calendar
+        case emailConnections, theme, appIcon, navigation, quickAdd
+        case productivity, achievements, reminders, notifications
+        case aiScheduling, energyCheckIn, aiSettings, focusTimer
+        case dayRecap, weeklyReport, help, about, whatsNew
+        var id: String { rawValue }
+    }
 
     var body: some View {
         NavigationStack {
@@ -71,38 +58,40 @@ struct SettingsView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showAccount) { AccountSettingsView() }
-            .sheet(isPresented: $showGeneral) { GeneralSettingsView() }
-            .sheet(isPresented: $showSubscription) { SubscriptionSettingsView() }
-            .sheet(isPresented: $showCalendar) { CalendarSettingsView() }
-            .sheet(isPresented: $showEmailConnections) {
-                EmailConnectionsView()
-                    .environment(emailAccountService)
+            .sheet(item: $activeSheet) { sheet in
+                sheetContent(for: sheet)
             }
-            .sheet(isPresented: $showTheme) { ThemeSettingsView() }
-            .sheet(isPresented: $showAppIcon) { AppIconSettingsView() }
-            .sheet(isPresented: $showNavigation) { NavigationSettingsView() }
-            .sheet(isPresented: $showQuickAdd) { QuickAddSettingsView() }
-            .sheet(isPresented: $showProductivity) { ProductivitySettingsView() }
-            .sheet(isPresented: $showAchievements) { ProductivityScoreView() }
-            .sheet(isPresented: $showReminders) { RemindersSettingsView() }
-            .sheet(isPresented: $showNotifications) { NotificationsSettingsView() }
-            .sheet(isPresented: $showAIScheduling) { AISchedulingSettingsView() }
-            .sheet(isPresented: $showEnergyCheckIn) { EnergyCheckInSettingsView() }
-            .sheet(isPresented: $showAISettings) { AISettingsView() }
-            .sheet(isPresented: $showFocusTimerSettings) { FocusTimerSettingsView() }
-            .sheet(isPresented: $showDayRecap) {
-                DayRecapView()
-                    .environment(appState)
-            }
-            .sheet(isPresented: $showWeeklyReport) {
-                WeeklyReportView()
-                    .environment(appState)
-            }
-            .sheet(isPresented: $showHelp) { HelpFeedbackView() }
-            .sheet(isPresented: $showAbout) { AboutView() }
-            .sheet(isPresented: $showWhatsNew) { WhatsNewView() }
-            .sheet(isPresented: $showProUpgrade) { ProUpgradeView() }
+        }
+    }
+
+    // MARK: - Sheet Router
+
+    @ViewBuilder
+    private func sheetContent(for sheet: SettingsSheet) -> some View {
+        switch sheet {
+        case .proUpgrade:       ProUpgradeView()
+        case .account:          AccountSettingsView()
+        case .general:          GeneralSettingsView()
+        case .subscription:     SubscriptionSettingsView()
+        case .calendar:         CalendarSettingsView()
+        case .emailConnections: EmailConnectionsView().environment(emailAccountService)
+        case .theme:            ThemeSettingsView()
+        case .appIcon:          AppIconSettingsView()
+        case .navigation:       NavigationSettingsView()
+        case .quickAdd:         QuickAddSettingsView()
+        case .productivity:     ProductivitySettingsView()
+        case .achievements:     ProductivityScoreView()
+        case .reminders:        RemindersSettingsView()
+        case .notifications:    NotificationsSettingsView()
+        case .aiScheduling:     AISchedulingSettingsView()
+        case .energyCheckIn:    EnergyCheckInSettingsView()
+        case .aiSettings:       AISettingsView()
+        case .focusTimer:       FocusTimerSettingsView()
+        case .dayRecap:         DayRecapView().environment(appState)
+        case .weeklyReport:     WeeklyReportView().environment(appState)
+        case .help:             HelpFeedbackView()
+        case .about:            AboutView()
+        case .whatsNew:         WhatsNewView()
         }
     }
 
@@ -146,7 +135,7 @@ struct SettingsView: View {
             )
         } else {
             return AnyView(
-                Button { showProUpgrade = true } label: {
+                Button { activeSheet = .proUpgrade } label: {
                     HStack(spacing: 14) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
@@ -194,13 +183,13 @@ struct SettingsView: View {
 
     private var accountSection: some View {
         VStack(spacing: 0) {
-            settingsRow(icon: "person.circle", title: "Account", color: .fdAccent) { showAccount = true }
+            settingsRow(icon: "person.circle", title: "Account", color: .fdAccent) { activeSheet = .account }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "gearshape", title: "General", color: .fdTextSecondary) { showGeneral = true }
+            settingsRow(icon: "gearshape", title: "General", color: .fdTextSecondary) { activeSheet = .general }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "creditcard", title: "Subscription", subtitle: "Free Plan", color: .fdGreen) { showSubscription = true }
+            settingsRow(icon: "creditcard", title: "Subscription", subtitle: "Free Plan", color: .fdGreen) { activeSheet = .subscription }
             Divider().padding(.leading, 52)
-            settingsRow(icon: "calendar", title: "Calendar", color: .fdBlue) { showCalendar = true }
+            settingsRow(icon: "calendar", title: "Calendar", color: .fdBlue) { activeSheet = .calendar }
         }
         .background(Color.fdSurface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -223,7 +212,7 @@ struct SettingsView: View {
                     title: "Email Connections",
                     subtitle: emailConnectedSubtitle,
                     color: Color(hex: "EA4335")
-                ) { showEmailConnections = true }
+                ) { activeSheet = .emailConnections }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -248,13 +237,13 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(icon: "paintpalette", title: "Theme", subtitle: "Warm Notion", color: .fdAccent) { showTheme = true }
+                settingsRow(icon: "paintpalette", title: "Theme", subtitle: "Warm Notion", color: .fdAccent) { activeSheet = .theme }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "app.badge", title: "App Icon", subtitle: "FlowDay", color: .fdPurple) { showAppIcon = true }
+                settingsRow(icon: "app.badge", title: "App Icon", subtitle: "FlowDay", color: .fdPurple) { activeSheet = .appIcon }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "list.bullet.indent", title: "Navigation", color: .fdBlue) { showNavigation = true }
+                settingsRow(icon: "list.bullet.indent", title: "Navigation", color: .fdBlue) { activeSheet = .navigation }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "plus.circle", title: "Quick Add", color: .fdGreen) { showQuickAdd = true }
+                settingsRow(icon: "plus.circle", title: "Quick Add", color: .fdGreen) { activeSheet = .quickAdd }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -273,25 +262,25 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(icon: "chart.line.uptrend.xyaxis", title: "Productivity", color: .fdAccent) { showProductivity = true }
+                settingsRow(icon: "chart.line.uptrend.xyaxis", title: "Productivity", color: .fdAccent) { activeSheet = .productivity }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "star.circle.fill", title: "Achievements", subtitle: "Level \(GamificationService.shared.level)", color: .fdYellow) { showAchievements = true }
+                settingsRow(icon: "star.circle.fill", title: "Achievements", subtitle: "Level \(GamificationService.shared.level)", color: .fdYellow) { activeSheet = .achievements }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "bell", title: "Reminders", color: .fdYellow) { showReminders = true }
+                settingsRow(icon: "bell", title: "Reminders", color: .fdYellow) { activeSheet = .reminders }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "bell.badge", title: "Notifications", color: .fdRed) { showNotifications = true }
+                settingsRow(icon: "bell.badge", title: "Notifications", color: .fdRed) { activeSheet = .notifications }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "sparkles", title: "AI Scheduling", subtitle: "On", color: .fdAccent) { showAIScheduling = true }
+                settingsRow(icon: "sparkles", title: "AI Scheduling", subtitle: "On", color: .fdAccent) { activeSheet = .aiScheduling }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "bolt.fill", title: "Energy Check-in", subtitle: "Daily", color: .fdYellow) { showEnergyCheckIn = true }
+                settingsRow(icon: "bolt.fill", title: "Energy Check-in", subtitle: "Daily", color: .fdYellow) { activeSheet = .energyCheckIn }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "cpu", title: "AI Settings", color: .fdPurple) { showAISettings = true }
+                settingsRow(icon: "cpu", title: "AI Settings", color: .fdPurple) { activeSheet = .aiSettings }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "moon.stars", title: "Day Recap", subtitle: "AI summary", color: .fdPurple) { showDayRecap = true }
+                settingsRow(icon: "moon.stars", title: "Day Recap", subtitle: "AI summary", color: .fdPurple) { activeSheet = .dayRecap }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "timer", title: "Focus Timer", subtitle: "Pomodoro", color: .fdAccent) { showFocusTimerSettings = true }
+                settingsRow(icon: "timer", title: "Focus Timer", subtitle: "Pomodoro", color: .fdAccent) { activeSheet = .focusTimer }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "chart.bar.fill", title: "Weekly Report", subtitle: "AI summary", color: .fdPurple) { showWeeklyReport = true }
+                settingsRow(icon: "chart.bar.fill", title: "Weekly Report", subtitle: "AI summary", color: .fdPurple) { activeSheet = .weeklyReport }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -310,17 +299,17 @@ struct SettingsView: View {
                 .padding(.leading, 4)
 
             VStack(spacing: 0) {
-                settingsRow(icon: "gift", title: "What's New", color: .fdAccent) { showWhatsNew = true }
+                settingsRow(icon: "gift", title: "What's New", color: .fdAccent) { activeSheet = .whatsNew }
                 Divider().padding(.leading, 52)
                 syncStatusRow
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "questionmark.circle", title: "Help & Feedback", color: .fdBlue) { showHelp = true }
+                settingsRow(icon: "questionmark.circle", title: "Help & Feedback", color: .fdBlue) { activeSheet = .help }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "info.circle", title: "About", color: .fdTextSecondary) { showAbout = true }
+                settingsRow(icon: "info.circle", title: "About", color: .fdTextSecondary) { activeSheet = .about }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "star", title: "Rate FlowDay", color: .fdYellow) { /* Opens App Store review */ }
                 Divider().padding(.leading, 52)
-                infoRow(title: "Version", value: "1.0.0")
+                infoRow(title: "Version", value: WhatsNewView.currentVersion)
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))

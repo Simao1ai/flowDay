@@ -77,6 +77,7 @@ struct AuthenticatedRootView: View {
     @State private var calendarAccountManager = CalendarAccountManager()
     @State private var emailAccountService = EmailAccountService()
     @State private var proAccessManager = ProAccessManager.shared
+    @State private var showWhatsNew = false
 
     var body: some View {
         RootView()
@@ -85,7 +86,18 @@ struct AuthenticatedRootView: View {
             .environment(calendarAccountManager)
             .environment(emailAccountService)
             .environment(proAccessManager)
-            .onAppear { scheduleWeeklyReportNotification() }
+            .onAppear {
+                scheduleWeeklyReportNotification()
+                // Auto-show What's New when app version changes
+                if WhatsNewView.hasUnseenUpdate {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        showWhatsNew = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showWhatsNew) {
+                WhatsNewView()
+            }
     }
 
     private func scheduleWeeklyReportNotification() {

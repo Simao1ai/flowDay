@@ -36,6 +36,26 @@ final class AIAssistantService {
         self.messages = [welcomeMessage]
     }
 
+    // MARK: - Clear Chat
+
+    func clearChat() {
+        messages = [
+            AIMessage(
+                content: "Hi! I'm Flow, your AI productivity assistant. I can plan your day around your energy, create tasks from natural language, break down big goals, and more. What would you like to do?",
+                isUser: false,
+                suggestions: [
+                    AISuggestion(text: "Plan my day", icon: "calendar", action: .planDay),
+                    AISuggestion(text: "Create a task", icon: "plus.circle", action: .createTask(title: "")),
+                    AISuggestion(text: "Break down a goal", icon: "list.bullet.indent", action: .breakdownGoal(goal: "")),
+                    AISuggestion(text: "How am I doing?", icon: "chart.bar", action: .showProductivity)
+                ]
+            )
+        ]
+        isTyping = false
+        showUpgradePrompt = false
+        pendingTaskSuggestion = nil
+    }
+
     // MARK: - Data Queries
 
     // All fetches use plain FetchDescriptor — predicates/sorts crash on iOS 26.x
@@ -151,8 +171,14 @@ final class AIAssistantService {
             response = await handleBreakdownGoal(userMessage)
         } else if lower.contains("create") || lower.contains("add task") || lower.contains("new task") || lower.contains("remind me") {
             response = await handleCreateTask(userMessage: userMessage)
-        } else if lower.contains("complete") || lower.contains("done") || lower.contains("finish") {
+        } else if lower.contains("complete") || lower.contains("done") || lower.contains("finish") || lower.contains("mark") && lower.contains("done") {
             response = await handleCompleteTask(userMessage: userMessage)
+        } else if lower.contains("move") || lower.contains("reschedule") || lower.contains("push") || lower.contains("postpone") {
+            response = await handleRescheduleTask(userMessage: userMessage)
+        } else if lower.contains("delete") || lower.contains("remove") || lower.contains("cancel") {
+            response = await handleDeleteTask(userMessage: userMessage)
+        } else if lower.contains("priority") || lower.contains("urgent") || lower.contains("important") || (lower.contains("make") && lower.contains("p1")) || (lower.contains("make") && lower.contains("p2")) || (lower.contains("make") && lower.contains("p3")) {
+            response = await handleChangePriority(userMessage: userMessage)
         } else if lower.contains("how am i") || lower.contains("productivity") || lower.contains("progress") || lower.contains("stats") {
             response = handleProductivityCheck()
         } else {
@@ -345,6 +371,295 @@ final class AIAssistantService {
         }
     }
 
+    // MARK: - Reschedule Task (Natural Language)
+
+    private func handleRescheduleTask(userMessage: String) async -> AIMessage {
+        let tasks = fetchTodayTasks() + fetchAllPendingTasks()
+        let lower = userMessage.lowercased()
+
+        // Try to find the task mentioned
+        let match = findBestTaskMatch(in: tasks, for: lower)
+
+        guard let task = match else {
+            let taskList = tasks.prefix(8).map { "• \($0.title)" }.joined(separator: "\n")
+            return AIMessage(
+                content: "Which task do you want to reschedule? Here are your active ones:\n\n\(taskList)",
+                isUser: false
+            )
+        }
+
+        // Try to parse the date from the message
+        let newDate = parseNaturalDate(from: userMessage)
+
+        if let newDate {
+            task.scheduledTime = newDate
+            task.modifiedAt = .now
+            try? modelContext?.save()
+            Task { await SupabaseService.shared.syncTask(task) }
+
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            return AIMessage(
+                content: "Done! Moved **\(task.title)** to \(formatter.string(from: newDate)).",
+                isUser: false,
+                suggestions: [
+                    AISuggestion(text: "Plan my day", icon: "calendar", action: .planDay),
+                    AISuggestion(text: "Undo", icon: "arrow.uturn.backward", action: .showProductivity)
+                ]
+            )
+        } else {
+            return AIMessage(
+                content: "I found **\(task.title)** — when would you like to move it to? You can say things like \"tomorrow at 2pm\", \"next Monday\", or \"Friday morning\".",
+                isUser: false
+            )
+        }
+    }
+
+    // MARK: - Delete Task (Natural Language)
+
+    private func handleDeleteTask(userMessage: String) async -> AIMessage {
+        let tasks = fetchTodayTasks() + fetchAllPendingTasks()
+        let lower = userMessage.lowercased()
+
+        let match = findBestTaskMatch(in: tasks, for: lower)
+
+        guard let task = match else {
+            let taskList = tasks.prefix(8).map { "• \($0.title)" }.joined(separator: "\n")
+            return AIMessage(
+                content: "Which task do you want to delete? Here are your active ones:\n\n\(taskList)",
+                isUser: false
+            )
+        }
+
+        return AIMessage(
+            content: "Delete **\(task.title)**? This can be undone.",
+            isUser: false,
+            suggestions: [
+                AISuggestion(text: "Yes, delete it", icon: "trash", action: .deleteTask(id: task.id)),
+                AISuggestion(text: "No, keep it", icon: "xmark", action: .showProductivity)
+            ]
+        )
+    }
+
+    func deleteTask(id: UUID) {
+        guard let context = modelContext else { return }
+        do {
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+            if let task = all.first(where: { $0.id == id }) {
+                task.softDelete()
+                try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
+                messages.append(AIMessage(
+                    content: "Deleted **\(task.title)**. You can undo this from the task list.",
+                    isUser: false,
+                    suggestions: [
+                        AISuggestion(text: "What's next?", icon: "arrow.right", action: .planDay),
+                        AISuggestion(text: "Create a task", icon: "plus.circle", action: .createTask(title: ""))
+                    ]
+                ))
+            }
+        } catch {
+            // Silently fail
+        }
+    }
+
+    // MARK: - Change Priority (Natural Language)
+
+    private func handleChangePriority(userMessage: String) async -> AIMessage {
+        let tasks = fetchTodayTasks() + fetchAllPendingTasks()
+        let lower = userMessage.lowercased()
+
+        let match = findBestTaskMatch(in: tasks, for: lower)
+
+        guard let task = match else {
+            let taskList = tasks.prefix(8).map { "• \($0.title) [P\($0.priority.rawValue)]" }.joined(separator: "\n")
+            return AIMessage(
+                content: "Which task should I change the priority for?\n\n\(taskList)",
+                isUser: false
+            )
+        }
+
+        // Try to parse new priority
+        let newPriority: TaskPriority
+        if lower.contains("p1") || lower.contains("urgent") || lower.contains("highest") {
+            newPriority = .urgent
+        } else if lower.contains("p2") || lower.contains("high") || lower.contains("important") {
+            newPriority = .high
+        } else if lower.contains("p3") || lower.contains("medium") {
+            newPriority = .medium
+        } else if lower.contains("p4") || lower.contains("low") || lower.contains("no priority") {
+            newPriority = .none
+        } else {
+            return AIMessage(
+                content: "What priority should **\(task.title)** be? Choose P1 (urgent), P2 (high), P3 (medium), or P4 (low).",
+                isUser: false,
+                suggestions: [
+                    AISuggestion(text: "P1 Urgent", icon: "flag.fill", action: .setPriority(id: task.id, priority: 1)),
+                    AISuggestion(text: "P2 High", icon: "flag.fill", action: .setPriority(id: task.id, priority: 2)),
+                    AISuggestion(text: "P3 Medium", icon: "flag.fill", action: .setPriority(id: task.id, priority: 3)),
+                    AISuggestion(text: "P4 Low", icon: "flag", action: .setPriority(id: task.id, priority: 4))
+                ]
+            )
+        }
+
+        task.priority = newPriority
+        task.modifiedAt = .now
+        try? modelContext?.save()
+        Task { await SupabaseService.shared.syncTask(task) }
+
+        return AIMessage(
+            content: "Updated **\(task.title)** to priority \(newPriority.label).",
+            isUser: false,
+            suggestions: [
+                AISuggestion(text: "Plan my day", icon: "calendar", action: .planDay),
+                AISuggestion(text: "How am I doing?", icon: "chart.bar", action: .showProductivity)
+            ]
+        )
+    }
+
+    func setPriority(id: UUID, priority: Int) {
+        guard let context = modelContext else { return }
+        do {
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+            if let task = all.first(where: { $0.id == id }) {
+                task.priority = TaskPriority(rawValue: priority) ?? .medium
+                task.modifiedAt = .now
+                try? context.save()
+                Task { await SupabaseService.shared.syncTask(task) }
+                messages.append(AIMessage(
+                    content: "Set **\(task.title)** to \(task.priority.label). Anything else?",
+                    isUser: false
+                ))
+            }
+        } catch { }
+    }
+
+    // MARK: - Natural Language Helpers
+
+    /// Fetch all non-deleted, non-completed tasks (broader than today)
+    private func fetchAllPendingTasks() -> [FDTask] {
+        guard let context = modelContext else { return [] }
+        do {
+            let all = try context.fetch(FetchDescriptor<FDTask>())
+            return all.filter { !$0.isDeleted && !$0.isCompleted }
+                .sorted { ($0.priority.rawValue) > ($1.priority.rawValue) }
+        } catch {
+            return []
+        }
+    }
+
+    /// Find the best matching task by name from the user's message.
+    /// Uses longest-match heuristic: the task whose title has the most
+    /// words present in the user message wins.
+    private func findBestTaskMatch(in tasks: [FDTask], for loweredMessage: String) -> FDTask? {
+        // Remove common command words to avoid false positives
+        let noise = Set(["move", "reschedule", "push", "postpone", "delete", "remove", "cancel",
+                          "complete", "done", "finish", "mark", "make", "set", "change", "update",
+                          "priority", "urgent", "high", "medium", "low", "p1", "p2", "p3", "p4",
+                          "to", "the", "my", "a", "an", "it", "task", "for", "on", "at", "in", "is"])
+
+        var bestMatch: FDTask?
+        var bestScore = 0
+
+        for task in tasks {
+            let titleWords = task.title.lowercased()
+                .components(separatedBy: .alphanumerics.inverted)
+                .filter { !$0.isEmpty && !noise.contains($0) }
+
+            let score = titleWords.filter { loweredMessage.contains($0) }.count
+            if score > bestScore && score >= max(1, titleWords.count / 2) {
+                bestScore = score
+                bestMatch = task
+            }
+        }
+
+        return bestMatch
+    }
+
+    /// Parse a natural date expression from the user's message.
+    /// Handles common patterns like "tomorrow", "next Monday", "Tuesday at 2pm".
+    private func parseNaturalDate(from text: String) -> Date? {
+        let lower = text.lowercased()
+        let cal = Calendar.current
+        let now = Date.now
+
+        // "tomorrow"
+        if lower.contains("tomorrow") {
+            var date = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: now))!
+            date = applyTimeIfMentioned(lower, to: date) ?? cal.date(bySettingHour: 9, minute: 0, second: 0, of: date)!
+            return date
+        }
+
+        // Day of week
+        let weekdays = ["sunday": 1, "monday": 2, "tuesday": 3, "wednesday": 4,
+                         "thursday": 5, "friday": 6, "saturday": 7]
+        for (name, weekday) in weekdays {
+            if lower.contains(name) {
+                let today = cal.component(.weekday, from: now)
+                var daysAhead = weekday - today
+                if daysAhead <= 0 { daysAhead += 7 }
+                if lower.contains("next") { daysAhead += 7 }
+                var date = cal.date(byAdding: .day, value: daysAhead, to: cal.startOfDay(for: now))!
+                date = applyTimeIfMentioned(lower, to: date) ?? cal.date(bySettingHour: 9, minute: 0, second: 0, of: date)!
+                return date
+            }
+        }
+
+        // "today"
+        if lower.contains("today") || lower.contains("this afternoon") || lower.contains("this evening") {
+            let date = cal.startOfDay(for: now)
+            return applyTimeIfMentioned(lower, to: date) ?? cal.date(bySettingHour: 14, minute: 0, second: 0, of: date)
+        }
+
+        // "next week"
+        if lower.contains("next week") {
+            let date = cal.date(byAdding: .weekOfYear, value: 1, to: cal.startOfDay(for: now))!
+            return cal.date(bySettingHour: 9, minute: 0, second: 0, of: date)
+        }
+
+        return nil
+    }
+
+    /// Try to find a time in the text and apply it to a date.
+    private func applyTimeIfMentioned(_ text: String, to date: Date) -> Date? {
+        let cal = Calendar.current
+
+        // "morning"
+        if text.contains("morning") {
+            return cal.date(bySettingHour: 9, minute: 0, second: 0, of: date)
+        }
+        // "afternoon"
+        if text.contains("afternoon") {
+            return cal.date(bySettingHour: 14, minute: 0, second: 0, of: date)
+        }
+        // "evening"
+        if text.contains("evening") {
+            return cal.date(bySettingHour: 18, minute: 0, second: 0, of: date)
+        }
+        // "Xpm" or "Xam"
+        if let range = text.range(of: #"(\d{1,2})\s*(am|pm)"#, options: .regularExpression) {
+            let match = String(text[range])
+            let digits = match.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+            if var hour = Int(digits) {
+                if match.contains("pm") && hour < 12 { hour += 12 }
+                if match.contains("am") && hour == 12 { hour = 0 }
+                return cal.date(bySettingHour: hour, minute: 0, second: 0, of: date)
+            }
+        }
+        // "at X:XX"
+        if let range = text.range(of: #"at\s+(\d{1,2}):(\d{2})"#, options: .regularExpression) {
+            let match = String(text[range])
+            let numbers = match.replacingOccurrences(of: "[^0-9:]", with: "", options: .regularExpression)
+            let parts = numbers.components(separatedBy: ":")
+            if parts.count == 2, let hour = Int(parts[0]), let minute = Int(parts[1]) {
+                return cal.date(bySettingHour: hour, minute: minute, second: 0, of: date)
+            }
+        }
+
+        return nil
+    }
+
     // MARK: - Break Down Goal
 
     private func handleBreakdownGoal(_ userMessage: String) async -> AIMessage {
@@ -477,6 +792,10 @@ final class AIAssistantService {
             confirmPendingTask()
         case .completeTask(let id):
             completeTask(id: id)
+        case .deleteTask(let id):
+            deleteTask(id: id)
+        case .setPriority(let id, let priority):
+            setPriority(id: id, priority: priority)
         case .createTask(let title):
             sendMessage(title.isEmpty ? "Create a task" : "Create a task: \(title)")
         case .planDay:

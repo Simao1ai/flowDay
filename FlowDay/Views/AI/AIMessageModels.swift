@@ -32,4 +32,6 @@ enum AIAction {
     case suggestBreak
     case showProductivity
     case completeTask(id: UUID)
+    case deleteTask(id: UUID)
+    case setPriority(id: UUID, priority: Int)
 }
