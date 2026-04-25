@@ -3,6 +3,7 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @main
 struct FlowDayApp: App {
@@ -84,6 +85,30 @@ struct AuthenticatedRootView: View {
             .environment(calendarAccountManager)
             .environment(emailAccountService)
             .environment(proAccessManager)
+            .onAppear { scheduleWeeklyReportNotification() }
+    }
+
+    private func scheduleWeeklyReportNotification() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            guard granted else { return }
+            let content = UNMutableNotificationContent()
+            content.title = "Your Weekly Report is Ready"
+            content.body = "See how productive you were this week and get AI tips for next week."
+            content.sound = .default
+
+            var components = DateComponents()
+            components.weekday = 1  // Sunday
+            components.hour = 20    // 8 PM
+            components.minute = 0
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+            let request = UNNotificationRequest(
+                identifier: "fd.weeklyReport",
+                content: content,
+                trigger: trigger
+            )
+            center.add(request)
+        }
     }
 }
 

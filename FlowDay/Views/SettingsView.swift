@@ -34,6 +34,7 @@ struct SettingsView: View {
     @State private var showAISettings = false
     @State private var showFocusTimerSettings = false
     @State private var showDayRecap = false
+    @State private var showWeeklyReport = false
     @State private var showHelp = false
     @State private var showAbout = false
     @State private var showWhatsNew = false
@@ -92,6 +93,10 @@ struct SettingsView: View {
             .sheet(isPresented: $showFocusTimerSettings) { FocusTimerSettingsView() }
             .sheet(isPresented: $showDayRecap) {
                 DayRecapView()
+                    .environment(appState)
+            }
+            .sheet(isPresented: $showWeeklyReport) {
+                WeeklyReportView()
                     .environment(appState)
             }
             .sheet(isPresented: $showHelp) { HelpFeedbackView() }
@@ -285,6 +290,8 @@ struct SettingsView: View {
                 settingsRow(icon: "moon.stars", title: "Day Recap", subtitle: "AI summary", color: .fdPurple) { showDayRecap = true }
                 Divider().padding(.leading, 52)
                 settingsRow(icon: "timer", title: "Focus Timer", subtitle: "Pomodoro", color: .fdAccent) { showFocusTimerSettings = true }
+                Divider().padding(.leading, 52)
+                settingsRow(icon: "chart.bar.fill", title: "Weekly Report", subtitle: "AI summary", color: .fdPurple) { showWeeklyReport = true }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
