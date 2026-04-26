@@ -32,6 +32,7 @@ final class FocusTimerService {
     var currentPhaseTotalSeconds: Int = 0
     var completedInCycle: Int = 0   // 0–4; resets after long break
     var linkedTaskID: UUID? = nil
+    var linkedTaskTitle: String? = nil
 
     // Session tracking (observed by FocusTimerView to persist sessions)
     var completedSessionCount: Int = 0
@@ -70,8 +71,9 @@ final class FocusTimerService {
 
     // MARK: - Controls
 
-    func start(linkedTask: UUID? = nil) {
+    func start(linkedTask: UUID? = nil, linkedTaskTitle: String? = nil) {
         linkedTaskID = linkedTask
+        self.linkedTaskTitle = linkedTaskTitle
         beginWorkPhase()
     }
 
@@ -101,6 +103,9 @@ final class FocusTimerService {
         secondsRemaining = 0
         currentPhaseTotalSeconds = 0
         linkedTaskID = nil
+        linkedTaskTitle = nil
+        FocusLiveActivityManager.shared.stop()
+        WidgetDataStore.clearFocusState()
     }
 
     // MARK: - Private Phase Transitions
@@ -112,6 +117,9 @@ final class FocusTimerService {
         phase = .working
         startTicking()
         Haptics.tock()
+        let mins = total / 60
+        FocusLiveActivityManager.shared.start(sessionType: "Focus", durationMinutes: mins, taskTitle: linkedTaskTitle)
+        WidgetDataStore.writeFocusState(WidgetFocusState(sessionType: "Focus", startedAt: .now, durationMinutes: mins, taskTitle: linkedTaskTitle))
     }
 
     private func beginShortBreak() {
@@ -121,6 +129,9 @@ final class FocusTimerService {
         phase = .shortBreak
         startTicking()
         Haptics.success()
+        let mins = total / 60
+        FocusLiveActivityManager.shared.update(sessionType: "Short Break", durationMinutes: mins, taskTitle: nil)
+        WidgetDataStore.writeFocusState(WidgetFocusState(sessionType: "Short Break", startedAt: .now, durationMinutes: mins, taskTitle: nil))
     }
 
     private func beginLongBreak() {
@@ -130,6 +141,9 @@ final class FocusTimerService {
         phase = .longBreak
         startTicking()
         Haptics.success()
+        let mins = total / 60
+        FocusLiveActivityManager.shared.update(sessionType: "Long Break", durationMinutes: mins, taskTitle: nil)
+        WidgetDataStore.writeFocusState(WidgetFocusState(sessionType: "Long Break", startedAt: .now, durationMinutes: mins, taskTitle: nil))
     }
 
     private func pauseTimer(resumingTo type: TimerPhaseType) {
