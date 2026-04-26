@@ -11,6 +11,7 @@ struct FlowDayApp: App {
     @State private var appState = AppState()
     @State private var authManager = AuthManager()
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @Environment(\.scenePhase) private var scenePhase
 
 
 
@@ -64,6 +65,12 @@ struct FlowDayApp: App {
             } else {
                 Text("Database Error")
                     .foregroundColor(.red)
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active, let container = sharedModelContainer else { return }
+            Task { @MainActor in
+                WidgetDataStore.refresh(context: ModelContext(container))
             }
         }
     }
