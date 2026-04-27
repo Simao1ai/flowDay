@@ -1,18 +1,17 @@
 /**
  * FlowDay — Supabase Edge Function: /functions/v1/claude
  *
- * Single endpoint used by both AI features, distinguished by the `feature` field:
- *   - "flowAI"           → Flow AI chat assistant (plan day, create task, break down goal, general chat)
- *   - "templateGenerator" → AI Template Generator (generates a task template from a user prompt)
+ * Single endpoint for all AI features, distinguished by the `feature` field.
  *
- * Security:
- *   - Validates the caller's Supabase JWT. Unauthenticated requests are rejected.
- *   - The ANTHROPIC_API_KEY lives only as a Supabase secret — never shipped in the iOS app.
+ * Prompt caching strategy (saves up to 90% on input token costs):
+ *   1. System prompt — cached per feature (stable, identical across all users)
+ *   2. Multi-turn messages — earlier conversation turns cached incrementally
+ *      so only the newest message pays full input price
+ *   3. Per-feature maxTokens defaults — avoids over-allocating output tokens
  *
- * Prompt caching:
- *   - Each feature has a stable, reusable system prompt marked with cache_control: ephemeral.
- *   - Cache hits/misses are logged to the console and surfaced in response headers
- *     (X-Cache-Read-Tokens, X-Cache-Creation-Tokens) so you can verify in Supabase logs.
+ * Up to 4 cache breakpoints are supported. We use:
+ *   - 1 on the system prompt
+ *   - Up to 3 on conversation messages (the last 3 messages before the final one)
  *
  * Deploy:
  *   supabase functions deploy claude --no-verify-jwt=false
@@ -26,26 +25,28 @@ type Feature = "flowAI" | "templateGenerator" | "emailToTask" | "dayRecap";
 
 interface ClaudeRequestBody {
   feature: Feature;
-  /** The caller-supplied user message(s). system prompt is added server-side. */
+  /** The caller-supplied user message(s). System prompt is added server-side. */
   messages: { role: "user" | "assistant"; content: string }[];
   temperature?: number;
   maxTokens?: number;
 }
 
+interface AnthropicContentBlock {
+  type: "text";
+  text: string;
+  cache_control?: { type: "ephemeral" };
+}
+
 interface AnthropicMessage {
   role: "user" | "assistant";
-  content: string;
+  content: string | AnthropicContentBlock[];
 }
 
 interface AnthropicRequest {
   model: string;
   max_tokens: number;
   temperature: number;
-  system: {
-    type: "text";
-    text: string;
-    cache_control: { type: "ephemeral" };
-  }[];
+  system: AnthropicContentBlock[];
   messages: AnthropicMessage[];
 }
 
@@ -127,11 +128,66 @@ Rules:
 - Reply in plain text only — no JSON, no markdown, no bullet points.`,
 };
 
+// ─── Per-feature token limits ────────────────────────────────────────────────
+// Smarter defaults reduce output costs. Client can still override.
+
+const DEFAULT_MAX_TOKENS: Record<Feature, number> = {
+  flowAI: 1024,          // Chat responses are concise; JSON plans are ~500 tokens
+  emailToTask: 300,      // Single JSON object, always small
+  templateGenerator: 1200, // Can have 12-15 tasks, needs room
+  dayRecap: 200,         // 3 sentences max
+};
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const ANTHROPIC_VERSION = "2023-06-01";
+
+// ─── Multi-turn Cache Helper ─────────────────────────────────────────────────
+//
+// Marks earlier conversation turns with cache_control so Anthropic caches them.
+// On subsequent calls in the same conversation, only the newest message pays
+// full input price — earlier cached turns cost 10% of normal.
+//
+// Strategy: mark up to 3 message breakpoints (we use 1 on system = 4 total max).
+// We cache the last message of each "pair" (user+assistant) before the final message.
+
+function addCacheBreakpoints(messages: AnthropicMessage[]): AnthropicMessage[] {
+  if (messages.length <= 2) {
+    // Too few messages to benefit from conversation caching
+    return messages;
+  }
+
+  const result: AnthropicMessage[] = [...messages];
+
+  // Find up to 3 breakpoint positions: we want to cache as much of the
+  // conversation prefix as possible. Mark the 2nd-to-last, 4th-to-last,
+  // and 6th-to-last messages (counting from end) as cache breakpoints.
+  const breakpointOffsets = [2, 4, 6]; // positions from end
+  let breakpointsUsed = 0;
+
+  for (const offset of breakpointOffsets) {
+    const idx = messages.length - offset;
+    if (idx < 0 || breakpointsUsed >= 3) break;
+
+    const msg = messages[idx];
+    // Convert string content to content block array with cache_control
+    result[idx] = {
+      role: msg.role,
+      content: [
+        {
+          type: "text",
+          text: typeof msg.content === "string" ? msg.content : (msg.content as AnthropicContentBlock[])[0]?.text ?? "",
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+    };
+    breakpointsUsed++;
+  }
+
+  return result;
+}
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
@@ -160,7 +216,9 @@ serve(async (req: Request) => {
     return errorResponse(400, "Invalid JSON body");
   }
 
-  const { feature, messages, temperature = 0.7, maxTokens = 2048 } = body;
+  const { feature, messages, temperature = 0.7 } = body;
+  // Use per-feature default if client doesn't specify maxTokens
+  const maxTokens = body.maxTokens ?? DEFAULT_MAX_TOKENS[feature as Feature] ?? 1024;
 
   if (!feature || !["flowAI", "templateGenerator", "emailToTask", "dayRecap"].includes(feature)) {
     return errorResponse(400, `Invalid feature: "${feature}". Must be "flowAI", "templateGenerator", "emailToTask", or "dayRecap".`);
@@ -171,7 +229,12 @@ serve(async (req: Request) => {
   }
 
   // ── Build Anthropic request with prompt caching ──────────────────────────
-  const systemPrompt = SYSTEM_PROMPTS[feature];
+  const systemPrompt = SYSTEM_PROMPTS[feature as Feature];
+
+  // Add cache breakpoints to conversation history for multi-turn caching
+  const cachedMessages = feature === "flowAI"
+    ? addCacheBreakpoints(messages as AnthropicMessage[])
+    : messages as AnthropicMessage[];
 
   const anthropicRequest: AnthropicRequest = {
     model: ANTHROPIC_MODEL,
@@ -181,14 +244,12 @@ serve(async (req: Request) => {
       {
         type: "text",
         text: systemPrompt,
-        // cache_control marks this text block as a caching breakpoint.
-        // Anthropic will cache the tokenized system prompt after the first call.
-        // Subsequent calls with the same system prompt text pay ~10% of the original cost
-        // and see ~50% latency reduction for the cached portion.
+        // Breakpoint 1: system prompt cached after first call per feature.
+        // All users share this cache — biggest cost saver.
         cache_control: { type: "ephemeral" },
       },
     ],
-    messages,
+    messages: cachedMessages,
   };
 
   // ── Call Anthropic ───────────────────────────────────────────────────────
@@ -238,9 +299,16 @@ serve(async (req: Request) => {
     ? `CREATION (${cacheCreationTokens} tokens written to cache)`
     : "MISS (no cache data)";
 
+  // Calculate estimated cost savings
+  const savedTokens = cacheReadTokens;
+  const savingsPercent = inputTokens + cacheReadTokens > 0
+    ? Math.round((savedTokens / (inputTokens + cacheReadTokens)) * 90)
+    : 0;
+
   console.log(
-    `[claude] feature=${feature} user=${userId} ` +
-    `cache=${cacheStatus} input=${inputTokens} output=${outputTokens}`
+    `[claude] feature=${feature} user=${userId} maxTokens=${maxTokens} ` +
+    `cache=${cacheStatus} input=${inputTokens} output=${outputTokens} ` +
+    `savings=~${savingsPercent}%`
   );
 
   // ── Return response ──────────────────────────────────────────────────────
@@ -257,6 +325,7 @@ serve(async (req: Request) => {
         "X-Cache-Creation-Tokens": String(cacheCreationTokens),
         "X-Input-Tokens": String(inputTokens),
         "X-Output-Tokens": String(outputTokens),
+        "X-Max-Tokens": String(maxTokens),
       },
     }
   );
