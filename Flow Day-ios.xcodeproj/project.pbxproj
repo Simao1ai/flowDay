@@ -20,16 +20,13 @@
 		13856E337EC231BDBD3756AC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 114338B1B6074CF41630BE61 /* RootView.swift */; };
 		15D0CF3F73B15D8FB3EA8A25 /* NaturalLanguageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3D336E445FCD67246A5AE09 /* NaturalLanguageParser.swift */; };
 		1683F05FBA5593E10B7EB329 /* ClaudeClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF8916734A22C91D8CE99A /* ClaudeClient.swift */; };
-		16BC148E80363329F6AE4A9F /* WidgetTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54B59C8D5D0B7CEAC3D99AC /* WidgetTheme.swift */; };
 		172D08D87F7B8AB997DC8D5B /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3A5B8FDF56FE4407B71D614 /* TodayView.swift */; };
 		19F976F46A6611AFDC558690 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA8F738830068A9E08CC017 /* SettingsView.swift */; };
 		1B0093CA5E3F9B0112B58CE4 /* FiltersLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */; };
-		1C35C85E1DD773799DF3EF87 /* FocusTimerLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A826AA49E71CB5CC45ADA404 /* FocusTimerLiveActivity.swift */; };
 		231EDD25610B810FE625079F /* WeeklyReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344971E747231D315C97A47B /* WeeklyReportView.swift */; };
 		262CA5D83F2C1A1AE5357B3F /* PremiumTemplateLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78D68ABD24064E3390562C13 /* PremiumTemplateLibrary.swift */; };
 		299597C34C8BCD85923FF33D /* EmailToTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */; };
 		2BCC3540C1EB21EFC548A3A0 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B08F3B8A16DBF67A1CAEEF8E /* Supabase */; };
-		2EF20C06FE7660A6ECCDE9A4 /* FlowDayWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7D65EF5CE64A4D2EAB5C6498 /* FlowDayWidgets.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2F55C57EF3EC387011D12448 /* Config.example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B68BCECA4C17744B50DCB1 /* Config.example.swift */; };
 		2FE3898598E1C4AD0A9C141E /* EnergyCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0B0C59D5F1C0B19F5A4214 /* EnergyCheckInView.swift */; };
 		34E7302CFDD76447A185909F /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECD29289D60DD95D4A93C42 /* WhatsNewView.swift */; };
@@ -64,8 +61,6 @@
 		77CF5690E856BBCFCBDA8A85 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9F04052000CEA28E02EB2CAC /* PrivacyInfo.xcprivacy */; };
 		79FA2522FD76BC844D65AAC6 /* FDColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E268BBA2B4BDFA577D911DBB /* FDColors.swift */; };
 		7C2FC401CC85E6CA06335EE6 /* QuickAddSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D76B20EC3B5FEA13FA22D91 /* QuickAddSettingsView.swift */; };
-		8056ECC1ABE72D47E3ADA4D2 /* FocusScoreLockScreenWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB70C3321BAC6C2D7A6FF60A /* FocusScoreLockScreenWidget.swift */; };
-		81CBB37205DB92D9904E8C67 /* FlowDayWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9D91D8ACA5D37991EB7062 /* FlowDayWidgetsBundle.swift */; };
 		81E3BF8B941B6D458BA06CBE /* WidgetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF5A7CB495239538040ED83 /* WidgetModels.swift */; };
 		831AB4F1B890584094E8A758 /* WeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B551E2F084F85C057E976F /* WeekView.swift */; };
 		8388609E4F05ABDF645EA6F4 /* FDTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B413A1C2809CB385CDFEBE /* FDTypography.swift */; };
@@ -97,12 +92,9 @@
 		AB6F62B7FB7CEA0B6ADB8B91 /* ProductivitySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9522F70D249E2B244CCDC4 /* ProductivitySettingsView.swift */; };
 		AC19468A11BDAA74DC5B2EA7 /* SyncStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CE708D08462883A361AD3AC /* SyncStatusService.swift */; };
 		AF3C52C2A2CD65BA33796DA2 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBF2554508C741F03B647A8 /* TemplatesView.swift */; };
-		B194199DEC4B1854674D8954 /* TodaySummaryWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326B9314B78FB61907C805F7 /* TodaySummaryWidget.swift */; };
-		B4A15435170DAB8926DAEB2B /* FocusTimerAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A134622FF64EA49FC9DA5B5 /* FocusTimerAttributes.swift */; };
 		B5E9B8C87DEC188C216CA449 /* ProUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DBC554C19B8B2BA8DB726EC /* ProUpgradeView.swift */; };
 		B71AEBA82CA4BE69C63DF577 /* HelpFeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7772398B98B06B035C5D4FD3 /* HelpFeedbackView.swift */; };
 		B74C0F8DA464DCADB2CE28B1 /* VoiceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8EEF10FA367C549C514A5D /* VoiceInputView.swift */; };
-		BC7DCE6D6A94019F1262E656 /* WidgetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF5A7CB495239538040ED83 /* WidgetModels.swift */; };
 		BD911FFE12869FB49165F337 /* ShareOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B4452CF0119BA12259C5E2 /* ShareOptionsView.swift */; };
 		C392C07DD5084676A716D8BB /* PremiumTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D3C79A7354614DE729FF0C /* PremiumTemplate.swift */; };
 		C4C30AA64245C83E121577E3 /* DailyBriefView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C826987AB784877C47F99 /* DailyBriefView.swift */; };
@@ -117,7 +109,6 @@
 		D976BE14C8E31C843BBCDAA6 /* HabitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349871E5E735E7E6956A3E44 /* HabitsView.swift */; };
 		D9AD3825BE237100FCD1E2DA /* FDSubtask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC6BE9A83D10777772185D6 /* FDSubtask.swift */; };
 		DA652600C9D87D07F9FE3953 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C4FF194EDD4A1FC3673D4D /* Haptics.swift */; };
-		DD5DD4CD169936B153797332 /* NextTaskWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E44D9A9BC05F129070CE85F /* NextTaskWidget.swift */; };
 		DEA4D73FBBBF502D6FF0A727 /* RambleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F144B101103A1D82E41FAE6E /* RambleService.swift */; };
 		DFF1C3F0A1E3F83E7BC097C4 /* DisplaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23E470EA3E8742C052A11AC /* DisplaySettingsView.swift */; };
 		E134EA27DC3D03BE983104D6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1033D2A7D35A2D38D03F7B8 /* AboutView.swift */; };
@@ -150,28 +141,7 @@
 			remoteGlobalIDString = 00A4CAE1F3CFC25DFC0AC573;
 			remoteInfo = FlowDay;
 		};
-		9F640181308F827A2FEB91C1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6DAB6951D31EB06B7223752F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 33E2E9C9B79CB07C66F908FC;
-			remoteInfo = FlowDayWidgets;
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		62D27A60494033FCA0F86F19 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				2EF20C06FE7660A6ECCDE9A4 /* FlowDayWidgets.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		05449FC8D0346ED17C2B2C02 /* FlowDayTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = FlowDayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -188,10 +158,8 @@
 		27D7FF7796A58A11BBB253D9 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
 		2B856188409BFA241F23CDA3 /* ProAccessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProAccessManager.swift; sourceTree = "<group>"; };
 		2BF0FB590B2E692A211CD8FE /* TimelineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineItem.swift; sourceTree = "<group>"; };
-		2C9D91D8ACA5D37991EB7062 /* FlowDayWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayWidgetsBundle.swift; sourceTree = "<group>"; };
 		2D8C6CBB5BEA6404DF5195AA /* EmailTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailTasksView.swift; sourceTree = "<group>"; };
 		2E79EB8CC14A6D030A748C11 /* WidgetDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataStore.swift; sourceTree = "<group>"; };
-		326B9314B78FB61907C805F7 /* TodaySummaryWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaySummaryWidget.swift; sourceTree = "<group>"; };
 		33782DE01ADE80B93783E8ED /* UpcomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingView.swift; sourceTree = "<group>"; };
 		344971E747231D315C97A47B /* WeeklyReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportView.swift; sourceTree = "<group>"; };
 		349871E5E735E7E6956A3E44 /* HabitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsView.swift; sourceTree = "<group>"; };
@@ -215,7 +183,6 @@
 		5993F5F951E36759680EC49F /* FlowDayIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayIntents.swift; sourceTree = "<group>"; };
 		64BD5DCD0D2701297928EFF6 /* FocusTimerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerService.swift; sourceTree = "<group>"; };
 		6D195EE0CD176FABBC3CABB8 /* FiltersLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersLabelsView.swift; sourceTree = "<group>"; };
-		6F4D478DDC9027A6B56148D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		747E466F789997C7FB15921E /* AIAssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantView.swift; sourceTree = "<group>"; };
 		74D3C79A7354614DE729FF0C /* PremiumTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumTemplate.swift; sourceTree = "<group>"; };
 		775317287E1726750C70A35A /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
@@ -223,9 +190,7 @@
 		77C297D0E4CB21B5C48CF7B0 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		7832C62A5E122B17F62F6B20 /* SyncStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusBadge.swift; sourceTree = "<group>"; };
 		78D68ABD24064E3390562C13 /* PremiumTemplateLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumTemplateLibrary.swift; sourceTree = "<group>"; };
-		7D65EF5CE64A4D2EAB5C6498 /* FlowDayWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = FlowDayWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D6BCA0E9C5F5A91653096BC /* AIPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPlanView.swift; sourceTree = "<group>"; };
-		7E44D9A9BC05F129070CE85F /* NextTaskWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextTaskWidget.swift; sourceTree = "<group>"; };
 		7EC6BE9A83D10777772185D6 /* FDSubtask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDSubtask.swift; sourceTree = "<group>"; };
 		7F7A03BABCF188C18119B6FA /* FocusTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerView.swift; sourceTree = "<group>"; };
 		810D6EF5D3309E6364835BA3 /* FDEnergyLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FDEnergyLog.swift; sourceTree = "<group>"; };
@@ -251,7 +216,6 @@
 		9B511D965958876D64A2A586 /* FocusScoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusScoreService.swift; sourceTree = "<group>"; };
 		9B9CF902695D30ACEC2A5735 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		9CE708D08462883A361AD3AC /* SyncStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatusService.swift; sourceTree = "<group>"; };
-		9DA08D98805CA5B6FA669525 /* FlowDayWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FlowDayWidgets.entitlements; sourceTree = "<group>"; };
 		9EBB74AE9F37870084C76C13 /* SmartQuickAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartQuickAddView.swift; sourceTree = "<group>"; };
 		9F04052000CEA28E02EB2CAC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A0921538F27AD6AEDA566ADD /* SelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionState.swift; sourceTree = "<group>"; };
@@ -260,9 +224,7 @@
 		A275A13EF05C7458890ABB45 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
 		A2CF5F7AF25E3E6E8CE24176 /* EmailToTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailToTaskView.swift; sourceTree = "<group>"; };
 		A6C71E0B82691E599D0ECDC0 /* AIFeatureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIFeatureService.swift; sourceTree = "<group>"; };
-		A826AA49E71CB5CC45ADA404 /* FocusTimerLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerLiveActivity.swift; sourceTree = "<group>"; };
 		AB64EC93FF8869FBB45D0E27 /* TemplatesView+Catalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TemplatesView+Catalog.swift"; sourceTree = "<group>"; };
-		AB70C3321BAC6C2D7A6FF60A /* FocusScoreLockScreenWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusScoreLockScreenWidget.swift; sourceTree = "<group>"; };
 		AE1783BA1CC1A644D02B11B5 /* TaskAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAttachment.swift; sourceTree = "<group>"; };
 		AECD29289D60DD95D4A93C42 /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		B23EFB10D15C489C51C31E0E /* ProductivityScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityScoreView.swift; sourceTree = "<group>"; };
@@ -270,7 +232,6 @@
 		B905D2AF8A118E82134C797B /* DayRecapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayRecapService.swift; sourceTree = "<group>"; };
 		BB30FD57446B6F1BCE2BE4BB /* FlowDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowDayTests.swift; sourceTree = "<group>"; };
 		BC75416260F4F46D134B57E5 /* TaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskService.swift; sourceTree = "<group>"; };
-		C54B59C8D5D0B7CEAC3D99AC /* WidgetTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetTheme.swift; sourceTree = "<group>"; };
 		C7E29BC0CD5171D38B783F34 /* AppIconSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconSettingsView.swift; sourceTree = "<group>"; };
 		C7E9E25E1B584C25DC3A564C /* RambleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RambleView.swift; sourceTree = "<group>"; };
 		CBF5A7CB495239538040ED83 /* WidgetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetModels.swift; sourceTree = "<group>"; };
@@ -407,7 +368,6 @@
 			children = (
 				4BC146D7B931F3555D251786 /* FlowDay.app */,
 				05449FC8D0346ED17C2B2C02 /* FlowDayTests.xctest */,
-				7D65EF5CE64A4D2EAB5C6498 /* FlowDayWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -463,14 +423,6 @@
 		5EDB6CD56175AE0FBA57A8D7 /* FlowDayWidgets */ = {
 			isa = PBXGroup;
 			children = (
-				9DA08D98805CA5B6FA669525 /* FlowDayWidgets.entitlements */,
-				2C9D91D8ACA5D37991EB7062 /* FlowDayWidgetsBundle.swift */,
-				AB70C3321BAC6C2D7A6FF60A /* FocusScoreLockScreenWidget.swift */,
-				A826AA49E71CB5CC45ADA404 /* FocusTimerLiveActivity.swift */,
-				6F4D478DDC9027A6B56148D0 /* Info.plist */,
-				7E44D9A9BC05F129070CE85F /* NextTaskWidget.swift */,
-				326B9314B78FB61907C805F7 /* TodaySummaryWidget.swift */,
-				C54B59C8D5D0B7CEAC3D99AC /* WidgetTheme.swift */,
 				970544ADD40EBDEA39F11E68 /* Shared */,
 			);
 			path = FlowDayWidgets;
@@ -611,12 +563,10 @@
 				60DE1D6CD48A1E7BF7FB7F3F /* Sources */,
 				4C66F8F8B0FFF8F0CC071132 /* Resources */,
 				A7B204F286E72D83DF399313 /* Frameworks */,
-				62D27A60494033FCA0F86F19 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				963FC50043E77A8D19986C8A /* PBXTargetDependency */,
 			);
 			name = FlowDay;
 			packageProductDependencies = (
@@ -645,23 +595,6 @@
 			productReference = 05449FC8D0346ED17C2B2C02 /* FlowDayTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		33E2E9C9B79CB07C66F908FC /* FlowDayWidgets */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 139DBC0F2E33ED558DFD5A60 /* Build configuration list for PBXNativeTarget "FlowDayWidgets" */;
-			buildPhases = (
-				1279F9C0DE52F9CFC37D34D9 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = FlowDayWidgets;
-			packageProductDependencies = (
-			);
-			productName = FlowDayWidgets;
-			productReference = 7D65EF5CE64A4D2EAB5C6498 /* FlowDayWidgets.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -676,10 +609,6 @@
 						ProvisioningStyle = Automatic;
 					};
 					32DEE6BEB302B854BEB7B84B = {
-						DevelopmentTeam = 6R2383P25H;
-						ProvisioningStyle = Automatic;
-					};
-					33E2E9C9B79CB07C66F908FC = {
 						DevelopmentTeam = 6R2383P25H;
 						ProvisioningStyle = Automatic;
 					};
@@ -705,7 +634,6 @@
 			targets = (
 				00A4CAE1F3CFC25DFC0AC573 /* FlowDay */,
 				32DEE6BEB302B854BEB7B84B /* FlowDayTests */,
-				33E2E9C9B79CB07C66F908FC /* FlowDayWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -724,21 +652,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1279F9C0DE52F9CFC37D34D9 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				81CBB37205DB92D9904E8C67 /* FlowDayWidgetsBundle.swift in Sources */,
-				8056ECC1ABE72D47E3ADA4D2 /* FocusScoreLockScreenWidget.swift in Sources */,
-				B4A15435170DAB8926DAEB2B /* FocusTimerAttributes.swift in Sources */,
-				1C35C85E1DD773799DF3EF87 /* FocusTimerLiveActivity.swift in Sources */,
-				DD5DD4CD169936B153797332 /* NextTaskWidget.swift in Sources */,
-				B194199DEC4B1854674D8954 /* TodaySummaryWidget.swift in Sources */,
-				BC7DCE6D6A94019F1262E656 /* WidgetModels.swift in Sources */,
-				16BC148E80363329F6AE4A9F /* WidgetTheme.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		415E1E2A9D958D211A9CA86B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -875,11 +788,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		963FC50043E77A8D19986C8A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 33E2E9C9B79CB07C66F908FC /* FlowDayWidgets */;
-			targetProxy = 9F640181308F827A2FEB91C1 /* PBXContainerItemProxy */;
-		};
 		BA245B27E7E12DFB4988FC2F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 00A4CAE1F3CFC25DFC0AC573 /* FlowDay */;
@@ -903,24 +811,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowDay.app/FlowDay";
 			};
 			name = Release;
-		};
-		34D49224D3180B87130DDBF0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = FlowDayWidgets/FlowDayWidgets.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6R2383P25H;
-				INFOPLIST_FILE = FlowDayWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.flowday.app.widgets;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = NO;
-				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
 		};
 		4657A7D6611752CF02439ADB /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1097,36 +987,9 @@
 			};
 			name = Release;
 		};
-		EE168E9BC8AAFA84145F40A5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = FlowDayWidgets/FlowDayWidgets.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6R2383P25H;
-				INFOPLIST_FILE = FlowDayWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.flowday.app.widgets;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = NO;
-				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		139DBC0F2E33ED558DFD5A60 /* Build configuration list for PBXNativeTarget "FlowDayWidgets" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				34D49224D3180B87130DDBF0 /* Debug */,
-				EE168E9BC8AAFA84145F40A5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		1E9A6401D3A717D54622A2ED /* Build configuration list for PBXNativeTarget "FlowDay" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

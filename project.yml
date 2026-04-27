@@ -30,9 +30,6 @@ targets:
     dependencies:
       - package: GoogleSignIn
       - package: Supabase
-      - target: FlowDayWidgets
-        embed: true
-        codeSign: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.flowday.app
@@ -74,36 +71,6 @@ targets:
         com.apple.security.application-groups:
           - group.io.flowday.app
 
-  FlowDayWidgets:
-    type: app-extension
-    platform: iOS
-    deploymentTarget: "17.0"
-    info:
-      path: FlowDayWidgets/Info.plist
-      properties:
-        CFBundleDisplayName: FlowDayWidgets
-        CFBundleVersion: "1"
-        CFBundleShortVersionString: "1.0.0"
-        NSExtension:
-          NSExtensionPointIdentifier: com.apple.widgetkit-extension
-    entitlements:
-      path: FlowDayWidgets/FlowDayWidgets.entitlements
-      properties:
-        com.apple.security.application-groups:
-          - group.io.flowday.app
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.flowday.app.widgets
-        SWIFT_VERSION: "5.9"
-        TARGETED_DEVICE_FAMILY: "1,2"
-        CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: "6R2383P25H"
-        CODE_SIGN_IDENTITY: "Apple Development"
-        SKIP_INSTALL: "NO"
-        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../../Frameworks"
-    sources:
-      - path: FlowDayWidgets
-
   FlowDayTests:
     type: bundle.unit-test
     platform: iOS
@@ -117,7 +84,6 @@ schemes:
     build:
       targets:
         FlowDay: all
-        FlowDayWidgets: all
     run:
       config: Debug
     test:
