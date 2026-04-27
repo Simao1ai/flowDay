@@ -251,12 +251,10 @@ serve(async (req: Request) => {
 
     const sub = payload.sub as string | undefined;
     if (sub) {
-      // Authenticated user — extract sub and pro claim
       userId = sub;
       const appMeta = (payload as Record<string, unknown>).app_metadata as Record<string, unknown> ?? {};
       isPro = appMeta.plan === "pro";
     } else {
-      // Anon JWT (no sub) — fall back to device-level identifier
       const fallbackId = req.headers.get("X-FlowDay-User-ID");
       userId = fallbackId ? `anon:${fallbackId}` : "anon";
     }
