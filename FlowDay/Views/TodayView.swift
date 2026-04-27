@@ -890,20 +890,11 @@ struct TodayView: View {
     // MARK: - Energy Badge
 
     private func energyBadge(_ level: EnergyLevel) -> some View {
-        HStack(spacing: 4) {
-            Text(level.emoji)
-                .font(.caption)
-            Text(level.label)
-                .font(.fdMicro)
-                .fontWeight(.semibold)
-                .lineLimit(1)
-                .fixedSize()
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(energyColor(level).opacity(0.12))
-        .clipShape(Capsule())
-        .foregroundStyle(energyColor(level))
+        Text(level.emoji)
+            .font(.system(size: 14))
+            .frame(width: 28, height: 28)
+            .background(energyColor(level).opacity(0.12))
+            .clipShape(Circle())
     }
 
     private func energyColor(_ level: EnergyLevel) -> Color {
