@@ -199,7 +199,7 @@ struct TodayView: View {
                             .foregroundStyle(Color.fdTextMuted)
                     }
                     Spacer()
-                    HStack(spacing: 10) {
+                    HStack(alignment: .center, spacing: 8) {
                         if let energy = appState.todayEnergy {
                             energyBadge(energy)
                         }
@@ -210,11 +210,10 @@ struct TodayView: View {
                                 .font(.fdMicroBold)
                                 .foregroundStyle(Color.fdAccent)
                                 .padding(.horizontal, 7)
-                                .padding(.vertical, 3)
+                                .padding(.vertical, 4)
                                 .background(Color.fdAccent.opacity(0.12))
                                 .clipShape(Capsule())
                         }
-                        SyncStatusBadge()
                         Button {
                             showFocusTimer = true
                         } label: {
@@ -222,20 +221,14 @@ struct TodayView: View {
                                 Image(systemName: "timer")
                                     .font(.system(size: 16))
                                     .foregroundStyle(timerService.phase == .idle ? Color.fdTextSecondary : Color.fdAccent)
+                                    .frame(width: 28, height: 28)
                                 if timerService.phase != .idle {
                                     Circle()
                                         .fill(Color.fdAccent)
                                         .frame(width: 7, height: 7)
-                                        .offset(x: 3, y: -3)
+                                        .offset(x: 2, y: 0)
                                 }
                             }
-                        }
-                        Button {
-                            showDayRecap = true
-                        } label: {
-                            Image(systemName: "moon.stars")
-                                .font(.system(size: 16))
-                                .foregroundStyle(Color.fdTextSecondary)
                         }
                         Button {
                             showSettings = true
@@ -243,6 +236,7 @@ struct TodayView: View {
                             Image(systemName: "gearshape")
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.fdTextSecondary)
+                                .frame(width: 28, height: 28)
                         }
                     }
                 }
