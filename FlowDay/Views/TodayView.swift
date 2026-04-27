@@ -199,7 +199,7 @@ struct TodayView: View {
                             .foregroundStyle(Color.fdTextMuted)
                     }
                     Spacer()
-                    HStack(alignment: .center, spacing: 8) {
+                    HStack(alignment: .center, spacing: 10) {
                         if let energy = appState.todayEnergy {
                             energyBadge(energy)
                         }
@@ -210,10 +210,11 @@ struct TodayView: View {
                                 .font(.fdMicroBold)
                                 .foregroundStyle(Color.fdAccent)
                                 .padding(.horizontal, 7)
-                                .padding(.vertical, 4)
+                                .padding(.vertical, 3)
                                 .background(Color.fdAccent.opacity(0.12))
                                 .clipShape(Capsule())
                         }
+                        SyncStatusBadge()
                         Button {
                             showFocusTimer = true
                         } label: {
@@ -221,14 +222,20 @@ struct TodayView: View {
                                 Image(systemName: "timer")
                                     .font(.system(size: 16))
                                     .foregroundStyle(timerService.phase == .idle ? Color.fdTextSecondary : Color.fdAccent)
-                                    .frame(width: 28, height: 28)
                                 if timerService.phase != .idle {
                                     Circle()
                                         .fill(Color.fdAccent)
                                         .frame(width: 7, height: 7)
-                                        .offset(x: 2, y: 0)
+                                        .offset(x: 3, y: -3)
                                 }
                             }
+                        }
+                        Button {
+                            showDayRecap = true
+                        } label: {
+                            Image(systemName: "moon.stars")
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.fdTextSecondary)
                         }
                         Button {
                             showSettings = true
@@ -236,7 +243,6 @@ struct TodayView: View {
                             Image(systemName: "gearshape")
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.fdTextSecondary)
-                                .frame(width: 28, height: 28)
                         }
                     }
                 }
@@ -884,15 +890,17 @@ struct TodayView: View {
     // MARK: - Energy Badge
 
     private func energyBadge(_ level: EnergyLevel) -> some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 4) {
             Text(level.emoji)
                 .font(.caption)
             Text(level.label)
                 .font(.fdMicro)
                 .fontWeight(.semibold)
+                .lineLimit(1)
+                .fixedSize()
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
         .background(energyColor(level).opacity(0.12))
         .clipShape(Capsule())
         .foregroundStyle(energyColor(level))
