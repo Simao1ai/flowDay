@@ -9,14 +9,12 @@ struct ProUpgradeView: View {
 
     var highlightedFeature: ProFeature? = nil
 
-    @State private var selectedPlan: PlanOption = .yearly
     @State private var isPurchasing = false
+    @State private var isRestoring = false
     @State private var showError = false
     @State private var errorMessage = ""
 
     private var subscriptionManager: SubscriptionManager { .shared }
-
-    enum PlanOption { case monthly, yearly }
 
     // MARK: - Body
 
@@ -30,7 +28,7 @@ struct ProUpgradeView: View {
                     featureList
                         .padding(.top, 28)
 
-                    pricingToggle
+                    pricingCard
                         .padding(.top, 28)
 
                     ctaButton
@@ -60,6 +58,11 @@ struct ProUpgradeView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(errorMessage)
+        }
+        .task {
+            if subscriptionManager.monthlyProduct == nil {
+                await subscriptionManager.loadProducts()
+            }
         }
     }
 
@@ -151,44 +154,30 @@ struct ProUpgradeView: View {
         .padding(.vertical, 12)
     }
 
-    // MARK: - Pricing Toggle
+    // MARK: - Pricing
 
-    private var pricingToggle: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                planCard(plan: .monthly, price: "$4.99/mo", label: "Monthly")
-                planCard(plan: .yearly, price: "$29.99/yr", label: "Yearly · Save 50%")
+    private var pricingCard: some View {
+        VStack(spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(subscriptionManager.monthlyDisplayPrice)
+                    .font(.fdTitle2)
+                    .foregroundStyle(.white)
+                Text("/month")
+                    .font(.fdCaption)
+                    .foregroundStyle(.white.opacity(0.85))
             }
 
-            if selectedPlan == .yearly {
-                Text("That's just $2.50/mo — billed annually")
-                    .font(.fdMicro)
-                    .foregroundStyle(Color.fdTextSecondary)
-            }
+            Text("Cancel anytime")
+                .font(.fdMicro)
+                .foregroundStyle(.white.opacity(0.85))
         }
-    }
-
-    private func planCard(plan: PlanOption, price: String, label: String) -> some View {
-        let selected = selectedPlan == plan
-        return Button { selectedPlan = plan } label: {
-            VStack(spacing: 4) {
-                Text(price)
-                    .font(.fdBodySemibold)
-                    .foregroundStyle(selected ? .white : Color.fdText)
-                Text(label)
-                    .font(.fdMicro)
-                    .foregroundStyle(selected ? .white.opacity(0.85) : Color.fdTextMuted)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(selected ? Color.fdAccent : Color.fdSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(selected ? Color.fdAccent : Color.fdBorder, lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 18)
+        .background(
+            LinearGradient(colors: [Color.fdAccent, Color(hex: "FF8C42")],
+                           startPoint: .leading, endPoint: .trailing)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     // MARK: - CTA
@@ -206,57 +195,63 @@ struct ProUpgradeView: View {
                     Image(systemName: "crown.fill")
                         .font(.system(size: 15))
                 }
-                Text(isPurchasing ? "Processing…" : "Start Free Trial")
+                Text(isPurchasing ? "Processing…" : "Subscribe")
                     .font(.fdBodySemibold)
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
-            .background(
-                LinearGradient(colors: [Color.fdAccent, Color(hex: "FF8C42")],
-                               startPoint: .leading, endPoint: .trailing)
-            )
+            .background(Color.fdText)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: Color.fdAccent.opacity(0.35), radius: 12, y: 5)
+            .shadow(color: Color.fdText.opacity(0.25), radius: 12, y: 5)
         }
-        .disabled(isPurchasing)
+        .disabled(isPurchasing || isRestoring)
     }
 
     private var restoreButton: some View {
         Button {
-            Task {
-                isPurchasing = true
-                await subscriptionManager.restorePurchases()
-                isPurchasing = false
-            }
+            Task { await restore() }
         } label: {
-            Text("Restore Purchases")
-                .font(.fdCaption)
-                .foregroundStyle(Color.fdTextSecondary)
+            HStack(spacing: 6) {
+                if isRestoring {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                }
+                Text(isRestoring ? "Restoring…" : "Restore Purchases")
+                    .font(.fdCaption)
+                    .foregroundStyle(Color.fdTextSecondary)
+            }
         }
+        .disabled(isPurchasing || isRestoring)
     }
 
-    // MARK: - Purchase
+    // MARK: - Actions
 
     private func purchase() async {
         isPurchasing = true
         defer { isPurchasing = false }
 
-        let product: Product? = selectedPlan == .yearly
-            ? subscriptionManager.yearlyProduct
-            : subscriptionManager.monthlyProduct
-
-        guard let product else {
-            // Products not yet loaded — trigger load then retry
-            await subscriptionManager.loadProducts()
-            return
-        }
-
         do {
-            _ = try await subscriptionManager.purchase(product)
-            dismiss()
+            let transaction = try await subscriptionManager.purchase()
+            // Non-nil transaction = success. Nil = user cancelled or pending.
+            if transaction != nil, subscriptionManager.status != .free {
+                dismiss()
+            }
         } catch {
             errorMessage = error.localizedDescription
+            showError = true
+        }
+    }
+
+    private func restore() async {
+        isRestoring = true
+        defer { isRestoring = false }
+
+        await subscriptionManager.restorePurchases()
+        if subscriptionManager.status != .free {
+            dismiss()
+        } else if let message = subscriptionManager.errorMessage {
+            errorMessage = message
             showError = true
         }
     }

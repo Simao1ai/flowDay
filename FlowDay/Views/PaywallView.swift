@@ -2,7 +2,7 @@
 // FlowDay
 //
 // Full-screen paywall shown when a free user hits a feature limit.
-// Displays Pro benefits, pricing toggle, and purchase/restore buttons.
+// Displays Pro benefits, the monthly price, and purchase/restore buttons.
 
 import SwiftUI
 import StoreKit
@@ -15,20 +15,15 @@ struct PaywallView: View {
 
     private var subscriptionManager: SubscriptionManager { .shared }
 
-    @State private var selectedPlan: PlanOption = .yearly
     @State private var isPurchasing = false
+    @State private var isRestoring = false
     @State private var showError = false
     @State private var errorMessage = ""
-
-    enum PlanOption {
-        case monthly, yearly
-    }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            // Background gradient
             LinearGradient(
                 colors: [Color.fdBackground, Color.fdAccentLight.opacity(0.3), Color.fdBackground],
                 startPoint: .top,
@@ -38,7 +33,6 @@ struct PaywallView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // Close button
                     HStack {
                         Spacer()
                         Button(action: { dismiss() }) {
@@ -51,23 +45,18 @@ struct PaywallView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
 
-                    // Hero section
                     heroSection
                         .padding(.top, 8)
 
-                    // Feature list
                     featureList
                         .padding(.top, 32)
 
-                    // Pricing cards
                     pricingSection
                         .padding(.top, 32)
 
-                    // CTA button
                     purchaseButton
                         .padding(.top, 24)
 
-                    // Restore + terms
                     footerLinks
                         .padding(.top, 16)
                         .padding(.bottom, 40)
@@ -79,13 +68,17 @@ struct PaywallView: View {
         } message: {
             Text(errorMessage)
         }
+        .task {
+            if subscriptionManager.monthlyProduct == nil {
+                await subscriptionManager.loadProducts()
+            }
+        }
     }
 
     // MARK: - Hero
 
     private var heroSection: some View {
         VStack(spacing: 16) {
-            // Animated icon
             ZStack {
                 Circle()
                     .fill(Color.fdAccent.opacity(0.12))
@@ -209,101 +202,32 @@ struct PaywallView: View {
     // MARK: - Pricing
 
     private var pricingSection: some View {
-        HStack(spacing: 12) {
-            // Yearly card
-            pricingCard(
-                plan: .yearly,
-                label: "Yearly",
-                price: subscriptionManager.yearlyProduct?.displayPrice ?? "$39.99",
-                period: "/year",
-                badge: "SAVE 33%",
-                perMonth: yearlyPerMonth
-            )
-
-            // Monthly card
-            pricingCard(
-                plan: .monthly,
-                label: "Monthly",
-                price: subscriptionManager.monthlyProduct?.displayPrice ?? "$4.99",
-                period: "/month",
-                badge: nil,
-                perMonth: nil
-            )
-        }
-        .padding(.horizontal, 20)
-    }
-
-    private var yearlyPerMonth: String {
-        if let product = subscriptionManager.yearlyProduct {
-            let monthly = product.price / 12
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .currency
-            formatter.locale = product.priceFormatStyle.locale
-            return formatter.string(from: monthly as NSDecimalNumber) ?? "$3.33"
-        }
-        return "$3.33"
-    }
-
-    private func pricingCard(
-        plan: PlanOption,
-        label: String,
-        price: String,
-        period: String,
-        badge: String?,
-        perMonth: String?
-    ) -> some View {
-        let isSelected = selectedPlan == plan
-
-        return Button(action: { withAnimation(.easeInOut(duration: 0.2)) { selectedPlan = plan } }) {
-            VStack(spacing: 8) {
-                if let badge {
-                    Text(badge)
-                        .font(.fdMicroBold)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.fdAccent)
-                        .clipShape(Capsule())
-                } else {
-                    Text(" ")
-                        .font(.fdMicroBold)
-                        .padding(.vertical, 3)
-                }
-
-                Text(label)
-                    .font(.fdCaptionBold)
-                    .foregroundStyle(isSelected ? Color.fdText : Color.fdTextMuted)
-
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text(price)
-                        .font(.fdTitle2)
-                        .foregroundStyle(isSelected ? Color.fdText : Color.fdTextSecondary)
-                    Text(period)
-                        .font(.fdCaption)
-                        .foregroundStyle(Color.fdTextMuted)
-                }
-
-                if let perMonth {
-                    Text("\(perMonth)/mo")
-                        .font(.fdMicro)
-                        .foregroundStyle(Color.fdAccent)
-                } else {
-                    Text(" ")
-                        .font(.fdMicro)
-                }
+        VStack(spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(subscriptionManager.monthlyDisplayPrice)
+                    .font(.fdTitle)
+                    .foregroundStyle(Color.fdText)
+                Text("/month")
+                    .font(.fdBody)
+                    .foregroundStyle(Color.fdTextSecondary)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(isSelected ? Color.fdSurface : Color.clear)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(isSelected ? Color.fdAccent : Color.fdBorder, lineWidth: isSelected ? 2 : 1)
-            )
+
+            Text("Cancel anytime in Settings")
+                .font(.fdMicro)
+                .foregroundStyle(Color.fdTextMuted)
         }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 24)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.fdSurface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.fdAccent, lineWidth: 2)
+        )
+        .padding(.horizontal, 20)
     }
 
     // MARK: - Purchase Button
@@ -315,7 +239,7 @@ struct PaywallView: View {
                     ProgressView()
                         .tint(.white)
                 } else {
-                    Text("Start Free Trial")
+                    Text("Subscribe")
                         .font(.fdBodySemibold)
                 }
             }
@@ -325,27 +249,27 @@ struct PaywallView: View {
             .background(Color.fdAccent)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
-        .disabled(isPurchasing)
+        .disabled(isPurchasing || isRestoring)
         .padding(.horizontal, 20)
-
-        // Trial note
-        .overlay(alignment: .bottom) {
-            Text("7-day free trial, then auto-renews. Cancel anytime.")
-                .font(.fdMicro)
-                .foregroundStyle(Color.fdTextMuted)
-                .padding(.top, 60)
-        }
     }
 
     // MARK: - Footer
 
     private var footerLinks: some View {
         HStack(spacing: 20) {
-            Button("Restore Purchases") {
-                Task { await subscriptionManager.restorePurchases() }
+            Button {
+                Task { await handleRestore() }
+            } label: {
+                HStack(spacing: 4) {
+                    if isRestoring {
+                        ProgressView().scaleEffect(0.7)
+                    }
+                    Text(isRestoring ? "Restoring…" : "Restore Purchases")
+                }
             }
             .font(.fdCaption)
             .foregroundStyle(Color.fdTextSecondary)
+            .disabled(isPurchasing || isRestoring)
 
             Text("·")
                 .foregroundStyle(Color.fdTextMuted)
@@ -367,37 +291,30 @@ struct PaywallView: View {
     // MARK: - Purchase Logic
 
     private func handlePurchase() {
-        let product: Product?
-        switch selectedPlan {
-        case .yearly:
-            product = subscriptionManager.yearlyProduct
-        case .monthly:
-            product = subscriptionManager.monthlyProduct
-        }
-
-        guard let product else {
-            errorMessage = "Product not available. Please try again later."
-            showError = true
-            return
-        }
-
         isPurchasing = true
         Task {
+            defer { isPurchasing = false }
             do {
-                _ = try await subscriptionManager.purchase(product)
-                await MainActor.run {
-                    isPurchasing = false
-                    if subscriptionManager.status == .pro {
-                        dismiss()
-                    }
+                let transaction = try await subscriptionManager.purchase()
+                if transaction != nil, subscriptionManager.status != .free {
+                    dismiss()
                 }
             } catch {
-                await MainActor.run {
-                    isPurchasing = false
-                    errorMessage = error.localizedDescription
-                    showError = true
-                }
+                errorMessage = error.localizedDescription
+                showError = true
             }
+        }
+    }
+
+    private func handleRestore() async {
+        isRestoring = true
+        defer { isRestoring = false }
+        await subscriptionManager.restorePurchases()
+        if subscriptionManager.status != .free {
+            dismiss()
+        } else if let message = subscriptionManager.errorMessage {
+            errorMessage = message
+            showError = true
         }
     }
 }

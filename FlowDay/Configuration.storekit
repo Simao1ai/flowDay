@@ -17,17 +17,11 @@
         {
           "adHocOffers" : [],
           "codeOffers" : [],
-          "displayPrice" : "4.99",
+          "displayPrice" : "7.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "F1A2B3C4-0001-0001-0001-000000000001",
-          "introductoryOffer" : {
-            "displayPrice" : "0.00",
-            "internalID" : "F1A2B3C4-0002-0001-0001-000000000001",
-            "numberOfPeriods" : 1,
-            "paymentMode" : "free",
-            "subscriptionPeriod" : "P1W"
-          },
+          "introductoryOffer" : null,
           "localizations" : [
             {
               "description" : "Full access to all FlowDay Pro features, billed monthly. Includes unlimited projects, AI planning, AI chat, custom themes, priority support, and advanced analytics.",
@@ -35,37 +29,9 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.flowday.pro.monthly",
+          "productID" : "flowday.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "FlowDay Pro Monthly",
-          "subscriptionGroupID" : "FlowDayPro",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : []
-        },
-        {
-          "adHocOffers" : [],
-          "codeOffers" : [],
-          "displayPrice" : "39.99",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "F1A2B3C4-0001-0001-0001-000000000002",
-          "introductoryOffer" : {
-            "displayPrice" : "0.00",
-            "internalID" : "F1A2B3C4-0002-0001-0001-000000000002",
-            "numberOfPeriods" : 1,
-            "paymentMode" : "free",
-            "subscriptionPeriod" : "P1W"
-          },
-          "localizations" : [
-            {
-              "description" : "Full access to all FlowDay Pro features, billed yearly. Save 33% compared to monthly. Includes unlimited projects, AI planning, AI chat, custom themes, priority support, and advanced analytics.",
-              "displayName" : "Yearly",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.flowday.pro.yearly",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "FlowDay Pro Yearly",
           "subscriptionGroupID" : "FlowDayPro",
           "type" : "RecurringSubscription",
           "winbackOffers" : []

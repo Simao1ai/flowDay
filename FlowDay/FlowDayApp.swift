@@ -19,6 +19,12 @@ struct FlowDayApp: App {
            !googleAppId.hasPrefix("REPLACE") {
             FirebaseApp.configure()
         }
+
+        // Boot the StoreKit transaction listener so renewals/expirations are observed
+        // even before the user opens any subscription-related view.
+        Task { @MainActor in
+            SubscriptionManager.shared.start()
+        }
     }
 
     @State private var appState = AppState()

@@ -2,7 +2,7 @@
 // FlowDay
 //
 // StoreKit 2 subscription manager with freemium feature gating.
-// Handles product loading, purchasing, and daily usage tracking.
+// Handles product loading, purchasing, restore, and renewal/expiration via Transaction.updates.
 
 import Foundation
 import StoreKit
@@ -25,7 +25,7 @@ enum ProFeature: String, CaseIterable {
     case prioritySupport
     case advancedAnalytics
 
-    // New Pro-only features
+    // Pro-only features
     case unlimitedAI
     case emailToTask
     case ramble
@@ -57,17 +57,21 @@ enum ProFeature: String, CaseIterable {
 final class SubscriptionManager {
     static let shared = SubscriptionManager()
 
-    // Product IDs
-    static let monthlyProductID = "io.flowday.pro.monthly"
-    static let yearlyProductID = "io.flowday.pro.yearly"
+    static let monthlyProductID = "flowday.pro.monthly"
+    static let fallbackMonthlyPrice = "$7.99"
+
+    private let isProBackupKey = "fd_subscription_is_pro"
 
     // State
     var status: SubscriptionStatus = .free
-    var products: [Product] = []
     var monthlyProduct: Product?
-    var yearlyProduct: Product?
     var isLoading: Bool = false
     var errorMessage: String?
+
+    /// Display price for the monthly subscription. Falls back to "$7.99" until StoreKit loads the product.
+    var monthlyDisplayPrice: String {
+        monthlyProduct?.displayPrice ?? Self.fallbackMonthlyPrice
+    }
 
     // Usage tracking
     private var dailyUsage: [String: Int] = [:]
@@ -78,6 +82,11 @@ final class SubscriptionManager {
     nonisolated(unsafe) private var transactionListener: Task<Void, Error>?
 
     private init() {
+        // Optimistic restore from UserDefaults backup so the UI does not flash
+        // a paywall to a Pro user before StoreKit confirms entitlements.
+        if UserDefaults.standard.bool(forKey: isProBackupKey) {
+            status = .pro
+        }
         loadDailyUsage()
         transactionListener = listenForTransactions()
 
@@ -91,6 +100,10 @@ final class SubscriptionManager {
         transactionListener?.cancel()
     }
 
+    /// No-op trigger to ensure the singleton (and its transaction listener) is initialized.
+    /// Call once on app launch.
+    func start() {}
+
     // MARK: - Feature Access
 
     /// Check if user can access a given pro feature
@@ -99,7 +112,6 @@ final class SubscriptionManager {
             return true
         }
 
-        // Free tier — new features are fully Pro-only
         switch feature {
         case .unlimitedAI, .emailToTask, .ramble, .focusTimerLinked,
              .premiumTemplates, .attachments, .kanbanBoard, .weekView,
@@ -152,25 +164,17 @@ final class SubscriptionManager {
 
     // MARK: - StoreKit 2 Methods
 
-    /// Load available products from the App Store
+    /// Load the monthly product from the App Store
     func loadProducts() async {
         isLoading = true
         defer { isLoading = false }
 
         do {
-            let productIDs: Set<String> = [
-                Self.monthlyProductID,
-                Self.yearlyProductID
-            ]
-
-            let storeProducts = try await Product.products(for: productIDs)
-            products = storeProducts.sorted { $0.price < $1.price }
-
-            monthlyProduct = products.first { $0.id == Self.monthlyProductID }
-            yearlyProduct = products.first { $0.id == Self.yearlyProductID }
+            let storeProducts = try await Product.products(for: [Self.monthlyProductID])
+            monthlyProduct = storeProducts.first { $0.id == Self.monthlyProductID }
 
             #if DEBUG
-            print("[SubscriptionManager] Loaded \(products.count) products")
+            print("[SubscriptionManager] Loaded monthly product: \(monthlyProduct?.displayPrice ?? "nil")")
             #endif
         } catch {
             errorMessage = "Failed to load products: \(error.localizedDescription)"
@@ -180,7 +184,20 @@ final class SubscriptionManager {
         }
     }
 
-    /// Purchase a subscription product
+    /// Purchase the monthly subscription. Loads the product first if needed.
+    @discardableResult
+    func purchase() async throws -> StoreKit.Transaction? {
+        if monthlyProduct == nil {
+            await loadProducts()
+        }
+        guard let product = monthlyProduct else {
+            throw SubscriptionError.productUnavailable
+        }
+        return try await purchase(product)
+    }
+
+    /// Purchase a specific product
+    @discardableResult
     func purchase(_ product: Product) async throws -> StoreKit.Transaction? {
         let result = try await product.purchase()
 
@@ -202,7 +219,7 @@ final class SubscriptionManager {
         }
     }
 
-    /// Restore previous purchases
+    /// Restore previous purchases by syncing with the App Store
     func restorePurchases() async {
         do {
             try await AppStore.sync()
@@ -212,22 +229,19 @@ final class SubscriptionManager {
         }
     }
 
-    /// Check current subscription status
+    /// Check current subscription status from StoreKit and update the UserDefaults backup
     func checkSubscriptionStatus() async {
         var hasActiveSubscription = false
 
         for await result in Transaction.currentEntitlements {
-            if let transaction = try? checkVerified(result) {
-                if transaction.productID == Self.monthlyProductID ||
-                    transaction.productID == Self.yearlyProductID {
-                    hasActiveSubscription = true
-                }
+            if let transaction = try? checkVerified(result),
+               transaction.productID == Self.monthlyProductID {
+                hasActiveSubscription = true
             }
         }
 
-        await MainActor.run {
-            status = hasActiveSubscription ? .pro : .free
-        }
+        status = hasActiveSubscription ? .pro : .free
+        UserDefaults.standard.set(hasActiveSubscription, forKey: isProBackupKey)
     }
 
     // MARK: - Transaction Listener
@@ -291,12 +305,15 @@ final class SubscriptionManager {
 
 enum SubscriptionError: Error, LocalizedError {
     case verificationFailed
+    case productUnavailable
     case purchaseFailed
 
     var errorDescription: String? {
         switch self {
         case .verificationFailed:
             return "Transaction verification failed."
+        case .productUnavailable:
+            return "Subscription is not available right now. Please try again."
         case .purchaseFailed:
             return "Purchase could not be completed."
         }
