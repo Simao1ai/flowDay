@@ -71,6 +71,10 @@ targets:
         com.apple.security.application-groups:
           - group.io.flowday.app
 
+  # FlowDayWidgets target temporarily removed for TestFlight builds.
+  # Re-enable before full launch by uncommenting and running xcodegen.
+  # See FlowDayWidgets/ directory for all widget source code.
+
   FlowDayTests:
     type: bundle.unit-test
     platform: iOS
