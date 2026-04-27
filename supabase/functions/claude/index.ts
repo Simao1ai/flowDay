@@ -229,41 +229,46 @@ serve(async (req: Request) => {
     return errorResponse(405, "Method not allowed");
   }
 
-  // ── Auth: Verify Supabase JWT ────────────────────────────────────────────
+  // ── Auth: Try JWT, gracefully fall back to anon-key + user ID header ────
+  // The iOS app currently uses Apple Sign-In with Keychain auth, not
+  // Supabase JWT. So we accept the anon key and use X-FlowDay-User-ID
+  // for rate limiting. When Supabase auth is wired up, the JWT path
+  // will activate automatically.
   let userId = "anon";
   let isPro = false;
 
-  const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
-  if (!jwtSecret) {
-    console.error("[claude] SUPABASE_JWT_SECRET not set");
-    return errorResponse(500, "Server configuration error");
-  }
-
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return errorResponse(401, "Authentication required.");
-  }
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    const jwtSecret = Deno.env.get("JWT_SECRET");
 
-  const token = authHeader.slice(7);
-  try {
-    const secretKey = new TextEncoder().encode(jwtSecret);
-    const { payload } = await jose.jwtVerify(token, secretKey);
+    if (jwtSecret) {
+      try {
+        const secretKey = new TextEncoder().encode(jwtSecret);
+        const { payload } = await jose.jwtVerify(token, secretKey);
 
-    const sub = payload.sub as string | undefined;
-    if (sub) {
-      userId = sub;
-      const appMeta = (payload as Record<string, unknown>).app_metadata as Record<string, unknown> ?? {};
-      isPro = appMeta.plan === "pro";
-    } else {
-      const fallbackId = req.headers.get("X-FlowDay-User-ID");
-      userId = fallbackId ? `anon:${fallbackId}` : "anon";
+        const sub = payload.sub as string | undefined;
+        if (sub) {
+          userId = sub;
+          const appMeta = (payload as Record<string, unknown>).app_metadata as Record<string, unknown> ?? {};
+          isPro = appMeta.plan === "pro";
+        }
+      } catch {
+        // JWT verification failed — likely an anon key, not a user JWT.
+        // Fall through to the fallback below instead of rejecting.
+      }
     }
-  } catch (err) {
-    console.warn("[claude] JWT verification failed:", (err as Error).message);
-    return errorResponse(401, "Invalid or expired token. Please sign in again.");
   }
 
-  console.log(`[claude] user=${userId.slice(0, 8)} isPro=${isPro}`);
+  // Fallback: use X-FlowDay-User-ID header for identification + rate limiting
+  if (userId === "anon") {
+    const fallbackId = req.headers.get("X-FlowDay-User-ID") ?? req.headers.get("x-flowday-user-id");
+    if (fallbackId) {
+      userId = `anon:${fallbackId}`;
+    }
+  }
+
+  console.log(`[claude] user=${userId.slice(0, 8)}... isPro=${isPro}`);
 
   // ── Parse request body ───────────────────────────────────────────────────
   let body: ClaudeRequestBody;
