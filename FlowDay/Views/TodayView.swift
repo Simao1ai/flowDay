@@ -199,9 +199,10 @@ struct TodayView: View {
                             .foregroundStyle(Color.fdTextMuted)
                     }
                     Spacer()
-                    HStack(alignment: .center, spacing: 10) {
+                    HStack(alignment: .center, spacing: 8) {
                         if let energy = appState.todayEnergy {
                             energyBadge(energy)
+                                .frame(height: 26)
                         }
                         Button {
                             showProductivityScore = true
@@ -214,7 +215,9 @@ struct TodayView: View {
                                 .background(Color.fdAccent.opacity(0.12))
                                 .clipShape(Capsule())
                         }
+                        .frame(height: 26)
                         SyncStatusBadge()
+                            .frame(height: 26)
                         Button {
                             showFocusTimer = true
                         } label: {
@@ -230,6 +233,7 @@ struct TodayView: View {
                                 }
                             }
                         }
+                        .frame(height: 26)
                         Button {
                             showDayRecap = true
                         } label: {
@@ -237,6 +241,7 @@ struct TodayView: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.fdTextSecondary)
                         }
+                        .frame(height: 26)
                         Button {
                             showSettings = true
                         } label: {
@@ -244,6 +249,7 @@ struct TodayView: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(Color.fdTextSecondary)
                         }
+                        .frame(height: 26)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -892,7 +898,7 @@ struct TodayView: View {
     private func energyBadge(_ level: EnergyLevel) -> some View {
         Text(level.emoji)
             .font(.system(size: 14))
-            .frame(width: 28, height: 28)
+            .frame(width: 26, height: 26)
             .background(energyColor(level).opacity(0.12))
             .clipShape(Circle())
     }
