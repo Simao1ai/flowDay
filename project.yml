@@ -19,6 +19,9 @@ packages:
   Supabase:
     url: https://github.com/supabase/supabase-swift
     from: "2.0.0"
+  FirebaseSDK:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "11.0.0"
 
 targets:
   FlowDay:
@@ -30,6 +33,10 @@ targets:
     dependencies:
       - package: GoogleSignIn
       - package: Supabase
+      - package: FirebaseSDK
+        product: FirebaseCore
+      - package: FirebaseSDK
+        product: FirebaseCrashlytics
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.flowday.app

@@ -13,11 +13,18 @@
  *   - 1 on the system prompt
  *   - Up to 3 on conversation messages (the last 3 messages before the final one)
  *
+ * Auth: JWT verified via SUPABASE_JWT_SECRET. Falls back to X-FlowDay-User-ID
+ * header when the bearer token is the anon key (no authenticated Supabase sub).
+ *
+ * Rate limits: 5 calls/day per feature for free users, 200/day for Pro.
+ * Tracked in-memory — resets on cold start (good enough for launch).
+ *
  * Deploy:
  *   supabase functions deploy claude --no-verify-jwt=false
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import * as jose from "https://esm.sh/jose@5.2.0";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -48,6 +55,24 @@ interface AnthropicRequest {
   temperature: number;
   system: AnthropicContentBlock[];
   messages: AnthropicMessage[];
+}
+
+// ─── Rate Limiting ────────────────────────────────────────────────────────────
+//
+// In-memory map; resets on every cold start. Key: "userId:feature:YYYY-MM-DD".
+// This is intentionally simple — good enough until we have a persistent store.
+
+const rateLimitMap = new Map<string, number>();
+const FREE_DAILY_LIMIT = 5;
+const PRO_DAILY_LIMIT = 200;
+
+function checkRateLimit(userId: string, feature: string, limit: number): boolean {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const key = `${userId}:${feature}:${today}`;
+  const prev = rateLimitMap.get(key) ?? 0;
+  if (prev >= limit) return false;
+  rateLimitMap.set(key, prev + 1);
+  return true;
 }
 
 // ─── System Prompts ───────────────────────────────────────────────────────────
@@ -204,9 +229,43 @@ serve(async (req: Request) => {
     return errorResponse(405, "Method not allowed");
   }
 
-  // ── Auth: DISABLED — open access while iOS transitions to proper JWT ────
-  const userId = "anonymous";
-  console.log("[claude] Open access (auth disabled)");
+  // ── Auth: Verify Supabase JWT ────────────────────────────────────────────
+  let userId = "anon";
+  let isPro = false;
+
+  const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
+  if (!jwtSecret) {
+    console.error("[claude] SUPABASE_JWT_SECRET not set");
+    return errorResponse(500, "Server configuration error");
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return errorResponse(401, "Authentication required.");
+  }
+
+  const token = authHeader.slice(7);
+  try {
+    const secretKey = new TextEncoder().encode(jwtSecret);
+    const { payload } = await jose.jwtVerify(token, secretKey);
+
+    const sub = payload.sub as string | undefined;
+    if (sub) {
+      // Authenticated user — extract sub and pro claim
+      userId = sub;
+      const appMeta = (payload as Record<string, unknown>).app_metadata as Record<string, unknown> ?? {};
+      isPro = appMeta.plan === "pro";
+    } else {
+      // Anon JWT (no sub) — fall back to device-level identifier
+      const fallbackId = req.headers.get("X-FlowDay-User-ID");
+      userId = fallbackId ? `anon:${fallbackId}` : "anon";
+    }
+  } catch (err) {
+    console.warn("[claude] JWT verification failed:", (err as Error).message);
+    return errorResponse(401, "Invalid or expired token. Please sign in again.");
+  }
+
+  console.log(`[claude] user=${userId.slice(0, 8)} isPro=${isPro}`);
 
   // ── Parse request body ───────────────────────────────────────────────────
   let body: ClaudeRequestBody;
@@ -226,6 +285,14 @@ serve(async (req: Request) => {
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return errorResponse(400, "messages must be a non-empty array");
+  }
+
+  // ── Rate limiting ────────────────────────────────────────────────────────
+  const dailyLimit = isPro ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
+  if (!checkRateLimit(userId, feature, dailyLimit)) {
+    const limitLabel = isPro ? `${PRO_DAILY_LIMIT}/day (Pro)` : `${FREE_DAILY_LIMIT}/day (free)`;
+    console.log(`[claude] rate limited user=${userId.slice(0, 8)} feature=${feature}`);
+    return errorResponse(429, `Daily AI limit reached (${limitLabel} per feature). Upgrade to Pro for unlimited access.`);
   }
 
   // ── Build Anthropic request with prompt caching ──────────────────────────
@@ -306,7 +373,7 @@ serve(async (req: Request) => {
     : 0;
 
   console.log(
-    `[claude] feature=${feature} user=${userId} maxTokens=${maxTokens} ` +
+    `[claude] feature=${feature} user=${userId.slice(0, 8)} maxTokens=${maxTokens} ` +
     `cache=${cacheStatus} input=${inputTokens} output=${outputTokens} ` +
     `savings=~${savingsPercent}%`
   );
@@ -337,7 +404,7 @@ function corsHeaders(): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-flowday-user-id",
   };
 }
 

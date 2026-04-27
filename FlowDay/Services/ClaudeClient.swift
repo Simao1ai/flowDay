@@ -14,6 +14,7 @@
 //   )
 
 import Foundation
+import FirebaseCrashlytics
 
 // MARK: - Claude Feature
 
@@ -139,6 +140,10 @@ final class ClaudeClient {
         request.setValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")
         // Supabase Edge Functions also require the anon key as apikey header
         request.setValue(FlowDayConfig.supabaseAnonKey, forHTTPHeaderField: "apikey")
+        // Stable user ID for server-side rate limiting when no Supabase sub is present
+        if let uid = stableUserIdentifier() {
+            request.setValue(uid, forHTTPHeaderField: "X-FlowDay-User-ID")
+        }
 
         do {
             request.httpBody = try JSONEncoder().encode(payload)
@@ -151,6 +156,7 @@ final class ClaudeClient {
         do {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
+            CrashReporter.record(error, context: "ClaudeClient.network")
             throw ClaudeClientError.networkError(error)
         }
 
@@ -174,7 +180,9 @@ final class ClaudeClient {
             #if DEBUG
             print("[ClaudeClient] HTTP \(http.statusCode): \(body)")
             #endif
-            throw ClaudeClientError.serverError(http.statusCode, body)
+            let serverErr = ClaudeClientError.serverError(http.statusCode, body)
+            CrashReporter.record(serverErr, context: "ClaudeClient.serverError[\(http.statusCode)]")
+            throw serverErr
         }
 
         // Try to decode the structured response
@@ -193,6 +201,22 @@ final class ClaudeClient {
             return text
         }
 
+        CrashReporter.record(ClaudeClientError.invalidResponse, context: "ClaudeClient.invalidResponse")
         throw ClaudeClientError.invalidResponse
+    }
+
+    // MARK: - Private Helpers
+
+    /// Returns a stable, opaque user identifier for server-side rate limiting.
+    /// Prefers the Supabase user ID; falls back to the Apple/Google UUID from Keychain.
+    private func stableUserIdentifier() -> String? {
+        if let userId = SupabaseService.shared.loadSession()?.user?.id {
+            return String(userId.prefix(16))
+        }
+        if let data = KeychainHelper.shared.read(for: "io.flowday.auth.user"),
+           let user = try? JSONDecoder().decode(FDUser.self, from: data) {
+            return String(user.id.uuidString.prefix(16))
+        }
+        return nil
     }
 }

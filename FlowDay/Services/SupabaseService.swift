@@ -8,6 +8,7 @@
 // fires asynchronously and fails silently if offline or unauthenticated.
 
 import Foundation
+import FirebaseCrashlytics
 
 // MARK: - SupabaseService
 
@@ -83,6 +84,7 @@ final class SupabaseService: @unchecked Sendable {
             try checkHTTPStatus(response)
             SyncStatusService.end(success: true)
         } catch {
+            CrashReporter.record(error, context: "SupabaseService.syncTask")
             #if DEBUG
             print("[SupabaseService] syncTask failed: \(error.localizedDescription)")
             #endif
@@ -107,6 +109,7 @@ final class SupabaseService: @unchecked Sendable {
             request.httpBody = try encoder.encode(row)
             let (_, _) = try await URLSession.shared.data(for: request)
         } catch {
+            CrashReporter.record(error, context: "SupabaseService.recordCompletion")
             #if DEBUG
             print("[SupabaseService] recordCompletion failed: \(error.localizedDescription)")
             #endif
@@ -128,6 +131,7 @@ final class SupabaseService: @unchecked Sendable {
             try checkHTTPStatus(response)
             SyncStatusService.end(success: true)
         } catch {
+            CrashReporter.record(error, context: "SupabaseService.syncProject")
             #if DEBUG
             print("[SupabaseService] syncProject failed: \(error.localizedDescription)")
             #endif
@@ -167,6 +171,7 @@ final class SupabaseService: @unchecked Sendable {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
             let (_, _) = try await URLSession.shared.data(for: request)
         } catch {
+            CrashReporter.record(error, context: "SupabaseService.saveTemplate")
             #if DEBUG
             print("[SupabaseService] saveTemplate failed: \(error.localizedDescription)")
             #endif

@@ -4,9 +4,22 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import FirebaseCore
+import FirebaseCrashlytics
 
 @main
 struct FlowDayApp: App {
+
+    init() {
+        // Configure Firebase only when a real GoogleService-Info.plist is present.
+        // Replace the placeholder plist with the one from Firebase Console before shipping.
+        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+           let dict = NSDictionary(contentsOfFile: path),
+           let googleAppId = dict["GOOGLE_APP_ID"] as? String,
+           !googleAppId.hasPrefix("REPLACE") {
+            FirebaseApp.configure()
+        }
+    }
 
     @State private var appState = AppState()
     @State private var authManager = AuthManager()
