@@ -157,6 +157,7 @@ final class AppState {
     var showEnergyCheckIn: Bool = true
     var todayEnergy: EnergyLevel? = nil
     var showQuickAdd: Bool = false
+    var showFlowAI: Bool = false
     var selectedDate: Date = .now
     var sidebarVisible: Bool = true
     var hasSeededData: Bool = false

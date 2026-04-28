@@ -23,8 +23,21 @@ struct RootView: View {
     var body: some View {
         @Bindable var state = appState
 
+        // The Flow AI tab is virtual: tapping it opens a sheet rather than
+        // switching tabs, so the user keeps their current screen underneath.
+        let tabBinding = Binding<AppState.Tab>(
+            get: { state.selectedTab },
+            set: { newTab in
+                if newTab == .flowAI {
+                    state.showFlowAI = true
+                } else {
+                    state.selectedTab = newTab
+                }
+            }
+        )
+
         ZStack {
-            TabView(selection: $state.selectedTab) {
+            TabView(selection: tabBinding) {
                 TodayView(taskService: taskService, calendarService: calendarService)
                         .environment(focusTimerService)
                     .tabItem {
@@ -38,14 +51,12 @@ struct RootView: View {
                     }
                     .tag(AppState.Tab.upcoming)
 
-                // Flow AI — center tab
-                NavigationStack {
-                    AIAssistantView()
-                }
-                .tabItem {
-                    Label("Flow AI", systemImage: "sparkles")
-                }
-                .tag(AppState.Tab.flowAI)
+                // Flow AI — center tab; tap is intercepted to present a sheet.
+                Color.clear
+                    .tabItem {
+                        Label("Flow AI", systemImage: "sparkles")
+                    }
+                    .tag(AppState.Tab.flowAI)
 
                 InboxView(taskService: taskService)
                     .tabItem {
@@ -88,6 +99,9 @@ struct RootView: View {
         }
         .sheet(isPresented: $showWhatsNew) {
             NavigationStack { WhatsNewView() }
+        }
+        .sheet(isPresented: $state.showFlowAI) {
+            AIAssistantView()
         }
         .environment(gamification)
         .onAppear {

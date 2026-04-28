@@ -22,30 +22,27 @@ struct AIAssistantView: View {
     private var proAccess: ProAccessManager { .shared }
 
     var body: some View {
-        ZStack {
-            Color.fdBackground.ignoresSafeArea()
+        VStack(spacing: 0) {
+            navBar
 
-            VStack(spacing: 0) {
-                navBar
-                messagesList
-                    .safeAreaInset(edge: .bottom) {
-                        inputAreaSpacer
-                    }
+            if !proAccess.isPro && !aiService.showUpgradePrompt {
+                callsRemainingBanner
             }
 
-            VStack(spacing: 0) {
-                if !proAccess.isPro && !aiService.showUpgradePrompt {
-                    callsRemainingBanner
-                }
-                if aiService.showUpgradePrompt {
-                    upgradePrompt
-                }
-                if aiService.messages.count == 1 {
-                    quickSuggestions
-                }
-                inputBar
+            if aiService.showUpgradePrompt {
+                upgradePrompt
             }
+
+            messagesList
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if aiService.messages.count == 1 {
+                quickSuggestions
+            }
+
+            inputBar
         }
+        .background(Color.fdBackground.ignoresSafeArea())
         .sheet(isPresented: $showProUpgrade) { ProUpgradeView(highlightedFeature: .unlimitedAI) }
         .sheet(isPresented: $showVoiceInput) {
             VoiceInputView { text in
@@ -63,20 +60,6 @@ struct AIAssistantView: View {
         .onAppear {
             aiService.modelContext = modelContext
         }
-    }
-
-    // MARK: - Spacer to keep messages above the input bar
-
-    private var inputAreaSpacer: some View {
-        Color.clear.frame(height: inputBarHeight)
-    }
-
-    private var inputBarHeight: CGFloat {
-        var h: CGFloat = 72
-        if !proAccess.isPro && !aiService.showUpgradePrompt { h += 36 }
-        if aiService.showUpgradePrompt { h += 68 }
-        if aiService.messages.count == 1 { h += 56 }
-        return h
     }
 
     // MARK: - Nav Bar
