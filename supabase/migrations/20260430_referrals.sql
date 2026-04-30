@@ -4,8 +4,6 @@
 --   user_referral_codes — stable, shareable code per user
 --   referrals           — one row per invited person (pending → completed)
 
-create extension if not exists "uuid-ossp";
-
 -- ─────────────────────────────────────────
 -- user_referral_codes
 -- One row per user. Code is generated client-side (8-char base32)
@@ -37,7 +35,7 @@ create policy "Anyone can resolve a code"
 -- referrals
 -- ─────────────────────────────────────────
 create table if not exists public.referrals (
-  id                uuid primary key default uuid_generate_v4(),
+  id                uuid primary key default gen_random_uuid(),
   referrer_id       uuid not null references auth.users(id) on delete cascade,
   referred_email    text,
   referred_user_id  uuid references auth.users(id) on delete set null,

@@ -7,13 +7,11 @@
 --
 -- Run this in the Supabase SQL editor.
 
-create extension if not exists "uuid-ossp";
-
 -- ─────────────────────────────────────────
 -- shared_projects
 -- ─────────────────────────────────────────
 create table if not exists public.shared_projects (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   project_id  uuid not null,                      -- local FDProject UUID this maps to
   owner_id    uuid not null references auth.users(id) on delete cascade,
   name        text not null default '',
@@ -42,7 +40,7 @@ create policy "Owner can manage shared project"
 -- shared_project_members
 -- ─────────────────────────────────────────
 create table if not exists public.shared_project_members (
-  id                  uuid primary key default uuid_generate_v4(),
+  id                  uuid primary key default gen_random_uuid(),
   shared_project_id   uuid not null references public.shared_projects(id) on delete cascade,
   user_id             uuid references auth.users(id) on delete set null,
   email               text not null,
