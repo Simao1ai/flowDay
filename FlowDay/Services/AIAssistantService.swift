@@ -253,7 +253,7 @@ final class AIAssistantService {
         } catch {
             let topTasks = tasks.prefix(5).map { "• \($0.title) [\($0.priority.label)]" }.joined(separator: "\n")
             return AIMessage(
-                content: "Couldn't reach AI right now (\(error.localizedDescription)), but here are your top priorities at \(energy.label.lowercased()) energy:\n\n\(topTasks)\n\nFocus on P1/P2 tasks first, then work through the rest.",
+                content: "Couldn't reach AI right now (\(error.localizedDescription)), but here are your top priorities at \(energy.label.lowercased()) energy:\n\n\(topTasks)\n\nFocus on Urgent/High tasks first, then work through the rest.",
                 isUser: false
             )
         }
@@ -692,13 +692,13 @@ final class AIAssistantService {
             newPriority = .none
         } else {
             return AIMessage(
-                content: "What priority should **\(task.title)** be? Choose P1 (urgent), P2 (high), P3 (medium), or P4 (low).",
+                content: "What priority should **\(task.title)** be? Choose Urgent, High, Medium, or Low.",
                 isUser: false,
                 suggestions: [
-                    AISuggestion(text: "P1 Urgent", icon: "flag.fill", action: .changePriority(id: task.id, priority: 1)),
-                    AISuggestion(text: "P2 High", icon: "flag.fill", action: .changePriority(id: task.id, priority: 2)),
-                    AISuggestion(text: "P3 Medium", icon: "flag.fill", action: .changePriority(id: task.id, priority: 3)),
-                    AISuggestion(text: "P4 Low", icon: "flag", action: .changePriority(id: task.id, priority: 4))
+                    AISuggestion(text: "Urgent", icon: "flag.fill", action: .changePriority(id: task.id, priority: 1)),
+                    AISuggestion(text: "High",   icon: "flag.fill", action: .changePriority(id: task.id, priority: 2)),
+                    AISuggestion(text: "Medium", icon: "flag.fill", action: .changePriority(id: task.id, priority: 3)),
+                    AISuggestion(text: "Low",    icon: "flag",       action: .changePriority(id: task.id, priority: 4))
                 ]
             )
         }

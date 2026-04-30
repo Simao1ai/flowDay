@@ -58,26 +58,37 @@ extension Color {
 
     // MARK: - Background & Surface
 
-    /// Primary background color — warm light beige (#FAF8F5) or warm dark (#1C1917)
-    static let fdBackground = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(hex: "1C1917")
-            : UIColor(hex: "FAF8F5")
-    })
+    /// Primary background color — warm light beige (#FAF8F5) or warm dark (#1C1917).
+    /// The "Dark" theme overrides this to pure OLED black.
+    static var fdBackground: Color {
+        Color(UIColor { traits in
+            if ThemeManager.isOLEDBlack { return .black }
+            return traits.userInterfaceStyle == .dark
+                ? UIColor(hex: "1C1917")
+                : UIColor(hex: "FAF8F5")
+        })
+    }
 
-    /// Primary surface color — white (#FFFFFF) or dark warm gray (#292524)
-    static let fdSurface = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(hex: "292524")
-            : UIColor(hex: "FFFFFF")
-    })
+    /// Primary surface color — white (#FFFFFF) or dark warm gray (#292524).
+    /// "Dark" theme uses near-black (#0A0A0A) for layered cards on OLED.
+    static var fdSurface: Color {
+        Color(UIColor { traits in
+            if ThemeManager.isOLEDBlack { return UIColor(hex: "0A0A0A") }
+            return traits.userInterfaceStyle == .dark
+                ? UIColor(hex: "292524")
+                : UIColor(hex: "FFFFFF")
+        })
+    }
 
-    /// Surface hover state — light gray (#F7F5F2) or darker warm gray (#342F2B)
-    static let fdSurfaceHover = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(hex: "342F2B")
-            : UIColor(hex: "F7F5F2")
-    })
+    /// Surface hover state — light gray (#F7F5F2) or darker warm gray (#342F2B).
+    static var fdSurfaceHover: Color {
+        Color(UIColor { traits in
+            if ThemeManager.isOLEDBlack { return UIColor(hex: "1A1A1A") }
+            return traits.userInterfaceStyle == .dark
+                ? UIColor(hex: "342F2B")
+                : UIColor(hex: "F7F5F2")
+        })
+    }
 
     // MARK: - Borders
 
@@ -120,8 +131,8 @@ extension Color {
 
     // MARK: - Accent (Primary Brand Color)
 
-    /// Primary accent — warm orange (#D4713B), same in both modes for pop
-    static let fdAccent = Color(hex: "D4713B")
+    /// Primary accent — driven by the active theme. Warm orange by default.
+    static var fdAccent: Color { ThemeManager.accent }
 
     /// Light accent background — very light peach (#FDF0E8) or dark tinted (#3D2518)
     static let fdAccentLight = Color(UIColor { traits in

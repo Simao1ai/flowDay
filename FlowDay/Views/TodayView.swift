@@ -67,7 +67,8 @@ struct TodayView: View {
     @State private var isScanningEmails = false
     @State private var showProductivityScore = false
     @State private var expandedTaskID: UUID?
-    @AppStorage("brief_dismissed_date") private var briefDismissedDate: Double = 0
+    /// Session-only dismissal: a fresh app launch always re-shows today's brief.
+    @State private var briefDismissedThisSession = false
     @State private var quickAddText = ""
     @FocusState private var quickAddFocused: Bool
     @State private var selection = SelectionState()
@@ -322,9 +323,7 @@ struct TodayView: View {
     // MARK: - Daily Brief
 
     private var showDailyBrief: Bool {
-        let lastDismissed = Date(timeIntervalSince1970: briefDismissedDate)
-        let dismissedToday = Calendar.current.isDateInToday(lastDismissed)
-        return !dismissedToday && (briefService.brief != nil || briefService.isLoading)
+        !briefDismissedThisSession && (briefService.brief != nil || briefService.isLoading)
     }
 
     @ViewBuilder
@@ -334,7 +333,7 @@ struct TodayView: View {
         } else if let brief = briefService.brief {
             DailyBriefView(brief: brief) {
                 withAnimation(.easeOut(duration: 0.25)) {
-                    briefDismissedDate = Date.now.timeIntervalSince1970
+                    briefDismissedThisSession = true
                 }
             }
         }

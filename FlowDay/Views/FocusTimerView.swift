@@ -28,6 +28,9 @@ struct FocusTimerView: View {
     // Tracks the last completedSessionCount we already persisted, to avoid double-saves
     @State private var lastSavedSessionCount = 0
 
+    @State private var showCompletionAlert = false
+    @State private var completionAlertText = ""
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -76,6 +79,19 @@ struct FocusTimerView: View {
                     lastSavedSessionCount = newCount
                 }
             }
+            .onChange(of: timerService.lastCompletionMessage) { _, message in
+                guard let message else { return }
+                completionAlertText = message
+                showCompletionAlert = true
+            }
+            .alert("Timer complete",
+                   isPresented: $showCompletionAlert,
+                   actions: {
+                       Button("OK", role: .cancel) {
+                           timerService.lastCompletionMessage = nil
+                       }
+                   },
+                   message: { Text(completionAlertText) })
         }
     }
 

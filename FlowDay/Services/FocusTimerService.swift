@@ -37,6 +37,10 @@ final class FocusTimerService {
     // Session tracking (observed by FocusTimerView to persist sessions)
     var completedSessionCount: Int = 0
 
+    /// Set on every phase completion — the in-app alert shown by FocusTimerView
+    /// observes this and presents a banner. Cleared once the user dismisses.
+    var lastCompletionMessage: String? = nil
+
     private var timer: Timer? = nil
     private var backgroundEntryTime: Date? = nil
     private var notificationID: String? = nil
@@ -193,6 +197,9 @@ final class FocusTimerService {
             completedSessionCount += 1
             completedInCycle = min(completedInCycle + 1, 4)
             Haptics.success()
+            lastCompletionMessage = "Focus session complete — time for a break."
+            postForegroundCompletionIfActive(title: "Focus complete",
+                                             body: "Nice work. Take a quick break.")
             if completedInCycle >= 4 {
                 completedInCycle = 0
                 beginLongBreak()
@@ -201,10 +208,30 @@ final class FocusTimerService {
             }
         case .shortBreak, .longBreak:
             Haptics.tock()
+            lastCompletionMessage = "Break over — back to focus."
+            postForegroundCompletionIfActive(title: "Break over",
+                                             body: "Time to focus again.")
             beginWorkPhase()
         case .idle, .paused:
             break
         }
+    }
+
+    /// Foreground completion path. The willResignActive observer schedules a
+    /// notification when the app is backgrounded; this fires a complementary
+    /// foreground notification so the user is alerted either way.
+    private func postForegroundCompletionIfActive(title: String, body: String) {
+        guard UIApplication.shared.applicationState == .active else { return }
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+        UNUserNotificationCenter.current().add(
+            UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger),
+            withCompletionHandler: nil
+        )
     }
 
     // MARK: - Background Handling

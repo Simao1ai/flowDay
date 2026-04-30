@@ -187,10 +187,10 @@ enum TaskPriorityAppEnum: String, AppEnum {
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Priority"
     static var caseDisplayRepresentations: [TaskPriorityAppEnum: DisplayRepresentation] = [
-        .urgent: "P1 — Urgent",
-        .high:   "P2 — High",
-        .medium: "P3 — Medium",
-        .none:   "P4 — None"
+        .urgent: "Urgent",
+        .high:   "High",
+        .medium: "Medium",
+        .none:   "Low"
     ]
 
     var toDomain: TaskPriority {

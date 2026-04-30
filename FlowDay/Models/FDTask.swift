@@ -113,18 +113,26 @@ enum TaskPriority: Int, Codable, CaseIterable, Comparable {
 
     var label: String {
         switch self {
-        case .urgent: "P1"
-        case .high:   "P2"
-        case .medium: "P3"
-        case .none:   "P4"
+        case .urgent: "Urgent"
+        case .high:   "High"
+        case .medium: "Medium"
+        case .none:   "Low"
+        }
+    }
+
+    /// SF Symbol used in priority pills throughout the UI.
+    var iconName: String {
+        switch self {
+        case .urgent, .high, .medium: return "flag.fill"
+        case .none:                   return "flag"
         }
     }
 
     var colorName: String {
         switch self {
         case .urgent: "fdRed"
-        case .high:   "fdYellow"
-        case .medium: "fdBlue"
+        case .high:   "fdOrange"
+        case .medium: "fdYellow"
         case .none:   "fdGray"
         }
     }
@@ -132,8 +140,8 @@ enum TaskPriority: Int, Codable, CaseIterable, Comparable {
     var color: Color {
         switch self {
         case .urgent: return .fdRed
-        case .high:   return .fdYellow
-        case .medium: return .fdBlue
+        case .high:   return Color(hex: "FB923C") // orange
+        case .medium: return .fdYellow
         case .none:   return .fdTextMuted
         }
     }

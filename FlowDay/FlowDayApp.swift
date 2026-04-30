@@ -29,6 +29,7 @@ struct FlowDayApp: App {
 
     @State private var appState = AppState()
     @State private var authManager = AuthManager()
+    @State private var themeManager = ThemeManager.shared
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @Environment(\.scenePhase) private var scenePhase
 
@@ -81,6 +82,9 @@ struct FlowDayApp: App {
                     }
                 }
                 .tint(Color.fdAccent)
+                .preferredColorScheme(themeManager.preferredColorScheme)
+                .environment(themeManager)
+                .id(themeManager.themeID) // force re-render of color tree on theme change
             } else {
                 Text("Database Error")
                     .foregroundColor(.red)

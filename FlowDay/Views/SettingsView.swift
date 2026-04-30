@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import StoreKit
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -13,6 +14,7 @@ struct SettingsView: View {
     @Environment(AuthManager.self) private var authManager
 
     @Environment(EmailAccountService.self) private var emailAccountService
+    @Environment(\.requestReview) private var requestReview
 
     private var proAccess: ProAccessManager { .shared }
     @State private var showProUpgrade = false
@@ -266,11 +268,15 @@ struct SettingsView: View {
                 Divider().padding(.leading, 52)
                 syncStatusRow
                 Divider().padding(.leading, 52)
+                navRow(icon: "gift", title: "Invite Friends", color: .fdAccent) { ReferralView() }
+                Divider().padding(.leading, 52)
                 navRow(icon: "questionmark.circle", title: "Help & Feedback", color: .fdBlue) { HelpFeedbackView() }
                 Divider().padding(.leading, 52)
                 navRow(icon: "info.circle", title: "About", color: .fdTextSecondary) { AboutView() }
                 Divider().padding(.leading, 52)
-                settingsRow(icon: "star", title: "Rate FlowDay", color: .fdYellow) { /* Opens App Store review */ }
+                settingsRow(icon: "star", title: "Rate FlowDay", color: .fdYellow) {
+                    requestReview()
+                }
                 Divider().padding(.leading, 52)
                 infoRow(title: "Version", value: WhatsNewView.currentVersion)
             }

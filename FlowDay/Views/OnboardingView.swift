@@ -312,9 +312,9 @@ struct NaturalLanguageScreen: View {
                                     )
 
                                     ChipView(
-                                        text: "P1",
+                                        text: "Urgent",
                                         icon: "flag.fill",
-                                        color: .fdAccent,
+                                        color: .fdRed,
                                         delay: 0.4
                                     )
 
