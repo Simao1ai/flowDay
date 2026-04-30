@@ -17,7 +17,7 @@ struct EnergyCheckInView: View {
 
             VStack(spacing: 24) {
                 VStack(spacing: 6) {
-                    Text("Good morning")
+                    Text(Self.timeOfDayGreeting)
                         .font(.fdTitle2)
                         .foregroundStyle(Color.fdText)
                     Text("How are you feeling today?")
@@ -107,6 +107,17 @@ struct EnergyCheckInView: View {
         case .high:   .fdAccent
         case .normal: .fdYellow
         case .low:    .fdBlue
+        }
+    }
+
+    /// Time-aware greeting based on the current hour
+    static var timeOfDayGreeting: String {
+        let hour = Calendar.current.component(.hour, from: .now)
+        switch hour {
+        case 5..<12:  return "Good morning"
+        case 12..<17: return "Good afternoon"
+        case 17..<22: return "Good evening"
+        default:      return "Good evening"
         }
     }
 }

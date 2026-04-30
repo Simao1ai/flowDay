@@ -113,6 +113,16 @@ struct RootView: View {
                 }
             }
 
+            // Restore today's energy from SwiftData so the check-in only shows once per day
+            if appState.todayEnergy == nil {
+                let today = Calendar.current.startOfDay(for: .now)
+                if let logs = try? modelContext.fetch(FetchDescriptor<FDEnergyLog>()),
+                   let todayLog = logs.first(where: { $0.date >= today }) {
+                    appState.todayEnergy = todayLog.level
+                    showEnergyCheckIn = false
+                }
+            }
+
             // Request calendar access and fetch events
             Task {
                 let granted = await calendarService.requestAccess()
