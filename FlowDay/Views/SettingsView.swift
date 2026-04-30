@@ -178,6 +178,12 @@ struct SettingsView: View {
                     subtitle: emailConnectedSubtitle,
                     color: Color(hex: "EA4335")
                 ) { EmailConnectionsView() }
+                Divider().padding(.leading, 52)
+                navRow(
+                    icon: "person.2.fill",
+                    title: "Collaborate",
+                    color: .fdBlue
+                ) { CollaborateView(projectName: "") }
             }
             .background(Color.fdSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12))

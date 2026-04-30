@@ -32,6 +32,7 @@ struct BrowseView: View {
     @State private var selectedProject: FDProject?
     @State private var showManageProjects = false
     @State private var selectedFilter: SmartFilter?
+    @State private var showCollaborate = false
 
     var body: some View {
         NavigationStack {
@@ -42,6 +43,7 @@ struct BrowseView: View {
                     smartFiltersSection
                     if !favoriteProjects.isEmpty { favoritesSection }
                     projectsSection
+                    sharedProjectsSection
                     bottomActions
                 }
                 .padding(.horizontal, 20)
@@ -58,6 +60,9 @@ struct BrowseView: View {
             .sheet(isPresented: $showCreateProject) { CreateProjectSheet() }
             .sheet(isPresented: $showSearch) { SearchView(taskService: taskService) }
             .sheet(isPresented: $showManageProjects) { ManageProjectsView() }
+            .sheet(isPresented: $showCollaborate) {
+                CollaborateView(projectName: "")
+            }
             .sheet(item: $selectedProject) { project in
                 ProjectDetailView(project: project, taskService: taskService)
             }
@@ -385,6 +390,50 @@ struct BrowseView: View {
             RoundedRectangle(cornerRadius: 2)
                 .fill(Color.fdGreen)
                 .frame(width: max(0, 40 * rate), height: 4)
+        }
+    }
+
+    // MARK: - Shared Projects
+
+    private var sharedProjectsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Shared Projects")
+                .font(.fdTitle3)
+                .foregroundStyle(Color.fdText)
+
+            Button {
+                Haptics.tap()
+                showCollaborate = true
+            } label: {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.fdBlue.opacity(0.12))
+                            .frame(width: 34, height: 34)
+                        Image(systemName: "person.2.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.fdBlue)
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Collaborate")
+                            .font(.fdBody)
+                            .foregroundStyle(Color.fdText)
+                        Text("Share projects, invite teammates")
+                            .font(.fdMicro)
+                            .foregroundStyle(Color.fdTextMuted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.fdTextMuted)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+                .background(Color.fdSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.03), radius: 4, y: 2)
+            }
+            .buttonStyle(.plain)
         }
     }
 

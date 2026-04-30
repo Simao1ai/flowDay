@@ -327,15 +327,44 @@ final class AIAssistantService {
 
         pendingTaskSuggestion = nil
 
-        let projectNote = project.map { " in \($0.name)" } ?? ""
+        let location = locationDescription(for: task, project: project)
         messages.append(AIMessage(
-            content: "Done! Created \"\(suggestion.title)\"\(projectNote). Anything else?",
+            content: "Done! Created \"\(suggestion.title)\" — \(location). Anything else?",
             isUser: false,
             suggestions: [
                 AISuggestion(text: "Create another", icon: "plus.circle", action: .createTask(title: "")),
                 AISuggestion(text: "Plan my day", icon: "calendar", action: .planDay)
             ]
         ))
+    }
+
+    /// Tells the user where the task landed so they can find it after the
+    /// assistant message dismisses. Order: project name > scheduled time
+    /// (today/specific date) > due date > inbox.
+    private func locationDescription(for task: FDTask, project: FDProject?) -> String {
+        if let project { return "added to \(project.name)" }
+
+        if let scheduled = task.scheduledTime {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .none
+            formatter.timeStyle = .short
+            let timeStr = formatter.string(from: scheduled)
+            if Calendar.current.isDateInToday(scheduled) {
+                return "scheduled for today at \(timeStr)"
+            }
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            return "scheduled for \(dateFormatter.string(from: scheduled)) at \(timeStr)"
+        }
+
+        if let due = task.dueDate {
+            if Calendar.current.isDateInToday(due) { return "due today, added to your inbox" }
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            return "due \(dateFormatter.string(from: due)), added to your inbox"
+        }
+
+        return "added to your inbox"
     }
 
     // MARK: - Complete Task by Name

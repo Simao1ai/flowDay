@@ -70,13 +70,14 @@ final class SupabaseService: @unchecked Sendable {
     // MARK: - Data Sync (REST)
 
     /// Upsert a task row. Fire-and-forget from TaskService.
+    /// Works without a Supabase session by falling back to anon-key auth and
+    /// the local Keychain user identifier.
     func syncTask(_ task: FDTask) async {
-        guard let jwt = currentJWT else { return }
         SyncStatusService.begin()
         do {
-            let row = TaskRow.from(task, userId: currentUserId ?? "")
+            let row = TaskRow.from(task, userId: currentUserId ?? localUserId())
             let url = URL(string: "\(baseURL)/rest/v1/tasks")!
-            var request = makeAuthenticatedRequest(url: url, method: "POST", jwt: jwt)
+            var request = syncRequest(url: url, method: "POST")
             request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
             request.setValue("id", forHTTPHeaderField: "on_conflict")
             request.httpBody = try encoder.encode(row)
@@ -118,12 +119,12 @@ final class SupabaseService: @unchecked Sendable {
 
     /// Upsert a project row.
     func syncProject(_ project: FDProject) async {
-        guard let jwt = currentJWT, let userId = currentUserId else { return }
+        let userId = currentUserId ?? localUserId()
         SyncStatusService.begin()
         do {
             let row = ProjectRow.from(project, userId: userId)
             let url = URL(string: "\(baseURL)/rest/v1/projects")!
-            var request = makeAuthenticatedRequest(url: url, method: "POST", jwt: jwt)
+            var request = syncRequest(url: url, method: "POST")
             request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
             request.setValue("id", forHTTPHeaderField: "on_conflict")
             request.httpBody = try encoder.encode(row)
@@ -219,14 +220,41 @@ final class SupabaseService: @unchecked Sendable {
         loadSession()?.user?.id
     }
 
+    /// Builds a request that uses the user's JWT when available, otherwise
+    /// falls back to anon-key auth (both `apikey` and `Authorization`).
+    private func syncRequest(url: URL, method: String) -> URLRequest {
+        if let jwt = currentJWT {
+            return makeAuthenticatedRequest(url: url, method: method, jwt: jwt)
+        }
+        return makeRequest(url: url, method: method)
+    }
+
+    /// Local-only user identifier — mirrors ClaudeClient.stableUserIdentifier.
+    /// Used as `user_id` when the user signs in with Apple via Keychain and
+    /// has no Supabase user.
+    private func localUserId() -> String {
+        if let data = KeychainHelper.shared.read(for: "io.flowday.auth.user"),
+           let user = try? JSONDecoder().decode(FDUser.self, from: data) {
+            return user.id.uuidString
+        }
+        return ""
+    }
+
+    /// Builds a request with both `apikey` and `Authorization` set to the
+    /// anon key. The Supabase gateway rejects requests that omit either
+    /// header with 401 — even for tables that have no RLS — so anon-key
+    /// callers must send both.
     private func makeRequest(url: URL, method: String) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        request.setValue("application/json",      forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey,                 forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(anonKey)",     forHTTPHeaderField: "Authorization")
         return request
     }
 
+    /// Overrides the Authorization header with a user JWT when available,
+    /// while keeping the anon key in `apikey`.
     private func makeAuthenticatedRequest(url: URL, method: String, jwt: String) -> URLRequest {
         var request = makeRequest(url: url, method: method)
         request.setValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")

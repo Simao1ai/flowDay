@@ -117,7 +117,7 @@ struct SearchView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     filterChip(icon: "exclamationmark.triangle", label: "Overdue", color: .fdRed)
-                    filterChip(icon: "flag.fill", label: "Priority 1", color: .fdRed)
+                    filterChip(icon: "flag.fill", label: "Urgent", color: .fdRed)
                     filterChip(icon: "calendar.badge.minus", label: "No date", color: .fdTextMuted)
                     filterChip(icon: "sparkles", label: "AI Scheduled", color: .fdAccent)
                     filterChip(icon: "calendar.badge.clock", label: "Has start date", color: .fdGreen)

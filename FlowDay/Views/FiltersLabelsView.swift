@@ -104,13 +104,13 @@ struct FiltersLabelsView: View {
 
     private var filterItems: [FilterItem] {
         [
-            FilterItem(title: "Priority 1 — Urgent", icon: "flag.fill", color: .fdRed,
+            FilterItem(title: "Urgent", icon: "flag.fill", color: .fdRed,
                        count: allTasks.filter { $0.priority == .urgent && !$0.isCompleted }.count),
-            FilterItem(title: "Priority 2 — High", icon: "flag.fill", color: .fdYellow,
+            FilterItem(title: "High", icon: "flag.fill", color: Color(hex: "FB923C"),
                        count: allTasks.filter { $0.priority == .high && !$0.isCompleted }.count),
-            FilterItem(title: "Priority 3 — Medium", icon: "flag.fill", color: .fdBlue,
+            FilterItem(title: "Medium", icon: "flag.fill", color: .fdYellow,
                        count: allTasks.filter { $0.priority == .medium && !$0.isCompleted }.count),
-            FilterItem(title: "Priority 4 — None", icon: "flag", color: .gray.opacity(0.5),
+            FilterItem(title: "Low", icon: "flag", color: .fdTextMuted,
                        count: allTasks.filter { $0.priority == .none && !$0.isCompleted }.count),
             FilterItem(title: "Overdue", icon: "exclamationmark.circle.fill", color: .fdRed,
                        count: allTasks.filter { $0.isOverdue }.count),

@@ -82,20 +82,32 @@ final class ReferralService {
         return ReferralStats(invited: invited, joined: joined, active: joined)
     }
 
-    /// Loads the user's code, generating + storing one if missing, and pulls
-    /// the list of referrals they've sent.
+    /// Loads the user's code, generating + storing one if missing, and (if
+    /// signed in to Supabase) pulls the list of referrals they've sent.
+    ///
+    /// FlowDay's primary auth path is Apple Sign-In via Keychain, with no
+    /// Supabase user. We fall back to a local-only code in that case so the
+    /// share link is always available; sync to Supabase happens only when a
+    /// session exists.
     func bootstrap() async {
+        if code == nil {
+            let generated = ReferralService.generateCode()
+            code = generated
+            UserDefaults.standard.set(generated, forKey: codeKey)
+        }
+
         guard let session = SupabaseService.shared.loadSession(),
-              let userId = session.user?.id else { return }
+              let userId = session.user?.id else {
+            lastError = nil
+            return
+        }
+
         do {
             if let existing = try await fetchExistingCode(userId: userId, jwt: session.accessToken) {
                 code = existing
                 UserDefaults.standard.set(existing, forKey: codeKey)
-            } else {
-                let generated = ReferralService.generateCode()
-                try await saveCode(generated, userId: userId, jwt: session.accessToken)
-                code = generated
-                UserDefaults.standard.set(generated, forKey: codeKey)
+            } else if let local = code {
+                try await saveCode(local, userId: userId, jwt: session.accessToken)
             }
             referrals = try await fetchReferrals(userId: userId, jwt: session.accessToken)
             lastError = nil
@@ -105,6 +117,7 @@ final class ReferralService {
     }
 
     /// Records an outbound invite (used when the user shares to a contact).
+    /// No-op when not signed in to Supabase.
     func recordInvite(email: String?) async {
         guard let session = SupabaseService.shared.loadSession(),
               let userId = session.user?.id,
